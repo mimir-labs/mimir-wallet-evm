@@ -1,20 +1,36 @@
-import LoadingOrError from 'components/LoadingOrError'
-import type { ReactElement } from 'react'
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
 
-const Gallery = lazy(async () => import('pages/Gallery'))
-const Details = lazy(async () => import('pages/Details'))
+import { NextUIProvider } from '@nextui-org/react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 
-export default function App(): ReactElement {
+import BaseContainer from './container/BaseContainer';
+import PageCreateMultisig from './pages/create-multisig';
+import { AddressProvider, WalletProvider } from './providers';
+
+function App(): React.ReactElement {
+  const navigate = useNavigate();
+
   return (
-    <BrowserRouter>
-      <Suspense fallback={<LoadingOrError />}>
-        <Routes>
-          <Route element={<Gallery />} path='/' />
-          <Route element={<Details />} path=':fruitName' />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
-  )
+    <NextUIProvider navigate={navigate}>
+      <WalletProvider>
+        <AddressProvider>
+          <Routes>
+            <Route element={<BaseContainer withSideBar />}>
+              <Route index element={<>home</>} />
+              <Route path='/assets' element={<>assets</>} />
+              <Route path='/apps' element={<>apps</>} />
+              <Route path='/transactions' element={<>transactions</>} />
+              <Route path='/address-book' element={<>address book</>} />
+            </Route>
+            <Route element={<BaseContainer withSideBar={false} />}>
+              <Route path='/create-multisig' element={<PageCreateMultisig />} />
+            </Route>
+          </Routes>
+        </AddressProvider>
+      </WalletProvider>
+    </NextUIProvider>
+  );
 }
+
+export default App;

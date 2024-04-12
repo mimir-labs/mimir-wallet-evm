@@ -1,4 +1,7 @@
-import { defineConfig } from 'cypress'
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import { defineConfig } from 'cypress';
 
 export default defineConfig({
   fileServerFolder: 'dist',
@@ -8,4 +11,4 @@ export default defineConfig({
     baseUrl: 'http://localhost:4173/',
     specPattern: 'cypress/e2e/**/*.ts'
   }
-})
+});

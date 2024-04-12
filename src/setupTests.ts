@@ -1,16 +1,17 @@
-import '@testing-library/jest-dom'
-import mediaQuery from 'css-mediaquery'
-import server from 'mocks/server'
-import { DESKTOP_RESOLUTION_HEIGHT, DESKTOP_RESOLUTION_WIDTH } from 'testUtils'
-import 'whatwg-fetch'
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import '@testing-library/jest-dom';
+import 'whatwg-fetch';
+
+import mediaQuery from 'css-mediaquery';
+import { DESKTOP_RESOLUTION_HEIGHT, DESKTOP_RESOLUTION_WIDTH } from 'testUtils';
 
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' })
-
   Object.defineProperty(window, 'IS_REACT_ACT_ENVIRONMENT', {
     writable: true,
     value: true
-  })
+  });
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: (query: string) => {
@@ -18,60 +19,56 @@ beforeAll(() => {
         return mediaQuery.match(query, {
           width: window.innerWidth,
           height: window.innerHeight
-        })
+        });
       }
 
-      const listeners: (() => void)[] = []
+      const listeners: (() => void)[] = [];
       const instance = {
         matches: matchQuery(),
         addEventListener: (_: 'change', listener: () => void): void => {
-          listeners.push(listener)
+          listeners.push(listener);
         },
         removeEventListener: (_: 'change', listener: () => void): void => {
-          const index = listeners.indexOf(listener)
+          const index = listeners.indexOf(listener);
 
           if (index >= 0) {
             // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-            listeners.splice(index, 1)
+            listeners.splice(index, 1);
           }
         }
-      }
+      };
 
       window.addEventListener('resize', () => {
-        const change = matchQuery()
+        const change = matchQuery();
 
         if (change !== instance.matches) {
-          instance.matches = change
-          for (const listener of listeners) listener()
+          instance.matches = change;
+          for (const listener of listeners) listener();
         }
-      })
+      });
 
-      return instance
+      return instance;
     }
-  })
+  });
   Object.defineProperty(window, 'scrollTo', {
     writable: true,
     value: () => {}
-  })
+  });
   Object.defineProperty(window, 'resizeTo', {
     writable: true,
     value: (width: number, height: number) => {
       Object.assign(window, {
         innerWidth: width,
         innerHeight: height
-      }).dispatchEvent(new Event('resize'))
+      }).dispatchEvent(new Event('resize'));
     }
-  })
-})
+  });
+});
 
 beforeEach(() => {
-  window.resizeTo(DESKTOP_RESOLUTION_WIDTH, DESKTOP_RESOLUTION_HEIGHT)
-})
+  window.resizeTo(DESKTOP_RESOLUTION_WIDTH, DESKTOP_RESOLUTION_HEIGHT);
+});
 
-afterEach(() => {
-  server.resetHandlers()
-})
+afterEach(() => {});
 
-afterAll(() => {
-  server.close()
-})
+afterAll(() => {});
