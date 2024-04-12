@@ -1,32 +1,27 @@
-import App from 'App'
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { registerSW } from 'virtual:pwa-register'
-import './index.css'
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
 
-registerSW()
+import './index.css';
 
-const MAX_RETRIES = 1
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Number.POSITIVE_INFINITY,
-      retry: MAX_RETRIES
-    }
-  }
-})
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { registerSW } from 'virtual:pwa-register';
 
-const container = document.querySelector('#root')
+import App from './App';
+
+registerSW();
+
+const container = document.querySelector('#root');
 
 if (container) {
-  const root = createRoot(container)
+  const root = createRoot(container);
 
   root.render(
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
         <App />
-      </QueryClientProvider>
+      </BrowserRouter>
     </StrictMode>
-  )
+  );
 }

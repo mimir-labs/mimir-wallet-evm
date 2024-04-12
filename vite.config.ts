@@ -1,9 +1,13 @@
-/// <reference types="vitest" />
-import eslintPlugin from '@nabla/vite-plugin-eslint'
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-import { VitePWA } from 'vite-plugin-pwa'
-import tsconfigPaths from 'vite-tsconfig-paths'
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import eslintPlugin from '@nabla/vite-plugin-eslint';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { VitePWA } from 'vite-plugin-pwa';
+import svgr from 'vite-plugin-svgr';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig(({ mode }) => ({
   test: {
@@ -28,19 +32,14 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     tsconfigPaths(),
     react(),
+    svgr(),
     ...(mode === 'test'
       ? []
       : [
           eslintPlugin(),
           VitePWA({
             registerType: 'autoUpdate',
-            includeAssets: [
-              'favicon.png',
-              'robots.txt',
-              'apple-touch-icon.png',
-              'icons/*.svg',
-              'fonts/*.woff2'
-            ],
+            includeAssets: ['favicon.png', 'robots.txt', 'apple-touch-icon.png', 'icons/*.svg', 'fonts/*.woff2'],
             manifest: {
               theme_color: '#BD34FE',
               icons: [
@@ -58,6 +57,10 @@ export default defineConfig(({ mode }) => ({
               ]
             }
           })
-        ])
+        ]),
+    nodePolyfills({
+      // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
+      include: ['crypto']
+    })
   ]
-}))
+}));
