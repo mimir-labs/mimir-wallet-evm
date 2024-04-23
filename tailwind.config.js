@@ -14,7 +14,8 @@ const config = {
         sans: ['"Sofia Sans Semi Condensed"', ...defaultConfig.theme.fontFamily.sans]
       },
       backgroundImage: {
-        'main-background': 'linear-gradient(245deg, #F4F2FF 0%, #FBFDFF 100%)'
+        'main-background': 'linear-gradient(245deg, #F4F2FF 0%, #FBFDFF 100%)',
+        'colored-background': 'linear-gradient(319deg, #DB00FF 0%, #0094FF 100%)'
       },
       height: {
         'sidebar-height': 'calc(100vh - 1px - var(--nextui-spacing-unit)*16)'
@@ -34,7 +35,7 @@ const config = {
       boxShadow: {
         small: '0px 0px 6px 0px rgba(21, 31, 52, 0.04)',
         medium: '0px 0px 10px 0px rgba(21, 31, 52, 0.06)',
-        medium: '0px 0px 14px 0px rgba(21, 31, 52, 0.08)'
+        large: '0px 0px 14px 0px rgba(21, 31, 52, 0.08)'
       }
     },
     themes: {

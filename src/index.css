@@ -1,3 +1,7 @@
+@import url('@rainbow-me/rainbowkit/styles.css');
+@import url('reactflow/dist/style.css');
+@import url('react-toastify/dist/ReactToastify.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,6 +16,49 @@
     box-sizing: border-box;
     border-width: 0;
     border-style: solid;
-    border-color: #F4F0FF;
+    border-color: transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+    background: #fff;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d9d9d9;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: #d9d9d9;
+  }
+
+  /* toast */
+  :root {
+    --toastify-color-light: #fff;
+    --toastify-color-dark: #121212;
+    --toastify-color-info: #5F45FF;
+    --toastify-color-success: #00DBA6;
+    --toastify-color-warning: #FF8D07;
+    --toastify-color-error: #E82F5E;
+    --toastify-toast-background: #fff;
+    --toastify-font-family: inherit;
+    --toastify-z-index: 9999;
+    --toastify-text-color-light: #151F34;
+    --toastify-text-color-dark: #fff;
+    --toastify-text-color-info: #fff;
+    --toastify-text-color-success: #fff;
+    --toastify-text-color-warning: #fff;
+    --toastify-text-color-error: #fff;
   }
 }

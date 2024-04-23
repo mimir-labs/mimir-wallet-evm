@@ -1,7 +1,8 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { ButtonProps } from '@nextui-org/react';
+import type { ButtonProps } from './types';
+
 import React from 'react';
 
 import Button from './Button';
@@ -13,7 +14,13 @@ function ButtonLinearBorder({ className, radius, fullWidth, children, ...props }
         fullWidth ? 'w-full' : ''
       }`}
     >
-      <Button {...props} fullWidth={fullWidth} variant='solid' radius={radius} className={(className || '').concat(' bg-white h-full data-[pressed=true]:transform-none')}>
+      <Button
+        {...props}
+        fullWidth={fullWidth}
+        variant='solid'
+        radius={radius}
+        className={(className || '').concat(' bg-white h-full data-[pressed=true]:transform-none')}
+      >
         <span className='bg-clip-text text-transparent bg-gradient-to-r from-[#0194FF] to-[#D306FF]'>{children}</span>
       </Button>
     </div>

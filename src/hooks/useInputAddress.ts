@@ -4,7 +4,12 @@
 import { useCallback, useState } from 'react';
 import { type Address, isAddress } from 'viem';
 
-export function useInputAddress(defaultAddress?: Address): [[address: string, isValidAddress: boolean], setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void] {
+export function useInputAddress(
+  defaultAddress?: Address
+): [
+  [address: string, isValidAddress: boolean],
+  setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void
+] {
   const [value, setValue] = useState<[string, boolean]>([defaultAddress || '', false]);
 
   const onChange = useCallback((_value: string | React.ChangeEvent<HTMLInputElement>) => {

@@ -6,7 +6,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'owner',
         type: 'address'
@@ -38,7 +38,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'handler',
         type: 'address'
@@ -51,7 +51,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'guard',
         type: 'address'
@@ -77,7 +77,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'module',
         type: 'address'
@@ -90,7 +90,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'module',
         type: 'address'
@@ -103,7 +103,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'bytes32',
         name: 'txHash',
         type: 'bytes32'
@@ -148,7 +148,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'bytes32',
         name: 'txHash',
         type: 'bytes32'
@@ -167,7 +167,7 @@ export default [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
+        indexed: false,
         internalType: 'address',
         name: 'owner',
         type: 'address'
@@ -443,14 +443,14 @@ export default [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'executor',
-        type: 'address'
-      },
-      {
         internalType: 'bytes32',
         name: 'dataHash',
         type: 'bytes32'
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes'
       },
       {
         internalType: 'bytes',
@@ -477,26 +477,8 @@ export default [
       },
       {
         internalType: 'bytes',
-        name: '',
+        name: 'data',
         type: 'bytes'
-      },
-      {
-        internalType: 'bytes',
-        name: 'signatures',
-        type: 'bytes'
-      }
-    ],
-    name: 'checkSignatures',
-    outputs: [],
-    stateMutability: 'view',
-    type: 'function'
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes32',
-        name: 'dataHash',
-        type: 'bytes32'
       },
       {
         internalType: 'bytes',
@@ -551,6 +533,70 @@ export default [
     name: 'enableModule',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address'
+      },
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256'
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes'
+      },
+      {
+        internalType: 'enum Enum.Operation',
+        name: 'operation',
+        type: 'uint8'
+      },
+      {
+        internalType: 'uint256',
+        name: 'safeTxGas',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'baseGas',
+        type: 'uint256'
+      },
+      {
+        internalType: 'uint256',
+        name: 'gasPrice',
+        type: 'uint256'
+      },
+      {
+        internalType: 'address',
+        name: 'gasToken',
+        type: 'address'
+      },
+      {
+        internalType: 'address',
+        name: 'refundReceiver',
+        type: 'address'
+      },
+      {
+        internalType: 'uint256',
+        name: '_nonce',
+        type: 'uint256'
+      }
+    ],
+    name: 'encodeTransactionData',
+    outputs: [
+      {
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes'
+      }
+    ],
+    stateMutability: 'view',
     type: 'function'
   },
   {
@@ -688,6 +734,19 @@ export default [
       }
     ],
     stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [],
+    name: 'getChainId',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'view',
     type: 'function'
   },
   {
@@ -904,6 +963,40 @@ export default [
     ],
     name: 'removeOwner',
     outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'to',
+        type: 'address'
+      },
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256'
+      },
+      {
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes'
+      },
+      {
+        internalType: 'enum Enum.Operation',
+        name: 'operation',
+        type: 'uint8'
+      }
+    ],
+    name: 'requiredTxGas',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256'
+      }
+    ],
     stateMutability: 'nonpayable',
     type: 'function'
   },

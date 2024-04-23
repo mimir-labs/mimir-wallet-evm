@@ -3,52 +3,26 @@
 
 export default [
   {
-    inputs: [
+    inputs: [],
+    name: 'NAME',
+    outputs: [
       {
-        internalType: 'bytes32',
-        name: 'dataHash',
-        type: 'bytes32'
-      },
-      {
-        internalType: 'bytes',
+        internalType: 'string',
         name: '',
-        type: 'bytes'
-      },
-      {
-        internalType: 'bytes',
-        name: 'signatures',
-        type: 'bytes'
-      },
-      {
-        internalType: 'uint256',
-        name: 'requiredSignatures',
-        type: 'uint256'
+        type: 'string'
       }
     ],
-    name: 'checkNSignatures',
-    outputs: [],
     stateMutability: 'view',
     type: 'function'
   },
   {
-    inputs: [
-      {
-        internalType: 'contract ISafe',
-        name: 'safe',
-        type: 'address'
-      },
-      {
-        internalType: 'bytes',
-        name: 'message',
-        type: 'bytes'
-      }
-    ],
-    name: 'encodeMessageDataForSafe',
+    inputs: [],
+    name: 'VERSION',
     outputs: [
       {
-        internalType: 'bytes',
+        internalType: 'string',
         name: '',
-        type: 'bytes'
+        type: 'string'
       }
     ],
     stateMutability: 'view',
@@ -76,7 +50,7 @@ export default [
   {
     inputs: [
       {
-        internalType: 'contract ISafe',
+        internalType: 'contract GnosisSafe',
         name: 'safe',
         type: 'address'
       },
@@ -116,6 +90,30 @@ export default [
         internalType: 'bytes32',
         name: '_dataHash',
         type: 'bytes32'
+      },
+      {
+        internalType: 'bytes',
+        name: '_signature',
+        type: 'bytes'
+      }
+    ],
+    name: 'isValidSignature',
+    outputs: [
+      {
+        internalType: 'bytes4',
+        name: '',
+        type: 'bytes4'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes',
+        name: '_data',
+        type: 'bytes'
       },
       {
         internalType: 'bytes',

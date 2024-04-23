@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, Hash } from 'viem';
-
-export type AccountType = 'unknown' | 'eoa' | 'safe';
+import type { AccountType } from '@mimir-wallet/safe/types';
 
 export interface AccountResponse {
   name: string;
@@ -12,7 +11,7 @@ export interface AccountResponse {
   createdAt: number;
   updatedAt: number;
   type?: AccountType;
-  members?: AccountResponse[];
+  members?: Address[];
   threshold?: number;
   singleton?: Address;
   factory?: Address;

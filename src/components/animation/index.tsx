@@ -5,3 +5,4 @@ export { default as FailedAnimation } from './Failed';
 export { default as NoticeAnimation } from './Notice';
 export { default as SuccessAnimation } from './Success';
 export { default as WaitingAnimation } from './Waiting';
+export { default as MimirLoading } from './MimirLoading';

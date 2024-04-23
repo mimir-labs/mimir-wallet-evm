@@ -1,10 +1,9 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'viem';
+import React from 'react';
 
-import React, { useMemo } from 'react';
-import { useEnsName } from 'wagmi';
+import { useAddressName } from '@mimir-wallet/hooks';
 
 interface Props {
   address?: string | null | undefined;
@@ -13,11 +12,9 @@ interface Props {
 }
 
 function AddressName({ fallback, disableEns, address }: Props) {
-  const { data: ensName } = useEnsName({ address: disableEns ? undefined : (address as Address) || undefined });
+  const name = useAddressName(address, disableEns, fallback);
 
-  const addressDisplay = useMemo(() => (address ? address.slice(2, 8).toUpperCase() : 'None'), [address]);
-
-  return ensName || fallback || addressDisplay;
+  return name;
 }
 
 export default React.memo(AddressName);

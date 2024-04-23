@@ -5,7 +5,11 @@ import type { Chain } from 'viem';
 
 type ExplorerType = 'address' | 'tx' | 'block' | 'token';
 
-export function explorerUrl(type: ExplorerType, chain: Chain, value: string | number | { toString: () => string }): string | undefined {
+export function explorerUrl(
+  type: ExplorerType,
+  chain: Chain,
+  value: string | number | { toString: () => string }
+): string | undefined {
   if (!chain.blockExplorers?.default.url) {
     return undefined;
   }
