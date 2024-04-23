@@ -16,6 +16,7 @@ export class NetworkError extends Error {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function fetcher(resource: URL | string | Promise<URL | string>, init?: RequestInit): Promise<any> {
   let url: string | URL;
 

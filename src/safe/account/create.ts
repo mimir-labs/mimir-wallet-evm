@@ -29,7 +29,16 @@ export type CreateSafeRequest = {
   account: Address;
 };
 
-export function createSetupCall({ owners, threshold, to, data, fallbackHandler, paymentToken, payment, paymentReceiver }: Setup): Hex {
+export function createSetupCall({
+  owners,
+  threshold,
+  to,
+  data,
+  fallbackHandler,
+  paymentToken,
+  payment,
+  paymentReceiver
+}: Setup): Hex {
   if (payment && payment > 0n) {
     if (!paymentToken || paymentToken === zeroAddress) {
       throw new Error('Must provide paymentToken');
@@ -43,7 +52,16 @@ export function createSetupCall({ owners, threshold, to, data, fallbackHandler, 
   return encodeFunctionData({
     abi: abis.SafeL2,
     functionName: 'setup',
-    args: [owners, threshold, to || zeroAddress, data || '0x', fallbackHandler || zeroAddress, paymentToken || zeroAddress, payment || 0n, paymentReceiver || zeroAddress]
+    args: [
+      owners,
+      threshold,
+      to || zeroAddress,
+      data || '0x',
+      fallbackHandler || zeroAddress,
+      paymentToken || zeroAddress,
+      payment || 0n,
+      paymentReceiver || zeroAddress
+    ]
   });
 }
 

@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { EnableClickHandler } from '@mimir-wallet/components/types';
+import type { AccountResponse } from '@mimir-wallet/utils/types';
 import type { CreateMultisigState } from './useCreateMultisig';
 
-import { Divider, Modal, ModalBody, ModalContent, ModalFooter, Progress } from '@nextui-org/react';
+import { Divider, Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/react';
 import React from 'react';
 
 import LogoCircle from '@mimir-wallet/assets/images/logo-circle.png';
@@ -14,11 +15,11 @@ interface Props {
   state: CreateMultisigState;
   isOpen: boolean;
   onRetry: EnableClickHandler;
-  onDone: () => void;
+  onDone: (account: AccountResponse) => void;
 }
 
 function CreateMultisigModal({ isOpen, onDone, state, onRetry }: Props) {
-  const { steps, title, error, isLoading } = state;
+  const { steps, title, error, result, isLoading } = state;
 
   return (
     <Modal placement='auto' size='md' isOpen={isOpen} hideCloseButton>
@@ -33,15 +34,13 @@ function CreateMultisigModal({ isOpen, onDone, state, onRetry }: Props) {
         </ModalBody>
         <Divider />
         <ModalFooter className='justify-center'>
-          {isLoading ? (
-            <Progress size='md' isStriped isIndeterminate color='primary' />
-          ) : state.currentStep === state.steps.length - 1 ? (
-            <Button onClick={onDone} color='primary' radius='full'>
+          {result ? (
+            <Button onClick={() => onDone(result)} color='primary' radius='full'>
               Start Using
             </Button>
           ) : (
-            <ButtonEnable onClick={onRetry} isLoading={isLoading} color='primary' radius='full'>
-              Retry
+            <ButtonEnable onClick={onRetry} disabled={isLoading} color='primary' radius='full'>
+              {isLoading ? 'Progress...' : 'Retry'}
             </ButtonEnable>
           )}
         </ModalFooter>

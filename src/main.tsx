@@ -3,13 +3,22 @@
 
 import './index.css';
 
+import dayjs from 'dayjs';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { registerSW } from 'virtual:pwa-register';
 
+import Providers from './providers/providers';
 import App from './App';
 
+dayjs.extend((_, dayjsClass) => {
+  const oldFormat = dayjsClass.prototype.format;
+
+  dayjsClass.prototype.format = function format(formatString) {
+    return oldFormat.bind(this)(formatString ?? 'YYYY-MM-DD HH:mm:ss');
+  };
+});
 registerSW();
 
 const container = document.querySelector('#root');
@@ -20,7 +29,9 @@ if (container) {
   root.render(
     <StrictMode>
       <BrowserRouter>
-        <App />
+        <Providers>
+          <App />
+        </Providers>
       </BrowserRouter>
     </StrictMode>
   );

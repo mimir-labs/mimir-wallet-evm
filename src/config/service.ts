@@ -4,7 +4,7 @@
 import { sepolia } from 'viem/chains';
 
 export const services: Record<number, string> = {
-  [sepolia.id]: 'http://localhost:9000/'
+  [sepolia.id]: process.env.NODE_ENV === 'production' ? 'https://dev-evm-api.mimir.global/' : 'http://localhost:9000/'
 };
 
 export function serviceUrl(chainId: number, path: string): string {

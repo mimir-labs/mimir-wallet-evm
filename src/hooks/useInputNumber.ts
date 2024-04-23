@@ -8,7 +8,11 @@ import { isValidInteger, isValidNumber } from '@mimir-wallet/utils';
 export function useInputNumber(
   defaultValue?: string,
   integer: boolean = false
-): [[address: string, isValidAddress: boolean], setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void, setValid: (valid: boolean) => void] {
+): [
+  [address: string, isValidAddress: boolean],
+  setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void,
+  setValid: (valid: boolean) => void
+] {
   const [value, setValue] = useState<[string, boolean]>([defaultValue?.toString() || '', true]);
 
   const onChange = useCallback(
@@ -20,8 +24,6 @@ export function useInputNumber(
       } else {
         v = _value.target.value;
       }
-
-      v = v ? Number(v).toString() : v;
 
       if (integer && v.includes('.')) {
         v = parseInt(v, 10).toString();

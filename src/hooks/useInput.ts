@@ -3,7 +3,9 @@
 
 import { useCallback, useState } from 'react';
 
-export function useInput(defaultValue?: string): [value: string, setValue: (value: string | React.ChangeEvent<HTMLInputElement>) => void] {
+export function useInput(
+  defaultValue?: string
+): [value: string, setValue: (value: string | React.ChangeEvent<HTMLInputElement>) => void] {
   const [value, setValue] = useState<string>(defaultValue || '');
 
   const onChange = useCallback((_value: string | React.ChangeEvent<HTMLInputElement>) => {

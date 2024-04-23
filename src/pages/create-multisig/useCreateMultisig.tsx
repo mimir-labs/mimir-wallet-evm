@@ -1,7 +1,9 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Account, Address, Chain, PublicClient, Transport, WalletClient } from 'viem';
+import type { Address } from 'viem';
+import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
+import type { AccountResponse } from '@mimir-wallet/utils/types';
 
 import { Link, Spinner } from '@nextui-org/react';
 import React, { useRef } from 'react';
@@ -19,10 +21,11 @@ export interface CreateMultisigState {
   currentStep: number;
   steps: [key: string, element: React.ReactNode][];
   title: string;
+  result?: AccountResponse;
   error?: Error | null;
 }
 
-async function simulate(client: PublicClient, args: CreateSafeRequest) {
+async function simulate(client: IPublicClient, args: CreateSafeRequest) {
   const { result } = await client.simulateContract(args);
 
   return result;
@@ -33,9 +36,15 @@ const initialState: CreateMultisigState = {
   currentStep: 0,
   steps: [
     ['get-address', null],
-    ['send-tx', <Cell key='step-1-pending' icon={<WaitingAnimation loop={false} size={40} />} title='Send Transaction' />],
+    [
+      'send-tx',
+      <Cell key='step-1-pending' icon={<WaitingAnimation loop={false} size={40} />} title='Send Transaction' />
+    ],
     ['indexing', <Cell key='step-1-pending' icon={<WaitingAnimation loop={false} size={40} />} title='Indexing' />],
-    ['complete', <Cell key='step-1-pending' icon={<WaitingAnimation loop={false} size={40} />} title='Mimir account is ready' />]
+    [
+      'complete',
+      <Cell key='step-1-pending' icon={<WaitingAnimation loop={false} size={40} />} title='Mimir account is ready' />
+    ]
   ],
   title: 'Getting your multisig address...',
   error: null
@@ -46,13 +55,13 @@ export function useCreateMultisig(
   threshold: bigint,
   name: string,
   salt?: bigint
-): [state: CreateMultisigState, start: (client: PublicClient, wallet: WalletClient<Transport, Chain, Account>) => Promise<void>] {
+): [state: CreateMultisigState, start: (client: IPublicClient, wallet: IWalletClient) => Promise<void>] {
   const [state, setState] = useSetState<CreateMultisigState>(initialState);
   const requestRef = useRef<CreateSafeRequest | null>(null);
   const addressRef = useRef<Address | null>(null);
 
   const starter = [
-    async (client: PublicClient, wallet: WalletClient<Transport, Chain, Account>) => {
+    async (client: IPublicClient, wallet: IWalletClient) => {
       const fallbackHandler = deployments[wallet.chain.id].CompatibilityFallbackHandler;
 
       const request = createSafeRequest(
@@ -72,7 +81,17 @@ export function useCreateMultisig(
         ...state,
         currentStep: 0,
         steps: state.steps.map((step, index) =>
-          index === 0 ? [step[0], <Cell key='step-0-pending' icon={<Spinner color='primary' className='w-10 h-10' />} title='Pending' description='Getting your multisig address' />] : step
+          index === 0
+            ? [
+                step[0],
+                <Cell
+                  key='step-0-pending'
+                  icon={<Spinner color='primary' className='w-10 h-10' />}
+                  title='Pending'
+                  description='Getting your multisig address'
+                />
+              ]
+            : step
         )
       }));
 
@@ -99,7 +118,17 @@ export function useCreateMultisig(
           setState((state) => ({
             ...state,
             steps: state.steps.map((step, index) =>
-              index === 0 ? [step[0], <Cell key='step-0-failed' icon={<FailedAnimation size={40} />} title='Failed' description={<TxError error={error} />} />] : step
+              index === 0
+                ? [
+                    step[0],
+                    <Cell
+                      key='step-0-failed'
+                      icon={<FailedAnimation size={40} />}
+                      title='Failed'
+                      description={<TxError error={error} />}
+                    />
+                  ]
+                : step
             )
           }));
 
@@ -107,7 +136,7 @@ export function useCreateMultisig(
         });
     },
 
-    async (client: PublicClient, wallet: WalletClient<Transport, Chain, Account>) => {
+    async (client: IPublicClient, wallet: IWalletClient) => {
       if (!requestRef.current) {
         throw new Error('Please retry');
       }
@@ -118,7 +147,17 @@ export function useCreateMultisig(
         ...state,
         currentStep: 1,
         steps: state.steps.map((step, index) =>
-          index === 1 ? [step[0], <Cell key='step-1-sign' icon={<Spinner color='primary' className='w-10 h-10' />} title='Sign' description='Sign transaction in your wallet.' />] : step
+          index === 1
+            ? [
+                step[0],
+                <Cell
+                  key='step-1-sign'
+                  icon={<Spinner color='primary' className='w-10 h-10' />}
+                  title='Sign'
+                  description='Sign transaction in your wallet.'
+                />
+              ]
+            : step
         )
       }));
 
@@ -130,7 +169,17 @@ export function useCreateMultisig(
           setState((state) => ({
             ...state,
             steps: state.steps.map((step, index) =>
-              index === 1 ? [step[0], <Cell key='step-1-pending' icon={<Spinner color='primary' className='w-10 h-10' />} title='Pending' description='Waiting for confirmation.' />] : step
+              index === 1
+                ? [
+                    step[0],
+                    <Cell
+                      key='step-1-pending'
+                      icon={<Spinner color='primary' className='w-10 h-10' />}
+                      title='Pending'
+                      description='Waiting for confirmation.'
+                    />
+                  ]
+                : step
             )
           }));
 
@@ -148,10 +197,12 @@ export function useCreateMultisig(
                       icon={<SuccessAnimation size={40} />}
                       title='Transaction Success'
                       description={
-                        <Link className='text-tiny' isExternal showAnchorIcon href={explorerUrl('tx', wallet.chain, receipt.transactionHash)}>{`${receipt.transactionHash.slice(
-                          0,
-                          10
-                        )}...${receipt.transactionHash.slice(-8)}`}</Link>
+                        <Link
+                          className='text-tiny'
+                          isExternal
+                          showAnchorIcon
+                          href={explorerUrl('tx', wallet.chain, receipt.transactionHash)}
+                        >{`${receipt.transactionHash.slice(0, 10)}...${receipt.transactionHash.slice(-8)}`}</Link>
                       }
                     />
                   ]
@@ -163,7 +214,17 @@ export function useCreateMultisig(
           setState((state) => ({
             ...state,
             steps: state.steps.map((step, index) =>
-              index === 1 ? [step[0], <Cell key='step-1-failed' icon={<FailedAnimation size={40} />} title='Failed' description={<TxError error={error} />} />] : step
+              index === 1
+                ? [
+                    step[0],
+                    <Cell
+                      key='step-1-failed'
+                      icon={<FailedAnimation size={40} />}
+                      title='Failed'
+                      description={<TxError error={error} />}
+                    />
+                  ]
+                : step
             )
           }));
 
@@ -171,7 +232,7 @@ export function useCreateMultisig(
         });
     },
 
-    async (_: PublicClient, wallet: WalletClient<Transport, Chain, Account>) => {
+    async (_: IPublicClient, wallet: IWalletClient) => {
       if (!addressRef.current) {
         throw new Error('Please retry');
       }
@@ -182,13 +243,25 @@ export function useCreateMultisig(
         ...state,
         currentStep: 2,
         steps: state.steps.map((step, index) =>
-          index === 2 ? [step[0], <Cell key='step-2-indexing' icon={<Spinner color='primary' className='w-10 h-10' />} title='Indexing' description='Wait for indexing' />] : step
+          index === 2
+            ? [
+                step[0],
+                <Cell
+                  key='step-2-indexing'
+                  icon={<Spinner color='primary' className='w-10 h-10' />}
+                  title='Indexing'
+                  description='Wait for indexing'
+                />
+              ]
+            : step
         )
       }));
 
+      let account: AccountResponse;
+
       while (true) {
         try {
-          await service.getAccount(wallet.chain.id, address);
+          account = await service.getAccount(wallet.chain.id, address);
           break;
         } catch {
           /* empty */
@@ -200,7 +273,12 @@ export function useCreateMultisig(
       setState((state) => ({
         ...state,
         currentStep: 2,
-        steps: state.steps.map((step, index) => (index === 2 ? [step[0], <Cell key='step-2-success' icon={<SuccessAnimation size={40} />} title='Indexed' />] : step))
+        steps: state.steps.map((step, index) =>
+          index === 2
+            ? [step[0], <Cell key='step-2-success' icon={<SuccessAnimation size={40} />} title='Indexed' />]
+            : step
+        ),
+        result: account
       }));
       await sleep(500);
     },
@@ -209,12 +287,19 @@ export function useCreateMultisig(
       setState((state) => ({
         ...state,
         currentStep: 3,
-        steps: state.steps.map((step, index) => (index === 3 ? [step[0], <Cell key='step-3-success' icon={<SuccessAnimation size={40} />} title='MIMIR Account is ready' />] : step))
+        steps: state.steps.map((step, index) =>
+          index === 3
+            ? [
+                step[0],
+                <Cell key='step-3-success' icon={<SuccessAnimation size={40} />} title='MIMIR Account is ready' />
+              ]
+            : step
+        )
       }));
     }
   ];
 
-  const start = async (client: PublicClient, wallet: WalletClient<Transport, Chain, Account>) => {
+  const start = async (client: IPublicClient, wallet: IWalletClient) => {
     try {
       setState((state) => ({ ...state, isLoading: true }));
 

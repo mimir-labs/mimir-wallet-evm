@@ -1,6 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Address } from 'abitype';
 import type { EnableClickHandler } from '@mimir-wallet/components/types';
 
 import { Card, CardBody, Divider, Tooltip } from '@nextui-org/react';
@@ -8,10 +9,18 @@ import { randomBytes } from 'crypto';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
-import { type Address, bytesToBigInt } from 'viem';
+import { bytesToBigInt } from 'viem';
 
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
-import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinear, ButtonLinearBorder, Input } from '@mimir-wallet/components';
+import {
+  AddressTransfer,
+  Alert,
+  Button,
+  ButtonEnable,
+  ButtonLinear,
+  ButtonLinearBorder,
+  Input
+} from '@mimir-wallet/components';
 import { useInput, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
@@ -19,7 +28,7 @@ import CreateMultisigModal from './CreateMultisigModal';
 import { useCreateMultisig } from './useCreateMultisig';
 
 function CreateMultisig(): React.ReactElement {
-  const { all } = useContext(AddressContext);
+  const { all, addMultisig } = useContext(AddressContext);
   const [name, setName] = useInput();
   const [selected, setSelected] = useState<Address[]>([]);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
@@ -43,12 +52,20 @@ function CreateMultisig(): React.ReactElement {
 
   return (
     <>
-      <Card className='max-w-md mx-auto p-5 shadow-medium'>
+      <Card className='max-w-md mx-auto p-5'>
         <CardBody className='space-y-4'>
           <h3 className='text-xl font-bold'>Create Multisig</h3>
           <Divider />
           <div>
-            <Input value={name} onChange={setName} label='Name' type='text' placeholder='Enter multisig name' variant='bordered' labelPlacement='outside' />
+            <Input
+              value={name}
+              onChange={setName}
+              label='Name'
+              type='text'
+              placeholder='Enter multisig name'
+              variant='bordered'
+              labelPlacement='outside'
+            />
           </div>
           <div className='flex items-end gap-2'>
             <Input
@@ -93,6 +110,7 @@ function CreateMultisig(): React.ReactElement {
               }
               type='number'
               step={1}
+              min={1}
               placeholder='Threshold'
               variant='bordered'
               labelPlacement='outside'
@@ -104,7 +122,10 @@ function CreateMultisig(): React.ReactElement {
             content={
               <ul className='list-disc pl-3'>
                 <li>Fee is necessary for creation.</li>
-                <li>Use a threshold higher than one to prevent losing access to your Multisig Account in case an owner key is lost or compromised.</li>
+                <li>
+                  Use a threshold higher than one to prevent losing access to your Multisig Account in case an owner key
+                  is lost or compromised.
+                </li>
               </ul>
             }
           />
@@ -124,9 +145,10 @@ function CreateMultisig(): React.ReactElement {
         }}
         state={state}
         isOpen={isOpen}
-        onDone={() => {
+        onDone={(account) => {
           toggleOpen(false);
           navigate('/');
+          addMultisig(account);
         }}
       />
     </>

@@ -24,8 +24,8 @@ function AddressIcon({ ensImage, size = 24, address }: Props): React.ReactElemen
       return () => {
         try {
           current?.removeChild(icon);
-        } catch (e) {
-          console.error('Avatar icon not found');
+        } catch {
+          /* empty */
         }
       };
     }
@@ -36,7 +36,11 @@ function AddressIcon({ ensImage, size = 24, address }: Props): React.ReactElemen
   return ensImage ? (
     <Avatar src={ensImage} style={{ width: size, height: size }} />
   ) : icon ? (
-    <div ref={iconRef} style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }} className='inline-block [&>div]:rounded-full' />
+    <div
+      ref={iconRef}
+      style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }}
+      className='inline-block [&>div]:rounded-full'
+    />
   ) : (
     <Avatar style={{ width: size, height: size }} />
   );
