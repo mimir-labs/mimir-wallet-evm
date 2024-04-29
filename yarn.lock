@@ -2862,6 +2862,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nextui-org/framer-utils@npm:^2.0.18":
+  version: 2.0.18
+  resolution: "@nextui-org/framer-utils@npm:2.0.18"
+  dependencies:
+    "@nextui-org/shared-utils": "npm:2.0.5"
+    "@nextui-org/system": "npm:2.1.2"
+    "@nextui-org/use-measure": "npm:2.0.1"
+  peerDependencies:
+    framer-motion: ">=4.0.0"
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 10c0/1ac4994c98bc13ea0b66091b60510b27abaa27e0c5b3d9e551b62c9ab393755ea9013496d9f7c698b599d9b8e570eb107bad190996381340f37f3829c9e9bce1
+  languageName: node
+  linkType: hard
+
 "@nextui-org/image@npm:2.0.26":
   version: 2.0.26
   resolution: "@nextui-org/image@npm:2.0.26"
@@ -3159,6 +3174,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nextui-org/react-utils@npm:2.0.13":
+  version: 2.0.13
+  resolution: "@nextui-org/react-utils@npm:2.0.13"
+  dependencies:
+    "@nextui-org/react-rsc-utils": "npm:2.0.12"
+    "@nextui-org/shared-utils": "npm:2.0.5"
+  peerDependencies:
+    react: ">=18"
+  checksum: 10c0/ccee3493100e75be15ed8a096c3ad36cfce7e66c5f135cd64b028d68b8309d702def124306c9069d135eab02fafd7dd306994551f1e3b49d1cf7e9db029c44a4
+  languageName: node
+  linkType: hard
+
 "@nextui-org/react@npm:^2.3.4":
   version: 2.3.4
   resolution: "@nextui-org/react@npm:2.3.4"
@@ -3434,6 +3461,24 @@ __metadata:
     react: ">=18"
     react-dom: ">=18"
   checksum: 10c0/e476f9c6276c27e45832bbbf5ac03d244b7b0d004514e7adf1bcc6140487a770207e6da08503d0a933206c384a7027900c10278c2100356c92a8ec66ff779c24
+  languageName: node
+  linkType: hard
+
+"@nextui-org/system@npm:2.1.2":
+  version: 2.1.2
+  resolution: "@nextui-org/system@npm:2.1.2"
+  dependencies:
+    "@internationalized/date": "npm:^3.5.2"
+    "@nextui-org/react-utils": "npm:2.0.13"
+    "@nextui-org/system-rsc": "npm:2.1.1"
+    "@react-aria/i18n": "npm:^3.10.2"
+    "@react-aria/overlays": "npm:^3.21.1"
+    "@react-aria/utils": "npm:^3.23.2"
+    "@react-stately/utils": "npm:^3.9.1"
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 10c0/8eca4fdf8a5fe11c83301ad5ed4c01d5bb265d59a9ea6cd4d8e95b80a44f7052c03297dc1cfeb381886ca939ac9f8eb3eff3a4804f68ff65f93fd73f00e8e7b7
   languageName: node
   linkType: hard
 
@@ -13545,6 +13590,7 @@ __metadata:
   dependencies:
     "@metamask/jazzicon": "npm:^2.0.0"
     "@nabla/vite-plugin-eslint": "npm:^2.0.2"
+    "@nextui-org/framer-utils": "npm:^2.0.18"
     "@nextui-org/react": "npm:^2.3.4"
     "@rainbow-me/rainbowkit": "npm:^2.0.5"
     "@tailwindcss/forms": "npm:^0.5.7"

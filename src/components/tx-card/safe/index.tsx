@@ -7,10 +7,10 @@ import { Card, CardBody, CardHeader, Divider } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import React from 'react';
 
+import { Alert } from '@mimir-wallet/components';
 import { type SignatureResponse, type TransactionResponse } from '@mimir-wallet/hooks/types';
 
-import Alert from '../Alert';
-import TxCell from './tx-cell';
+import Cell from './Cell';
 
 interface Props {
   account?: BaseAccount | null;
@@ -25,7 +25,7 @@ interface Props {
   ) => void;
 }
 
-function TxCard({ account, defaultOpen, handleApprove, data, nonce }: Props) {
+function SafeTxCard({ account, defaultOpen, handleApprove, data, nonce }: Props) {
   const time = data.at(0)?.transaction.createdAt;
 
   return (
@@ -51,18 +51,13 @@ function TxCard({ account, defaultOpen, handleApprove, data, nonce }: Props) {
       {account ? (
         <CardBody className='space-y-3'>
           {data.map((item) => (
-            <TxCell
-              defaultOpen={defaultOpen}
-              handleApprove={
-                handleApprove
-                  ? (wallet, client) => handleApprove(wallet, client, item.transaction, item.signatures)
-                  : undefined
-              }
-              signatures={item.signatures}
-              threshold={item.transaction.executeThreshold || account.threshold || 1}
+            <Cell
               account={account}
+              handleApprove={handleApprove}
               key={item.transaction.hash}
+              defaultOpen={defaultOpen}
               transaction={item.transaction}
+              signatures={item.signatures}
             />
           ))}
         </CardBody>
@@ -71,4 +66,4 @@ function TxCard({ account, defaultOpen, handleApprove, data, nonce }: Props) {
   );
 }
 
-export default React.memo(TxCard);
+export default React.memo(SafeTxCard);

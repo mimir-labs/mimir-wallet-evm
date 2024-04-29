@@ -5,9 +5,8 @@ import type { Address } from 'abitype';
 import type { Token } from '@mimir-wallet/hooks/types';
 
 import dayjs from 'dayjs';
-import React, { useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAsyncFn } from 'react-use';
 import { useAccount } from 'wagmi';
 
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
@@ -38,19 +37,22 @@ function Row({
 
   const resetTime = allowance[2] ? dayjs(Number(allowance[3] + allowance[2]) * 60 * 1000).format() : 'Once';
 
-  const [{ loading }, handleClick] = useAsyncFn(async (wallet: IWalletClient, client: IPublicClient) => {
-    const safeTx = await buildDeleteAllowance(client, safeAccount, delegate, token);
+  const handleClick = useCallback(
+    async (wallet: IWalletClient, client: IPublicClient) => {
+      const safeTx = await buildDeleteAllowance(client, safeAccount, delegate, token);
 
-    openTxModal(
-      {
-        website: 'mimir://internal/spend-limit',
-        isApprove: false,
-        address: safeAccount,
-        safeTx
-      },
-      () => navigate('/transactions')
-    );
-  });
+      openTxModal(
+        {
+          website: 'mimir://internal/spend-limit',
+          isApprove: false,
+          address: safeAccount,
+          safeTx
+        },
+        () => navigate('/transactions')
+      );
+    },
+    [delegate, navigate, openTxModal, safeAccount, token]
+  );
 
   return (
     <>
@@ -68,7 +70,7 @@ function Row({
       </div>
       <div className='col-span-3'>{resetTime}</div>
       <div className='col-span-1'>
-        <ButtonEnable onClick={handleClick} disabled={loading} isIconOnly color='danger' size='tiny' variant='light'>
+        <ButtonEnable onClick={handleClick} isToastError isIconOnly color='danger' size='tiny' variant='light'>
           <IconDelete />
         </ButtonEnable>
       </div>

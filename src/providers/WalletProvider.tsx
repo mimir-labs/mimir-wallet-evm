@@ -5,12 +5,20 @@ import type React from 'react';
 
 import { getDefaultConfig, lightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { http, WagmiProvider } from 'wagmi';
+import { fallback, http } from 'viem';
+import { WagmiProvider } from 'wagmi';
 import { sepolia } from 'wagmi/chains';
 
 import { AddressIcon } from '@mimir-wallet/components';
+import { fetcher } from '@mimir-wallet/utils/fetcher';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: ({ queryKey }) => (queryKey[0] ? fetcher(queryKey[0] as string) : undefined)
+    }
+  }
+});
 
 const projectId = '7d03930c3d8c2558da5d59066df0877a';
 
@@ -19,7 +27,12 @@ const config = getDefaultConfig({
   projectId,
   chains: [sepolia],
   transports: {
-    [sepolia.id]: http('https://ethereum-sepolia-rpc.publicnode.com	')
+    [sepolia.id]: fallback([
+      http('https://sepolia.drpc.org'),
+      http('https://rpc2.sepolia.org'),
+      http(),
+      http('https://ethereum-sepolia-rpc.publicnode.com	')
+    ])
   }
 });
 

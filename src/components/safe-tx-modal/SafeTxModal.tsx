@@ -22,11 +22,9 @@ function SafeTxModal<Approve extends boolean>(props: UseSafeTx<Approve>) {
   const {
     onClose,
     isSignatureReady,
-    executeLoading,
     setCustomNonce,
     handleExecute,
-    loading,
-    handleClick,
+    handleSign,
     address,
     safeTx,
     nonce,
@@ -64,16 +62,24 @@ function SafeTxModal<Approve extends boolean>(props: UseSafeTx<Approve>) {
         </ButtonLinearBorder>
         {isSignatureReady ? (
           <ButtonEnable
-            isLoading={executeLoading}
+            isToastError
             onClick={handleExecute}
             Component={ButtonLinear}
             fullWidth
             radius='full'
+            disabled={nonce === undefined}
           >
             Execute
           </ButtonEnable>
         ) : (
-          <ButtonEnable isLoading={loading} onClick={handleClick} Component={ButtonLinear} fullWidth radius='full'>
+          <ButtonEnable
+            disabled={nonce === undefined}
+            isToastError
+            onClick={handleSign}
+            Component={ButtonLinear}
+            fullWidth
+            radius='full'
+          >
             Sign
           </ButtonEnable>
         )}

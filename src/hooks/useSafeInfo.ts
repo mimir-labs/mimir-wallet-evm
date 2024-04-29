@@ -3,17 +3,15 @@
 
 import type { Address } from 'abitype';
 
-import { useChainId, useReadContracts } from 'wagmi';
+import { useChainId, useReadContract, useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 
 export function useSafeInfo(address?: Address) {
   const chainId = useChainId();
 
-  const { data } = useReadContracts({
-    query: {
-      refetchInterval: 14_000
-    },
+  const { data, isFetched, isFetching } = useReadContracts({
+    query: { refetchInterval: 14_000 },
     contracts: [
       {
         chainId,
@@ -43,5 +41,19 @@ export function useSafeInfo(address?: Address) {
     allowFailure: false
   });
 
-  return data;
+  return [data, isFetched, isFetching] as const;
+}
+
+export function useSafeNonce(address?: Address) {
+  const chainId = useChainId();
+
+  const { data, isFetched, isFetching } = useReadContract({
+    chainId,
+    address,
+    abi: abis.SafeL2,
+    functionName: 'nonce',
+    query: { refetchInterval: 14_000 }
+  });
+
+  return [data, isFetched, isFetching] as const;
 }

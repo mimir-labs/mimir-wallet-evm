@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { Multisig } from '@mimir-wallet/safe/types';
+import type { IPublicClient, IWalletClient, Multisig } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody } from '@nextui-org/react';
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAsyncFn } from 'react-use';
 
 import {
   AddressTransfer,
@@ -18,7 +17,6 @@ import {
   ButtonLinearBorder,
   Input
 } from '@mimir-wallet/components';
-import { toastError } from '@mimir-wallet/components/ToastRoot';
 import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext, SafeContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
@@ -40,23 +38,20 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
     }
   };
 
-  const [{ loading }, handleClick] = useAsyncFn(
-    // eslint-disable-next-line consistent-return
-    async (wallet, client) => {
+  const handleClick = useCallback(
+    async (wallet: IWalletClient, client: IPublicClient) => {
       if (multisig) {
-        return buildChangeMember(client, multisig, selected, threshold)
-          .then((tx) => {
-            openTxModal(
-              {
-                website: 'mimir://internal/setup',
-                isApprove: false,
-                address: multisig.address,
-                safeTx: tx
-              },
-              () => navigate('/transactions')
-            );
-          })
-          .catch(toastError);
+        const tx = await buildChangeMember(client, multisig.address, selected, threshold);
+
+        openTxModal(
+          {
+            website: 'mimir://internal/setup',
+            isApprove: false,
+            address: multisig.address,
+            safeTx: tx
+          },
+          () => navigate('/transactions')
+        );
       }
     },
     [multisig, navigate, openTxModal, selected, threshold]
@@ -127,7 +122,7 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
             Reset
           </ButtonLinearBorder>
           <ButtonEnable
-            isLoading={loading}
+            isToastError
             onClick={handleClick}
             disabled={!isValid}
             fullWidth

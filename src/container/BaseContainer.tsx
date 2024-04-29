@@ -18,8 +18,8 @@ function BaseContainer({ withSideBar }: { withSideBar: boolean }): React.ReactEl
   const { isConnected } = useAccount();
 
   return (
-    <main id='mimir-main' className='bg-main-background h-dvh text-foreground text-small'>
-      <Navbar maxWidth='full' position='sticky' isBordered className='bg-white'>
+    <main id='mimir-main' className='bg-main-background min-h-dvh text-foreground text-small'>
+      <Navbar maxWidth='full' isBordered className='bg-white'>
         <NavbarContent justify='start' className='w-auto'>
           <Link href='/'>
             <img src={Logo} alt='mimir' className='w-[87px]' />

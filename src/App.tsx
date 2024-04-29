@@ -8,6 +8,7 @@ import PageAccountSetting from './pages/account-setting';
 import PageApps from './pages/apps';
 import PageCreateMultisig from './pages/create-multisig';
 import PageProfile from './pages/profile';
+import PageReset from './pages/reset';
 import PageTransactions from './pages/transactions';
 
 function App(): React.ReactElement {
@@ -19,11 +20,12 @@ function App(): React.ReactElement {
         <Route path='/apps' element={<>apps</>} />
         <Route path='/transactions' element={<PageTransactions />} />
         <Route path='/address-book' element={<>address book</>} />
+        <Route path='/account-setting' element={<PageAccountSetting />} />
+        <Route path='/reset/:delayAddress' element={<PageReset />} />
       </Route>
       <Route element={<BaseContainer withSideBar={false} />}>
         <Route path='/create-multisig' element={<PageCreateMultisig />} />
         <Route path='/apps/:url' element={<PageApps />} />
-        <Route path='/account-setting' element={<PageAccountSetting />} />
       </Route>
     </Routes>
   );

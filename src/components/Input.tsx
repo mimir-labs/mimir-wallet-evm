@@ -9,6 +9,7 @@ const Input = forwardRef((props: InputProps, ref: React.Ref<HTMLInputElement>) =
     <NextInput
       {...props}
       ref={ref}
+      disabled={props.disabled}
       classNames={{
         ...props.classNames,
         inputWrapper: [
@@ -18,6 +19,8 @@ const Input = forwardRef((props: InputProps, ref: React.Ref<HTMLInputElement>) =
           'data-[hover=true]:bg-primary-50',
           'group-data-[focus=true]:border-primary',
           'group-data-[focus=true]:bg-transparent',
+          'group-data-[focus=true]:bg-transparent',
+          ...(props.disabled ? ['bg-secondary'] : []),
           ...(props.color
             ? [`data-[hover=true]:border-${props.color}`, `group-data-[focus=true]:border-${props.color}`]
             : []),

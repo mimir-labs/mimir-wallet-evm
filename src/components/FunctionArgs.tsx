@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React, { useEffect, useState } from 'react';
-import { decodeFunctionData, getAbiItem, Hex, isHex, size } from 'viem';
+import { Address, Hex, isHex, zeroAddress } from 'viem';
 
-import { abis } from '@mimir-wallet/abis';
+import { useParseCall } from '@mimir-wallet/hooks';
 
 import AddressRow from './AddressRow';
 import Bytes from './Bytes';
@@ -30,51 +30,48 @@ function Item({ label, content }: { label: React.ReactNode; content: React.React
   );
 }
 
-function FunctionArgs({ data }: { data: Hex }) {
+function FunctionArgs({ data, to }: { data: Hex; to?: Address }) {
   const [node, setNode] = useState<React.ReactNode>();
+  const [size, parsed] = useParseCall(data);
 
   useEffect(() => {
     try {
-      if (size(data) === 0) {
+      if (size === 0) {
         return;
       }
 
-      const abiItem = getAbiItem({ abi: Object.values(abis).flat(), name: data.slice(0, 10) as Hex });
-
-      const { args } = decodeFunctionData({
-        abi: [abiItem],
-        data
-      });
-
-      if (abiItem) {
-        if (abiItem.type === 'function') {
-          setNode(
-            abiItem.inputs.map((item, index) => (
-              <Item
-                key={item.name || index.toString()}
-                label={item.name || index.toString()}
-                content={
-                  item.type === 'address' ? (
-                    <AddressRow iconSize={14} address={args?.[index]?.toString() as string} />
-                  ) : (
-                    parse(args?.[index] || '')
-                  )
-                }
-              />
-            ))
-          );
-
-          return;
-        }
-      }
-
-      throw new Error('not support');
-    } catch (err) {
-      setNode(<Item label={data.slice(0, 10)} content={<Bytes data={`0x${data.slice(10)}`} />} />);
+      setNode(
+        parsed.args.map((item, index) => (
+          <Item
+            key={parsed.names[index] || index.toString()}
+            label={parsed.names[index] || index.toString()}
+            content={
+              parsed.types[index] === 'address' ? (
+                <AddressRow iconSize={14} address={item.toString()} />
+              ) : (
+                parse(item || '')
+              )
+            }
+          />
+        ))
+      );
+    } catch {
+      /* empty */
     }
-  }, [data]);
+  }, [parsed.args, parsed.names, parsed.types, size]);
 
-  return node;
+  return (
+    <>
+      {to && to !== zeroAddress && (
+        <Item
+          key={`interact-with-${to}`}
+          label='Interact With'
+          content={<AddressRow iconSize={14} address={to} withCopy />}
+        />
+      )}
+      {node}
+    </>
+  );
 }
 
 export default React.memo(FunctionArgs);

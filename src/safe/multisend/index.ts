@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, Chain, Hex } from 'viem';
-import type { MetaTransaction, Operation, SafeTransaction } from '../types';
+import type { MetaTransaction, SafeTransaction } from '../types';
 
 import {
   bytesToBigInt,
@@ -20,6 +20,7 @@ import { deployments } from '@mimir-wallet/config';
 import { assert } from '@mimir-wallet/utils';
 
 import { buildSafeTransaction } from '../transaction';
+import { Operation } from '../types';
 
 function encodeMetaTransaction(tx: MetaTransaction): Hex {
   const data = hexToBytes(tx.data);
@@ -53,6 +54,7 @@ export async function buildMultiSendSafeTx(
 
   return buildSafeTransaction(multisendAddress, nonce, {
     ...overrides,
+    operation: Operation.DelegateCall,
     data
   });
 }

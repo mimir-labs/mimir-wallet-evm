@@ -24,6 +24,14 @@ export async function getOwners(client: PublicClient, address: Address): Promise
   }) as Promise<Address[]>;
 }
 
+export async function getThreshold(client: PublicClient, address: Address): Promise<bigint> {
+  return client.readContract({
+    address,
+    abi: abis.SafeL2,
+    functionName: 'getThreshold'
+  });
+}
+
 export async function getOwnersMap(client: PublicClient, address: Address): Promise<Map<Address, Address>> {
   const owners = await getOwners(client, address);
 

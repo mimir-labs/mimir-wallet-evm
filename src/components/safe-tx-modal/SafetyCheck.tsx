@@ -38,6 +38,7 @@ function SafetyCheck({ tx, nonce, address }: { nonce?: bigint; tx: Omit<SafeTran
         <span className='font-bold'>Simulation</span>
         {isIdle || isPending ? (
           <Button
+            disabled={nonce === undefined || !client}
             isLoading={isPending}
             radius='full'
             color='primary'

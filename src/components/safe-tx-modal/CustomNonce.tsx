@@ -45,9 +45,9 @@ function CustomNonce({
     abi: abis.SafeL2,
     functionName: 'nonce'
   });
-  const [nonce, setNonce] = useInput('0');
+  const [nonce, setNonce] = useInput();
   const [isOpen, toggleOpen] = useToggle(false);
-  const [{ current, queue }, isTxFetching] = usePendingTransactions(chainId, address, onChainNonce);
+  const [{ current, queue }, , isTxFetching] = usePendingTransactions(chainId, address, onChainNonce);
   const [next, setNext] = useState<bigint>();
 
   useEffect(() => {
@@ -65,7 +65,7 @@ function CustomNonce({
   }, [current, onChainNonce, isApprove, queue, setCustomNonce, setNonce]);
 
   useEffect(() => {
-    setCustomNonce(BigInt(nonce));
+    if (nonce) setCustomNonce(BigInt(nonce));
   }, [nonce, setCustomNonce]);
 
   return (

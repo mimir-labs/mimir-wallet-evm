@@ -128,6 +128,8 @@ module.exports = {
     'react-hooks/exhaustive-deps': ['error', {
       additionalHooks: '(useAsyncFn)'
     }],
+    'jsx-a11y/click-events-have-key-events': 'off',
+    'jsx-a11y/no-static-element-interactions': 'off',
     'import/no-deprecated': 'error',
     'import/order': 'off',
     'import/no-extraneous-dependencies': [

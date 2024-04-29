@@ -80,7 +80,7 @@ export async function buildAddAllowance(
   nonce ??= await getNonce(client, safeAccount);
 
   if (txs.length > 1) {
-    return buildMultiSendSafeTx(client.chain, txs, nonce, { operation: Operation.DelegateCall });
+    return buildMultiSendSafeTx(client.chain, txs, nonce);
   }
 
   if (txs.length === 1) {

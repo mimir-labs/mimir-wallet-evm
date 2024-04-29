@@ -11,6 +11,7 @@ import AddressCell from '@mimir-wallet/components/AddressCell';
 import ButtonEnable from '@mimir-wallet/components/ButtonEnable';
 import { approveCounts } from '@mimir-wallet/components/safe-tx-modal/utils';
 import { SignatureResponse } from '@mimir-wallet/hooks/types';
+import { addressEq } from '@mimir-wallet/utils';
 
 function ProgressItem({ signature, account }: { account?: BaseAccount; signature: SignatureResponse }) {
   const _account = useMemo(
@@ -22,7 +23,7 @@ function ProgressItem({ signature, account }: { account?: BaseAccount; signature
     [_account, signature.children]
   );
 
-  if (account?.type !== 'safe') {
+  if (account?.members?.find((item) => addressEq(item.address, signature.signature.signer))?.type !== 'safe') {
     return null;
   }
 

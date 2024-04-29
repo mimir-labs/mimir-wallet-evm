@@ -3,9 +3,10 @@
 
 import Allowance from './Allowance';
 import CompatibilityFallbackHandler from './CompatibilityFallbackHandler';
+import Delay from './Delay';
+import ModuleProxyFactory from './ModuleProxyFactory';
 import MultiSend from './MultiSend';
 import MultiSendCallOnly from './MultiSendCallOnly';
-import parser from './parser';
 import SafeL2 from './SafeL2';
 import SafeProxyFactory from './SafeProxyFactory';
 import SimulateTxAccessor from './SimulateTxAccessor';
@@ -14,9 +15,10 @@ export const abis = {
   CompatibilityFallbackHandler,
   MultiSend,
   MultiSendCallOnly,
-  parser,
   SafeL2,
   SafeProxyFactory,
   SimulateTxAccessor,
-  Allowance
+  ModuleProxyFactory,
+  Allowance,
+  Delay
 };

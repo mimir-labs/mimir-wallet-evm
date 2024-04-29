@@ -14,12 +14,13 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader
 } from '@nextui-org/react';
 import dayjs from 'dayjs';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAsyncFn, useToggle } from 'react-use';
+import { useToggle } from 'react-use';
 import { isAddress, parseEther, zeroAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
@@ -69,7 +70,7 @@ function SpendLimit({ address }: { address?: Address }) {
     }
   ];
 
-  const [{ loading }, handleClick] = useAsyncFn(
+  const handleClick = useCallback(
     async (wallet: IWalletClient, client: IPublicClient) => {
       if (!address || !isAddress(delegate)) return;
 
@@ -102,7 +103,7 @@ function SpendLimit({ address }: { address?: Address }) {
       <Card>
         <CardBody className='p-5 space-y-4'>
           <div className='space-y-2'>
-            <h6 className='font-bold text-small'>What is Spend Limit?</h6>
+            <h6 className='font-bold text-small'>What is Easy Expense?</h6>
             <p className='text-tiny'>
               You can set rules for specific beneficiaries to access fundsfrom this Safe Account without having to
               collect all signatures.
@@ -121,13 +122,13 @@ function SpendLimit({ address }: { address?: Address }) {
           <Divider />
           {isModuleEnabled && address && <Delegates safeAccount={address} />}
           <Button onClick={toggleOpen} fullWidth radius='full' color='primary'>
-            Add Spend Limit
+            Add Easy Expense
           </Button>
         </CardBody>
       </Card>
       <Modal isOpen={isOpen} onClose={toggleOpen}>
         <ModalContent>
-          <ModalHeader>Set New Spend Limit</ModalHeader>
+          <ModalHeader className='font-bold'>Set New Easy Expense</ModalHeader>
           <ModalBody>
             <Input
               variant='bordered'
@@ -142,7 +143,7 @@ function SpendLimit({ address }: { address?: Address }) {
               labelPlacement='outside'
               onChange={setAmount}
               value={amount}
-              label='Spend Limit'
+              label='Easy Expense Limit'
               placeholder='Enter amount'
             />
             <div>
@@ -153,7 +154,7 @@ function SpendLimit({ address }: { address?: Address }) {
                     {resetTimes[reset]}
                   </Button>
                 </DropdownTrigger>
-                <DropdownMenu aria-label='Action event example' onAction={(key) => setReset(Number(key))}>
+                <DropdownMenu onAction={(key) => setReset(Number(key))}>
                   {Object.entries(resetTimes).map(([key, value]) => (
                     <DropdownItem key={key}>{value}</DropdownItem>
                   ))}
@@ -161,11 +162,11 @@ function SpendLimit({ address }: { address?: Address }) {
               </Dropdown>
             </div>
           </ModalBody>
-          <ModalBody>
-            <ButtonEnable onClick={handleClick} isLoading={loading} fullWidth radius='full' color='primary'>
+          <ModalFooter>
+            <ButtonEnable onClick={handleClick} isToastError fullWidth radius='full' color='primary'>
               Confirm
             </ButtonEnable>
-          </ModalBody>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </>

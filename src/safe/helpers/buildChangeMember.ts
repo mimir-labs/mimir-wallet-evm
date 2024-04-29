@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IPublicClient, MetaTransaction, Multisig, SafeTransaction } from '../types';
+import type { IPublicClient, MetaTransaction, SafeTransaction } from '../types';
 
 import { type Address, encodeFunctionData, getAddress, isAddressEqual } from 'viem';
 
@@ -9,7 +9,7 @@ import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
 import { assert, diffArray } from '@mimir-wallet/utils';
 
-import { getNonce, getOwnersMap, SENTINEL_OWNERS } from '../account';
+import { getNonce, getOwners, getOwnersMap, getThreshold, SENTINEL_OWNERS } from '../account';
 import { buildMultiSendSafeTx } from '../multisend';
 import { buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
@@ -36,7 +36,7 @@ function findPrevOwner(owners: Map<Address, Address | null>, owner: Address): Ad
 
 export async function buildChangeMember(
   client: IPublicClient,
-  multisig: Multisig,
+  safeAddress: Address,
   newMembers: Address[],
   newThreshold: bigint | number | string,
   nonce?: bigint
@@ -45,7 +45,7 @@ export async function buildChangeMember(
 
   assert(multisendAddress, `multisend not support on ${client.chain.name}`);
 
-  const oldMembers = multisig.members.map((item) => getAddress(item));
+  const oldMembers = await getOwners(client, safeAddress);
 
   newMembers = newMembers.map((item) => getAddress(item));
   newThreshold = BigInt(newThreshold);
@@ -54,10 +54,10 @@ export async function buildChangeMember(
     throw new Error(`Threshold cannot exceed owner count`);
   }
 
-  nonce ??= await getNonce(client, multisig.address);
+  nonce ??= await getNonce(client, safeAddress);
 
-  let threshold = BigInt(multisig.threshold);
-  const ownersMap = await getOwnersMap(client, multisig.address);
+  let threshold = await getThreshold(client, safeAddress);
+  const ownersMap = await getOwnersMap(client, safeAddress);
   let ownerCount = ownersMap.size;
 
   const txs: MetaTransaction[] = [];
@@ -69,7 +69,7 @@ export async function buildChangeMember(
     const prevOwner = findPrevOwner(ownersMap, from);
 
     txs.push({
-      to: multisig.address,
+      to: safeAddress,
       value: 0n,
       operation: Operation.Call,
       data: encodeFunctionData({
@@ -92,7 +92,7 @@ export async function buildChangeMember(
   // add add owner call
   for (const item of add) {
     txs.push({
-      to: multisig.address,
+      to: safeAddress,
       value: 0n,
       operation: Operation.Call,
       data: encodeFunctionData({
@@ -116,7 +116,7 @@ export async function buildChangeMember(
     const prevOwner = findPrevOwner(ownersMap, item);
 
     txs.push({
-      to: multisig.address,
+      to: safeAddress,
       value: 0n,
       operation: Operation.Call,
       data: encodeFunctionData({
@@ -141,7 +141,7 @@ export async function buildChangeMember(
   // change threshold
   if (threshold !== newThreshold) {
     txs.push({
-      to: multisig.address,
+      to: safeAddress,
       value: 0n,
       operation: Operation.Call,
       data: encodeFunctionData({
@@ -153,11 +153,11 @@ export async function buildChangeMember(
   }
 
   if (txs.length > 1) {
-    return buildMultiSendSafeTx(client.chain, txs, nonce, { operation: Operation.DelegateCall });
+    return buildMultiSendSafeTx(client.chain, txs, nonce);
   }
 
   if (txs.length === 1) {
-    return buildSafeTransaction(multisig.address, nonce, {
+    return buildSafeTransaction(safeAddress, nonce, {
       data: txs[0].data,
       operation: Operation.Call
     });
