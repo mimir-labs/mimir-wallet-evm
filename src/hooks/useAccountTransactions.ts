@@ -44,8 +44,8 @@ export function usePendingTransactions(
   chainId: number,
   address?: Address,
   nonce?: bigint
-): [PendingData, isLoading: boolean] {
-  const { data, isFetching } = useQuery({
+): [PendingData, isFetched: boolean, isFetching: boolean] {
+  const { data, isFetched, isFetching } = useQuery({
     initialData: [],
     queryKey: [chainId, address, nonce?.toString(), false],
     queryFn
@@ -76,9 +76,10 @@ export function usePendingTransactions(
         },
         { current: null, queue: {} }
       ),
+      isFetched,
       isFetching
     ],
-    [data, isFetching, nonce]
+    [data, isFetched, isFetching, nonce]
   );
 }
 
@@ -86,8 +87,8 @@ export function useHistoryTransactions(
   chainId: number,
   address?: Address,
   nonce?: bigint
-): [HistoryData, isLoading: boolean] {
-  const { data, isFetching } = useQuery({
+): [HistoryData, isFetched: boolean, isFetching: boolean] {
+  const { data, isFetched, isFetching } = useQuery({
     initialData: [],
     queryKey: [chainId, address, nonce?.toString(), true],
     queryFn
@@ -106,8 +107,9 @@ export function useHistoryTransactions(
 
         return result;
       }, {}),
+      isFetched,
       isFetching
     ],
-    [data, isFetching]
+    [data, isFetched, isFetching]
   );
 }

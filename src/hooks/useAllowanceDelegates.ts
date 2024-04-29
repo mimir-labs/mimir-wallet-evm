@@ -3,7 +3,7 @@
 
 import type { Address } from 'abitype';
 
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { zeroAddress } from 'viem';
 import { useChainId, usePublicClient, useReadContract } from 'wagmi';
 
@@ -75,13 +75,12 @@ export function useAllowanceDelegates(safeAddress: Address): Address[] {
 export function useAllowanceTokens(safeAddress: Address, delegates: Address[]) {
   const chainId = useChainId();
   const client = usePublicClient({ chainId });
-  const [data, setData] = useState<{ delegate: Address; token: Address; allowance: Allowance }[]>([]);
 
-  useEffect(() => {
-    if (client && delegates.length > 0) {
-      queryTokenAllowance(client, safeAddress, delegates).then(setData);
-    }
-  }, [client, delegates, safeAddress]);
+  const { data } = useQuery({
+    initialData: [],
+    queryKey: [safeAddress, delegates, 'queryTokenAllowance'] as const,
+    queryFn: ({ queryKey }) => (client ? queryTokenAllowance(client, queryKey[0], queryKey[1]) : [])
+  });
 
   return data;
 }

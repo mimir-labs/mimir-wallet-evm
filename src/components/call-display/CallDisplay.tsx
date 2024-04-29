@@ -11,7 +11,7 @@ import FunctionArgs from '../FunctionArgs';
 // eslint-disable-next-line import/no-cycle
 import Multisend from './Multisend';
 
-function CallDisplay({ data }: CallDisplayProps) {
+function CallDisplay({ data, to }: CallDisplayProps) {
   const [size, parsed] = useParseCall(data);
 
   if (size === 0) {
@@ -24,7 +24,7 @@ function CallDisplay({ data }: CallDisplayProps) {
 
   return (
     <div className='space-y-3'>
-      <FunctionArgs data={data} />
+      <FunctionArgs data={data} to={to} />
     </div>
   );
 }

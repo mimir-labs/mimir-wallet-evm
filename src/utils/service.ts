@@ -15,7 +15,7 @@ export const jsonHeader = { 'Content-Type': 'application/json' };
 
 export const getAuthorizationHeader = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
 
-export function getServiceUrl<P extends string | null, R = P extends string ? Promise<string> : null>(
+export function getServiceUrl<P extends string | null, R = P extends string ? string : null>(
   chainId: number,
   path?: P
 ): R {
@@ -32,10 +32,16 @@ export function getServiceUrl<P extends string | null, R = P extends string ? Pr
   return promise as R;
 }
 
-export function createMultisig(chainId: number, hash: Hash, name?: string) {
-  return fetcher(getServiceUrl(chainId, 'create-safe-tx'), {
-    method: 'POST',
-    body: JSON.stringify({ transaction: hash, name }),
+export function pendingTx(chainId: number, address: Address, nonce: bigint | number | string) {
+  return fetcher(getServiceUrl(chainId, `tx/pending/${address}?nonce=${nonce.toString()}`), {
+    method: 'GET',
+    headers: jsonHeader
+  });
+}
+
+export function historyTx(chainId: number, address: Address, nonce: bigint | number | string) {
+  return fetcher(getServiceUrl(chainId, `tx/history/${address}?nonce=${nonce.toString()}`), {
+    method: 'GET',
     headers: jsonHeader
   });
 }
@@ -57,6 +63,14 @@ export function getAccount(chainId: number, address: Address): Promise<AccountRe
 export function getOwnedAccount(chainId: number, address: Address): Promise<AccountResponse[]> {
   return fetcher(getServiceUrl(chainId, `accounts/owned/${address}`), {
     method: 'GET',
+    headers: jsonHeader
+  });
+}
+
+export function createMultisig(chainId: number, hash: Hash, name?: string) {
+  return fetcher(getServiceUrl(chainId, 'create-safe-tx'), {
+    method: 'POST',
+    body: JSON.stringify({ transaction: hash, name }),
     headers: jsonHeader
   });
 }
@@ -83,20 +97,6 @@ export function createTx(
     body: JSON.stringify({ address, signature, signer, tx, addressChain, website }, (_, v) =>
       typeof v === 'bigint' ? v.toString() : v
     ),
-    headers: jsonHeader
-  });
-}
-
-export function pendingTx(chainId: number, address: Address, nonce: bigint | number | string) {
-  return fetcher(getServiceUrl(chainId, `tx/pending/${address}?nonce=${nonce.toString()}`), {
-    method: 'GET',
-    headers: jsonHeader
-  });
-}
-
-export function historyTx(chainId: number, address: Address, nonce: bigint | number | string) {
-  return fetcher(getServiceUrl(chainId, `tx/history/${address}?nonce=${nonce.toString()}`), {
-    method: 'GET',
     headers: jsonHeader
   });
 }

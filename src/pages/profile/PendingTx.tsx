@@ -11,7 +11,7 @@ import { useChainId } from 'wagmi';
 
 import { AppName, Empty } from '@mimir-wallet/components';
 import { approveCounts } from '@mimir-wallet/components/safe-tx-modal/utils';
-import { useParseCall, usePendingTransactions, useQueryAccount, useSafeInfo } from '@mimir-wallet/hooks';
+import { useParseCall, usePendingTransactions, useQueryAccount, useSafeNonce } from '@mimir-wallet/hooks';
 import { BaseAccount } from '@mimir-wallet/safe/types';
 
 function Item({
@@ -57,8 +57,8 @@ function Item({
 
 function PendingTx({ address }: { address: Address }) {
   const chainId = useChainId();
-  const info = useSafeInfo(address);
-  const [{ current, queue }] = usePendingTransactions(chainId, address, info?.[0]);
+  const [nonce] = useSafeNonce(address);
+  const [{ current, queue }] = usePendingTransactions(chainId, address, nonce);
   const account = useQueryAccount(address);
 
   if (!current && Object.keys(queue).length === 0) {

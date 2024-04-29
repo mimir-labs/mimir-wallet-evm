@@ -68,6 +68,8 @@ export interface CallArgs {
 export interface ParsedCall<F extends CallFunctions = CallFunctions> {
   functionName: F;
   args: CallArgs[F];
+  names: (string | undefined)[];
+  types: string[];
 }
 
 export type Token = {
@@ -75,3 +77,28 @@ export type Token = {
   symbol: string;
   decimals: number;
 };
+
+export interface DelayModuleResponse {
+  address: Address;
+  avatar: Address;
+  block: string;
+  initiator: Address;
+  owner: Address;
+  target: Address;
+  transaction: Hash;
+}
+
+export interface RecoveryTx {
+  address: Address;
+  block: bigint;
+  createdAt: number;
+  data: Hex;
+  id: number;
+  operation: Operation;
+  queueNonce: bigint;
+  sender: Address;
+  to: Address;
+  transaction: Hash;
+  txHash: Hash;
+  value: bigint;
+}

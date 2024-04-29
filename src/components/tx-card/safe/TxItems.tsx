@@ -59,7 +59,7 @@ function TxItems({
   const { isConnected, chain } = useAccount();
 
   return (
-    <div className='h-10 px-3 grid grid-cols-6'>
+    <div className='cursor-pointer h-10 px-3 grid grid-cols-6' onClick={toggleOpen}>
       <div className='col-span-1 flex items-center'>
         <AppName website={transaction.website} />
       </div>

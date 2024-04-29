@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@metamask/jazzicon": "^2.0.0",
+    "@nextui-org/framer-utils": "^2.0.18",
     "@nextui-org/react": "^2.3.4",
     "@rainbow-me/rainbowkit": "^2.0.5",
     "@tanstack/react-query": "^5.29.2",

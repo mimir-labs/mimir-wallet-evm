@@ -1,6 +1,8 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import AppRecovery from '@mimir-wallet/assets/images/app-recovery.svg';
+import Failed from '@mimir-wallet/assets/images/failed.svg';
 import LogoCircle from '@mimir-wallet/assets/images/logo-circle.png';
 
 type AppConfig = {
@@ -17,9 +19,19 @@ export const apps: AppConfig[] = [
     icon: LogoCircle
   },
   {
-    name: 'Spend Limit',
+    name: 'Easy Expense',
     url: 'mimir://internal/spend-limit',
     icon: LogoCircle
+  },
+  {
+    name: 'Account Recovery',
+    url: 'mimir://internal/recovery',
+    icon: AppRecovery
+  },
+  {
+    name: 'Cancel Recovery',
+    url: 'mimir://internal/cancel-recovery',
+    icon: Failed
   },
   {
     name: 'Transfer',

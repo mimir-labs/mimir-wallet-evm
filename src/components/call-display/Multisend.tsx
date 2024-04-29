@@ -4,7 +4,8 @@
 import type { Address, Hex } from 'viem';
 import type { CallFunctions, ParsedCall } from '@mimir-wallet/hooks/types';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { TRANSITION_VARIANTS } from '@nextui-org/framer-utils';
+import { domAnimation, LazyMotion, motion, useWillChange } from 'framer-motion';
 import React from 'react';
 import { useToggle } from 'react-use';
 import { useAccount } from 'wagmi';
@@ -24,9 +25,10 @@ function Item({ index, to, value, data }: { index: number; data: Hex; to: Addres
   const [dataSize, parsed] = useParseCall(data);
   const multisend = useParseMultisend(parsed);
   const { chain } = useAccount();
+  const willChange = useWillChange();
 
   const Top = (
-    <div className='h-10 px-3 grid grid-cols-10'>
+    <div className='cursor-pointer h-10 px-3 grid grid-cols-10' onClick={toggleOpen}>
       <div className='col-span-3 flex items-center'>{index}</div>
       <div className='col-span-3 flex items-center'>{parsed.functionName}</div>
       <div className='col-span-3 flex items-center'>
@@ -62,25 +64,19 @@ function Item({ index, to, value, data }: { index: number; data: Hex; to: Addres
   return (
     <div data-open={isOpen} className='rounded-medium overflow-hidden transition-all bg-secondary'>
       {Top}
-      <AnimatePresence>
-        {isOpen ? (
-          <motion.div
-            initial={{ opacity: 0, maxHeight: 0 }}
-            animate={{ opacity: 1, maxHeight: 180 }}
-            exit={{
-              opacity: 0,
-              maxHeight: 180,
-              height: 0,
-              marginBottom: 0,
-              paddingTop: 0,
-              paddingBottom: 0
-            }}
-            className='mb-2.5 ml-2.5 mr-2.5 bg-white rounded-medium p-2.5'
-          >
+      <LazyMotion features={domAnimation}>
+        <motion.div
+          animate={isOpen ? 'enter' : 'exit'}
+          exit='exit'
+          initial='exit'
+          style={{ overflowY: 'hidden', willChange }}
+          variants={TRANSITION_VARIANTS.collapse}
+        >
+          <div className='mb-2.5 ml-2.5 mr-2.5 bg-white rounded-medium p-2.5'>
             <CallDisplay data={data} to={to} value={value} />
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+          </div>
+        </motion.div>
+      </LazyMotion>
     </div>
   );
 }

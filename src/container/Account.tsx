@@ -23,7 +23,7 @@ import { AddressContext } from '@mimir-wallet/providers';
 function Account({ handleClick }: { handleClick: () => void }) {
   const { isConnected } = useAccount();
   const { current, multisigs } = useContext(AddressContext);
-  const { data } = useBalance({ query: { refetchInterval: 14_000 }, address: current });
+  const { data } = useBalance({ address: current, query: { refetchInterval: 14_000 } });
 
   return isConnected ? (
     multisigs.length > 0 ? (

@@ -4,11 +4,9 @@
 import type { IWalletClient, Multisig } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody } from '@nextui-org/react';
-import React, { useContext } from 'react';
-import { useAsyncFn } from 'react-use';
+import React, { useCallback, useContext } from 'react';
 
 import { ButtonEnable, ButtonLinear, Input } from '@mimir-wallet/components';
-import { toastError } from '@mimir-wallet/components/ToastRoot';
 import { useInput } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { signChangeName } from '@mimir-wallet/safe';
@@ -18,7 +16,7 @@ function SetupName({ multisig }: { multisig?: Multisig }) {
   const { changeName } = useContext(AddressContext);
   const [name, setName] = useInput(multisig?.name || '');
 
-  const [state, save] = useAsyncFn(
+  const save = useCallback(
     async (wallet: IWalletClient) => {
       if (!multisig) {
         throw new Error(`Not multisig account`);
@@ -28,10 +26,10 @@ function SetupName({ multisig }: { multisig?: Multisig }) {
         throw new Error('Please enter new name');
       }
 
-      return signChangeName(wallet, multisig, name)
-        .then((signature) => service.changeName(wallet.chain.id, multisig.address, name, signature))
-        .then(() => changeName(multisig.address, name))
-        .catch(toastError);
+      const signature = await signChangeName(wallet, multisig, name);
+
+      await service.changeName(wallet.chain.id, multisig.address, name, signature);
+      await changeName(multisig.address, name);
     },
     [changeName, multisig, name]
   );
@@ -49,7 +47,7 @@ function SetupName({ multisig }: { multisig?: Multisig }) {
           placeholder='Enter name'
           description='All members will see this name'
         />
-        <ButtonEnable Component={ButtonLinear} isLoading={state.loading} onClick={save} radius='full'>
+        <ButtonEnable Component={ButtonLinear} isToastError onClick={save} radius='full'>
           Save
         </ButtonEnable>
       </CardBody>
