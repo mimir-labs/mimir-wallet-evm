@@ -137,7 +137,7 @@ function CustomNonce({
                     }}
                   >
                     {items.map(({ transaction }) => (
-                      <p className='font-bold text-small' key={transaction.data}>
+                      <p className='text-small' key={transaction.data}>
                         <FuncionName data={transaction.data} />
                       </p>
                     ))}

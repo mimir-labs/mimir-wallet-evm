@@ -5,7 +5,9 @@ import { Route, Routes } from 'react-router-dom';
 
 import BaseContainer from './container/BaseContainer';
 import PageAccountSetting from './pages/account-setting';
+import PageAddressBook from './pages/address-book';
 import PageApps from './pages/apps';
+import PageAppExplorer from './pages/apps/app-explorer';
 import PageCreateMultisig from './pages/create-multisig';
 import PageProfile from './pages/profile';
 import PageReset from './pages/reset';
@@ -17,15 +19,15 @@ function App(): React.ReactElement {
       <Route element={<BaseContainer withSideBar />}>
         <Route index element={<PageProfile />} />
         <Route path='/assets' element={<>assets</>} />
-        <Route path='/apps' element={<>apps</>} />
+        <Route path='/apps' element={<PageApps />} />
         <Route path='/transactions' element={<PageTransactions />} />
-        <Route path='/address-book' element={<>address book</>} />
+        <Route path='/address-book' element={<PageAddressBook />} />
         <Route path='/account-setting' element={<PageAccountSetting />} />
         <Route path='/reset/:delayAddress' element={<PageReset />} />
       </Route>
       <Route element={<BaseContainer withSideBar={false} />}>
         <Route path='/create-multisig' element={<PageCreateMultisig />} />
-        <Route path='/apps/:url' element={<PageApps />} />
+        <Route path='/apps/:url' element={<PageAppExplorer />} />
       </Route>
     </Routes>
   );

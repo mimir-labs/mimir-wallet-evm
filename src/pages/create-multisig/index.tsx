@@ -12,15 +12,7 @@ import { useToggle } from 'react-use';
 import { bytesToBigInt } from 'viem';
 
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
-import {
-  AddressTransfer,
-  Alert,
-  Button,
-  ButtonEnable,
-  ButtonLinear,
-  ButtonLinearBorder,
-  Input
-} from '@mimir-wallet/components';
+import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
 import { useInput, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
@@ -101,7 +93,11 @@ function CreateMultisig(): React.ReactElement {
               label={
                 <div className='flex items-center gap-1'>
                   Threshold
-                  <Tooltip showArrow color='secondary' content='Threshold'>
+                  <Tooltip
+                    showArrow
+                    color='secondary'
+                    content='The number of members required to agree in order to execute any transaction.'
+                  >
                     <div>
                       <IconQuestion className='text-default-200' />
                     </div>
@@ -133,7 +129,7 @@ function CreateMultisig(): React.ReactElement {
             <ButtonLinearBorder onClick={() => navigate(-1)} fullWidth radius='full'>
               Cancel
             </ButtonLinearBorder>
-            <ButtonEnable disabled={!isValid} onClick={handleCreate} fullWidth radius='full' Component={ButtonLinear}>
+            <ButtonEnable disabled={!isValid} onClick={handleCreate} fullWidth radius='full' color='primary'>
               Create
             </ButtonEnable>
           </div>

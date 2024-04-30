@@ -11,6 +11,7 @@ const Button = forwardRef(
     return (
       <NextButton
         {...props}
+        data-icon-only={props.isIconOnly}
         ref={ref}
         size={size === 'tiny' ? 'sm' : size}
         disabled={disabled}
@@ -18,7 +19,8 @@ const Button = forwardRef(
           .concat(
             `${disabled ? ' opacity-disabled pointer-events-none' : ''} border-1 font-bold ${size === 'sm' ? 'min-w-12' : ''}`
           )
-          .concat(size === 'tiny' ? ' w-5 h-5 min-w-5 min-h-5' : '')}
+          .concat(size === 'tiny' ? ' data-[icon-only=true]:w-5 h-5 min-h-5' : '')
+          .concat(' data-[icon-only=true]:min-w-5')}
       />
     );
   }

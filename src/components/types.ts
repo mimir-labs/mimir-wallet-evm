@@ -3,6 +3,7 @@
 
 import type { ButtonProps as NextButtonProps } from '@nextui-org/react';
 import type { Address } from 'abitype';
+import type { To } from 'react-router-dom';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 export type EnableClickHandler = (wallet: IWalletClient, client: IPublicClient) => void;
@@ -10,6 +11,7 @@ export type EnableClickHandler = (wallet: IWalletClient, client: IPublicClient) 
 export interface ButtonProps extends Omit<NextButtonProps, 'size'> {
   ref?: React.Ref<HTMLButtonElement>;
   size?: NextButtonProps['size'] | 'tiny';
+  to?: To;
 }
 
 export interface InputAddressProps {

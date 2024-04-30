@@ -15,6 +15,7 @@ interface Props extends Omit<ButtonProps, 'onClick'> {
   Component?: React.ComponentType<ButtonProps>;
   onClick?: EnableClickHandler;
   isToastError?: boolean;
+  withConnect?: boolean;
 }
 
 function ButtonEnable({
@@ -22,6 +23,7 @@ function ButtonEnable({
   Component = Button,
   onClick,
   isToastError,
+  withConnect,
   disabled,
   ...props
 }: Props): React.ReactElement {
@@ -46,24 +48,40 @@ function ButtonEnable({
     }
   }, [client, onClick, isToastError, wallet]);
 
-  return isConnected && address && client && wallet ? (
-    chains.find((item) => item.id === chainId) ? (
-      <Component
-        {...props}
-        onClick={handleClick}
-        disabled={disabled || props.isLoading || loading}
-        isLoading={props.isLoading ?? loading}
-      >
-        {children}
+  if (isConnected && address && client && wallet) {
+    if (chains.find((item) => item.id === chainId)) {
+      return (
+        <Component
+          {...props}
+          onClick={handleClick}
+          disabled={disabled || props.isLoading || loading}
+          isLoading={props.isLoading ?? loading}
+        >
+          {children}
+        </Component>
+      );
+    }
+
+    if (withConnect) {
+      return (
+        <Component onClick={openChainModal} {...props}>
+          Switch Network
+        </Component>
+      );
+    }
+  }
+
+  if (withConnect) {
+    return (
+      <Component onClick={openConnectModal} {...props}>
+        Connect Wallet
       </Component>
-    ) : (
-      <Component onClick={openChainModal} {...props}>
-        Switch Network
-      </Component>
-    )
-  ) : (
-    <Component onClick={openConnectModal} {...props}>
-      Connect Wallet
+    );
+  }
+
+  return (
+    <Component {...props} onClick={undefined} isLoading={props.isLoading ?? loading} disabled>
+      {children}
     </Component>
   );
 }

@@ -59,7 +59,7 @@ const config = {
             DEFAULT: '#5F45FF'
           },
           secondary: {
-            foreground: '#151F34',
+            foreground: '#5F45FF',
             DEFAULT: '#F4F0FF'
           },
           success: {

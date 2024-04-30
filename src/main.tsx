@@ -11,6 +11,7 @@ import { registerSW } from 'virtual:pwa-register';
 
 import Providers from './providers/providers';
 import App from './App';
+import { initializeFavoriteApps } from './config';
 
 dayjs.extend((_, dayjsClass) => {
   const oldFormat = dayjsClass.prototype.format;
@@ -20,6 +21,7 @@ dayjs.extend((_, dayjsClass) => {
   };
 });
 registerSW();
+initializeFavoriteApps();
 
 const container = document.querySelector('#root');
 
