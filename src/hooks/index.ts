@@ -4,6 +4,7 @@
 export * from './useAccountTransactions';
 export * from './useAddressName';
 export * from './useAllowanceDelegates';
+export * from './useApps';
 export * from './useCopy';
 export * from './useDelayModules';
 export * from './useInput';

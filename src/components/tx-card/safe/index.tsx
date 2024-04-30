@@ -17,6 +17,7 @@ interface Props {
   defaultOpen?: boolean;
   nonce: bigint;
   data: { transaction: TransactionResponse; signatures: SignatureResponse[] }[];
+  hiddenConflictWarning?: boolean;
   handleApprove?: (
     wallet: IWalletClient,
     client: IPublicClient,
@@ -25,7 +26,7 @@ interface Props {
   ) => void;
 }
 
-function SafeTxCard({ account, defaultOpen, handleApprove, data, nonce }: Props) {
+function SafeTxCard({ account, hiddenConflictWarning, defaultOpen, handleApprove, data, nonce }: Props) {
   const time = data.at(0)?.transaction.createdAt;
 
   return (
@@ -35,7 +36,7 @@ function SafeTxCard({ account, defaultOpen, handleApprove, data, nonce }: Props)
           <h4 className='text-primary font-bold text-xl'># {nonce.toString()}</h4>
           <span className='text-small'>{dayjs(time).format()}</span>
         </div>
-        {data.length > 1 && (
+        {!hiddenConflictWarning && data.length > 1 && (
           <Alert
             size='tiny'
             title={

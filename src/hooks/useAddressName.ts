@@ -13,7 +13,7 @@ export function useAddressName(
   disableEns?: boolean,
   fallback?: React.ReactNode
 ): React.ReactNode {
-  const { multisigs, isMultisig } = useContext(AddressContext);
+  const { addressNames } = useContext(AddressContext);
   const { data: ensName } = useEnsName({ address: disableEns ? undefined : (address as Address) || undefined });
 
   return useMemo(() => {
@@ -23,11 +23,6 @@ export function useAddressName(
 
     const defaultName = fallback || `${address.slice(0, 6)}...${address.slice(-4)}`;
 
-    return (
-      ensName ||
-      (isMultisig(address)
-        ? multisigs.find((item) => item.address.toLowerCase() === address.toLowerCase())?.name || defaultName
-        : defaultName)
-    );
-  }, [address, ensName, fallback, isMultisig, multisigs]);
+    return ensName || addressNames[address] || defaultName;
+  }, [address, addressNames, ensName, fallback]);
 }

@@ -8,15 +8,7 @@ import { Card, CardBody } from '@nextui-org/react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import {
-  AddressTransfer,
-  Alert,
-  Button,
-  ButtonEnable,
-  ButtonLinear,
-  ButtonLinearBorder,
-  Input
-} from '@mimir-wallet/components';
+import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
 import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext, SafeContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
@@ -121,14 +113,7 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
           <ButtonLinearBorder onClick={reset} fullWidth radius='full'>
             Reset
           </ButtonLinearBorder>
-          <ButtonEnable
-            isToastError
-            onClick={handleClick}
-            disabled={!isValid}
-            fullWidth
-            radius='full'
-            Component={ButtonLinear}
-          >
+          <ButtonEnable isToastError onClick={handleClick} disabled={!isValid} fullWidth radius='full' color='primary'>
             Save
           </ButtonEnable>
         </div>

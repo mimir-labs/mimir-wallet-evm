@@ -10,11 +10,11 @@ import { useAccount } from 'wagmi';
 
 import RecoveryImg from '@mimir-wallet/assets/images/recover.svg';
 import { Button } from '@mimir-wallet/components';
+import Recovery from '@mimir-wallet/features/recovery';
 import { useDelayModules, useMultisig, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
 
-import Recovery from './recovery';
 import Setup from './Setup';
 import SpendLimit from './spend-limit';
 

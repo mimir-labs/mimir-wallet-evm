@@ -7,7 +7,6 @@ import React from 'react';
 import { useMultisig } from '@mimir-wallet/hooks';
 
 import ButtonEnable from '../ButtonEnable';
-import ButtonLinear from '../ButtonLinear';
 import ButtonLinearBorder from '../ButtonLinearBorder';
 import AddressChain from './AddressChain';
 import CustomNonce from './CustomNonce';
@@ -64,7 +63,7 @@ function SafeTxModal<Approve extends boolean>(props: UseSafeTx<Approve>) {
           <ButtonEnable
             isToastError
             onClick={handleExecute}
-            Component={ButtonLinear}
+            color='primary'
             fullWidth
             radius='full'
             disabled={nonce === undefined}
@@ -76,7 +75,7 @@ function SafeTxModal<Approve extends boolean>(props: UseSafeTx<Approve>) {
             disabled={nonce === undefined}
             isToastError
             onClick={handleSign}
-            Component={ButtonLinear}
+            color='primary'
             fullWidth
             radius='full'
           >

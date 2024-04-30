@@ -22,7 +22,14 @@ function History({ account }: { account: BaseAccount }) {
   return (
     <div className='space-y-5'>
       {Object.entries(items).map(([nonce, value]) => (
-        <SafeTxCard defaultOpen={false} account={account} key={`queue-${nonce}`} data={value} nonce={BigInt(nonce)} />
+        <SafeTxCard
+          hiddenConflictWarning
+          defaultOpen={false}
+          account={account}
+          key={`queue-${nonce}`}
+          data={value}
+          nonce={BigInt(nonce)}
+        />
       ))}
     </div>
   );

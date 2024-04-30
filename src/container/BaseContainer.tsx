@@ -8,7 +8,7 @@ import { Outlet } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 import Logo from '@mimir-wallet/assets/images/logo.png';
-import { ButtonEnable, ButtonLinear, MimirLoading } from '@mimir-wallet/components';
+import { ButtonEnable, MimirLoading } from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import SideBar from './SideBar';
@@ -32,7 +32,7 @@ function BaseContainer({ withSideBar }: { withSideBar: boolean }): React.ReactEl
               chainStatus={{ smallScreen: 'icon', largeScreen: 'full' }}
             />
           ) : (
-            <ButtonEnable Component={ButtonLinear} radius='full' />
+            <ButtonEnable color='primary' radius='full' withConnect />
           )}
         </NavbarContent>
       </Navbar>

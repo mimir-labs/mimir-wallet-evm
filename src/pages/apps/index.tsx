@@ -1,34 +1,23 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { createElement, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-
-import { apps } from '@mimir-wallet/config';
+import { AppCell } from '@mimir-wallet/components';
+import { useVisibleApps } from '@mimir-wallet/hooks';
 
 function Apps() {
-  const { url } = useParams<'url'>();
-  const [element, setElement] = useState<JSX.Element>();
+  const { apps, isFavorite, removeFavorite, addFavorite } = useVisibleApps();
 
-  useEffect(() => {
-    if (url) {
-      const _url = decodeURIComponent(url);
-
-      if (_url.startsWith('mimir://app')) {
-        const app = apps.find((item) => item.url === _url);
-
-        app?.Component?.().then((C) => {
-          setElement(createElement(C));
-        });
-      }
-    }
-  }, [url]);
-
-  if (element) {
-    return element;
-  }
-
-  return null;
+  return (
+    <div className='grid grid-cols-12'>
+      {apps.map((app) => {
+        return (
+          <div key={app.id} className='col-span-4'>
+            <AppCell addFavorite={addFavorite} app={app} isFavorite={isFavorite} removeFavorite={removeFavorite} />
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default Apps;

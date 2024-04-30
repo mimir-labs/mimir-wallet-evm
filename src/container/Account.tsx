@@ -9,15 +9,7 @@ import ArrowRight from '@mimir-wallet/assets/svg/ArrowRight.svg?react';
 import IconLink from '@mimir-wallet/assets/svg/icon-link-colored.svg?react';
 import IconQrcode from '@mimir-wallet/assets/svg/icon-qrcode-colored.svg?react';
 import IconTransfer from '@mimir-wallet/assets/svg/icon-transfer-colored.svg?react';
-import {
-  AddressCell,
-  Button,
-  ButtonEnable,
-  ButtonLinear,
-  CopyButton,
-  FormatBalance,
-  TokenIcon
-} from '@mimir-wallet/components';
+import { AddressCell, Button, ButtonEnable, CopyButton, FormatBalance, TokenIcon } from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
 
 function Account({ handleClick }: { handleClick: () => void }) {
@@ -71,13 +63,15 @@ function Account({ handleClick }: { handleClick: () => void }) {
         </div>
       </div>
     ) : (
-      <ButtonLinear as={Link} href='/create-multisig' size='lg' fullWidth>
+      <Button color='primary' as={Link} href='/create-multisig' size='lg' fullWidth>
         Create Multisig
-      </ButtonLinear>
+      </Button>
     )
   ) : (
     <>
-      <ButtonEnable size='lg' Component={ButtonLinear} fullWidth />
+      <ButtonEnable size='lg' color='primary' fullWidth withConnect>
+        Create Multisig
+      </ButtonEnable>
       <Divider />
     </>
   );

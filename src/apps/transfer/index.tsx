@@ -7,7 +7,7 @@ import { Divider, Switch } from '@nextui-org/react';
 import { useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAsyncFn, useToggle } from 'react-use';
-import { isAddress, parseEther, zeroAddress } from 'viem';
+import { Address, isAddress, parseEther, zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
@@ -17,12 +17,12 @@ import { useDelegateAllowance, useInputAddress, useInputNumber, useMultisig, use
 import { AddressContext, SafeContext } from '@mimir-wallet/providers';
 import { buildSafeTransaction } from '@mimir-wallet/safe';
 
-function Transfer() {
+function Transfer({ receive }: { receive?: Address }) {
   const navigate = useNavigate();
   const { current } = useContext(AddressContext);
   const { openTxModal } = useContext(SafeContext);
   const { address } = useAccount();
-  const [[to], setTo] = useInputAddress();
+  const [[to], setTo] = useInputAddress(receive);
   const [[amount], setAmount] = useInputNumber();
   const multisig = useMultisig(current);
   const [nonce] = useSafeNonce(multisig?.address);

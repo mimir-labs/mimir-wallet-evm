@@ -7,6 +7,7 @@ export * from './tx-card';
 export * from './call-display';
 
 export { default as AccountDrawer } from './AccountDrawer';
+export { default as AddAddressModal } from './AddAddressModal';
 export { default as Address } from './Address';
 export { default as AddressCell } from './AddressCell';
 export { default as AddressIcon } from './AddressIcon';
@@ -15,6 +16,7 @@ export { default as AddressOverview } from './AddressOverview';
 export { default as AddressRow } from './AddressRow';
 export { default as AddressTransfer } from './AddressTransfer';
 export { default as Alert } from './Alert';
+export { default as AppCell } from './AppCell';
 export { default as AppName } from './AppName';
 export { default as Button } from './Button';
 export { default as ButtonEnable } from './ButtonEnable';

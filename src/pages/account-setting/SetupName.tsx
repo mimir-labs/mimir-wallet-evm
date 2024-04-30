@@ -6,7 +6,7 @@ import type { IWalletClient, Multisig } from '@mimir-wallet/safe/types';
 import { Card, CardBody } from '@nextui-org/react';
 import React, { useCallback, useContext } from 'react';
 
-import { ButtonEnable, ButtonLinear, Input } from '@mimir-wallet/components';
+import { ButtonEnable, Input } from '@mimir-wallet/components';
 import { useInput } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { signChangeName } from '@mimir-wallet/safe';
@@ -47,7 +47,7 @@ function SetupName({ multisig }: { multisig?: Multisig }) {
           placeholder='Enter name'
           description='All members will see this name'
         />
-        <ButtonEnable Component={ButtonLinear} isToastError onClick={save} radius='full'>
+        <ButtonEnable color='primary' isToastError onClick={save} radius='full'>
           Save
         </ButtonEnable>
       </CardBody>

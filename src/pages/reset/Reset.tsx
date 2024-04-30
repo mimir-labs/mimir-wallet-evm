@@ -9,15 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
-import {
-  AddressTransfer,
-  Alert,
-  Button,
-  ButtonEnable,
-  ButtonLinear,
-  ButtonLinearBorder,
-  Input
-} from '@mimir-wallet/components';
+import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
 import { ONE_DAY } from '@mimir-wallet/constants';
 import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
@@ -168,14 +160,7 @@ function ResetMember({
           <ButtonLinearBorder onClick={reset} fullWidth radius='full'>
             Reset
           </ButtonLinearBorder>
-          <ButtonEnable
-            isToastError
-            onClick={handleClick}
-            disabled={!isValid}
-            fullWidth
-            radius='full'
-            Component={ButtonLinear}
-          >
+          <ButtonEnable isToastError onClick={handleClick} disabled={!isValid} fullWidth radius='full' color='primary'>
             Save
           </ButtonEnable>
         </div>
