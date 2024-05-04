@@ -9,7 +9,7 @@ import { useMemo } from 'react';
 import { useChainId, useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
-import { getServiceUrl } from '@mimir-wallet/utils/service';
+import { serviceUrl } from '@mimir-wallet/config';
 
 const SENTINEL_MODULES: Address = '0x0000000000000000000000000000000000000001' as const;
 
@@ -25,7 +25,7 @@ export function useDelayModules(address?: Address): [Data[], boolean] {
   const { data } = useQuery<DelayModuleResponse[]>({
     initialData: [],
     refetchInterval: false,
-    queryKey: [address ? getServiceUrl(chainId, `modules/delay/${address}`) : null]
+    queryKey: [address ? serviceUrl(chainId, `modules/delay/${address}`) : null]
   });
 
   const { data: results, isFetching } = useReadContracts({

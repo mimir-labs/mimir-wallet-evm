@@ -24,3 +24,14 @@ export interface InputAddressProps {
   placeholder?: string;
   filtered?: Address[];
 }
+
+export interface InputTokenProps {
+  account?: Address;
+  value?: Address;
+  disabled?: boolean;
+  label?: React.ReactNode;
+  defaultValue?: Address;
+  onChange?: (value: Address) => void;
+  placeholder?: string;
+  tokens: Array<{ name: string; symbol: string; decimals: number; tokenAddress: Address; icon?: string | null }>;
+}

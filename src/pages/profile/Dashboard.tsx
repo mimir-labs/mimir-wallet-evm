@@ -7,8 +7,9 @@ import { Card, CardBody } from '@nextui-org/react';
 import React from 'react';
 
 import { AddressOverview } from '@mimir-wallet/components';
-import { useQueryAccount, useVisibleApps } from '@mimir-wallet/hooks';
+import { useAccountNFTs, useAccountTokens, useQueryAccount, useVisibleApps } from '@mimir-wallet/hooks';
 
+import Assets from './Assets';
 import FavoriteApps from './FavoriteApps';
 import Info from './Info';
 import PendingTx from './PendingTx';
@@ -16,6 +17,8 @@ import PendingTx from './PendingTx';
 function Dashboard({ address }: { address: Address }) {
   const account = useQueryAccount(address);
   const { favorites, isFavorite, removeFavorite, addFavorite } = useVisibleApps();
+  const [data] = useAccountTokens(address);
+  const [nftData] = useAccountNFTs(address);
 
   return (
     <div className='grid grid-cols-5 gap-4'>
@@ -23,7 +26,7 @@ function Dashboard({ address }: { address: Address }) {
         <h6 className='font-bold text-medium mb-2.5'>Info</h6>
         <Card>
           <CardBody className='w-full h-[240px] p-4'>
-            <Info address={address} />
+            <Info nftCounts={nftData.assets.length} totalUsd={data.totalBalanceUsd} address={address} />
           </CardBody>
         </Card>
       </div>
@@ -35,12 +38,16 @@ function Dashboard({ address }: { address: Address }) {
           </CardBody>
         </Card>
       </div>
-      {/* <div className='col-span-5'>
-        <h6 className='font-bold text-medium mb-2.5'>Assets</h6>
-        <Card>
-          <CardBody className='w-full h-[300px] p-4' />
-        </Card>
-      </div> */}
+      {data.assets.length > 0 && (
+        <div className='col-span-5'>
+          <h6 className='font-bold text-medium mb-2.5'>Assets</h6>
+          <Card>
+            <CardBody className='w-full p-4'>
+              <Assets assets={data.assets} />
+            </CardBody>
+          </Card>
+        </div>
+      )}
       {favorites.length > 0 && (
         <div className='col-span-5'>
           <h6 className='font-bold text-medium mb-2.5'>Favourite Apps</h6>

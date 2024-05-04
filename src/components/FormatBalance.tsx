@@ -14,7 +14,7 @@ interface Props {
   restOpacity?: number;
 }
 
-const formatDisplay = (value: string, unit = 4): [string, string] => {
+export const formatDisplay = (value: string, unit = 4): [string, string] => {
   if (value.includes('.')) {
     const [pre, suf] = value.split('.');
 

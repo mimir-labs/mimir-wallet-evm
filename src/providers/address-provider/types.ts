@@ -11,6 +11,8 @@ export interface State {
   all: Address[];
   addresses: Address[];
   addressNames: Record<string, string>;
+  customTokens: CustomToken[];
+  addressIcons: Record<number, Record<string, string>>;
   signers: Address[];
   multisigs: Multisig[];
   isSigner: (value: string) => boolean;
@@ -20,4 +22,13 @@ export interface State {
   addMultisig: (account: AccountResponse, client?: PublicClient) => Promise<void>;
   switchAddress: (address: Address) => void;
   addAddressBook: (value?: [address: Address, name: string]) => Promise<[address: Address, name: string]>;
+  addCustomToken: (token: CustomToken) => void;
+}
+
+export interface CustomToken {
+  chainId: number;
+  name: string;
+  symbol: string;
+  decimals: number;
+  address: Address;
 }

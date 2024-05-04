@@ -7,12 +7,15 @@ export const services: Record<number, string> = {
   [sepolia.id]: process.env.NODE_ENV === 'production' ? 'https://dev-evm-api.mimir.global/' : 'http://localhost:9000/'
 };
 
+export const assetsServices =
+  process.env.NODE_ENV === 'production' ? 'https://dev-evm-assets.mimir.global/' : 'http://localhost:9001/';
+
 export function serviceUrl(chainId: number, path: string): string {
   const base = services[chainId];
 
-  if (!base) {
-    throw new Error('Not supported chain');
-  }
-
   return `${base}${path}`;
+}
+
+export function assetsSrviceUrl(path: string): string {
+  return `${assetsServices}${path}`;
 }

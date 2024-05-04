@@ -3,14 +3,18 @@
 
 import type { State } from './types';
 
-import React, { createContext, useMemo } from 'react';
+import React, { createContext, useEffect, useMemo, useState } from 'react';
+
+import { useQueryTokens } from '@mimir-wallet/hooks';
 
 import { useAddress } from './useAddress';
 import { useAddressBook } from './useAddressBook';
+import { useCustomTokens } from './useCustomTokens';
 
 export const AddressContext = createContext<State>({ all: [], addresses: [], signers: [] } as unknown as State);
 
 function AddressProvider({ children }: React.PropsWithChildren) {
+  const tokens = useQueryTokens();
   const {
     isReady,
     current,
@@ -23,19 +27,28 @@ function AddressProvider({ children }: React.PropsWithChildren) {
     isCurrent,
     switchAddress
   } = useAddress();
-  const { addresses, addressNames, node, addAddressBook } = useAddressBook();
+  const { addresses, addressNames, node, addAddressBook } = useAddressBook(tokens, multisigs);
+  const { customTokens, addCustomToken } = useCustomTokens();
+  const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
 
-  const mergedAddressNames = useMemo(
-    () => ({
-      ...addressNames,
-      ...multisigs.reduce<Record<string, string>>((value, item) => {
-        value[item.address] = item.name || '';
+  useEffect(() => {
+    if (tokens.length > 0) {
+      setAddressIcons((icons) => ({
+        ...icons,
+        ...tokens.reduce<Record<string, Record<string, string>>>((results, item) => {
+          if (item.icon) {
+            if (results[item.chainId]) {
+              results[item.chainId][item.address] = item.icon;
+            } else {
+              results[item.chainId] = { [item.address]: item.icon };
+            }
+          }
 
-        return value;
-      }, {})
-    }),
-    [addressNames, multisigs]
-  );
+          return results;
+        }, {})
+      }));
+    }
+  }, [tokens]);
 
   const all = useMemo(
     () => addresses.concat(signers || []).concat(multisigs.map((item) => item.address)),
@@ -45,7 +58,9 @@ function AddressProvider({ children }: React.PropsWithChildren) {
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value: State = {
     addresses,
-    addressNames: mergedAddressNames,
+    addressNames,
+    addressIcons,
+    customTokens,
     all,
     isReady,
     current,
@@ -57,7 +72,8 @@ function AddressProvider({ children }: React.PropsWithChildren) {
     changeName,
     isCurrent,
     switchAddress,
-    addAddressBook
+    addAddressBook,
+    addCustomToken
   };
 
   return (

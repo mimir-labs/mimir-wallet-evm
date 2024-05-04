@@ -41,11 +41,7 @@ export interface MetaTransaction {
   operation: Operation;
 }
 
-export interface SafeTransaction {
-  to: Address;
-  value: bigint;
-  data: Hex;
-  operation: Operation;
+export interface SafeTransaction extends MetaTransaction {
   safeTxGas: bigint;
   baseGas: bigint;
   gasPrice: bigint;

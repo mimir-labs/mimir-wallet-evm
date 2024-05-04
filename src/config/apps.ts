@@ -56,6 +56,14 @@ export const apps: AppConfig[] = [
     icon: Failed
   },
   {
+    id: 5,
+    name: 'Transfer NFT',
+    url: 'mimir://internal/transfer-nft',
+    desc: 'Transfer NFT',
+    tags: [],
+    icon: LogoCircle
+  },
+  {
     id: 1001,
     name: 'Transfer',
     url: 'mimir://app/transfer',

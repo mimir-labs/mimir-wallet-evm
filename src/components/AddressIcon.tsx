@@ -3,17 +3,29 @@
 
 import jazzicon from '@metamask/jazzicon';
 import { Avatar } from '@nextui-org/react';
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useContext, useLayoutEffect, useMemo, useRef } from 'react';
+import { zeroAddress } from 'viem';
+import { useChainId } from 'wagmi';
+
+import { AddressContext } from '@mimir-wallet/providers';
 
 interface Props {
   address?: string | null | undefined;
   ensImage?: string | null;
   size?: number;
+  src?: string;
+  isToken?: boolean;
 }
 
-function AddressIcon({ ensImage, size = 24, address }: Props): React.ReactElement {
+function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): React.ReactElement {
+  if (isToken) {
+    address ||= zeroAddress;
+  }
+
+  const { addressIcons } = useContext(AddressContext);
   const icon = useMemo(() => (address ? jazzicon(size, parseInt(address.slice(2, 10), 16)) : null), [size, address]);
   const iconRef = useRef<HTMLDivElement>(null);
+  const chainId = useChainId();
 
   useLayoutEffect(() => {
     const { current } = iconRef;
@@ -31,18 +43,32 @@ function AddressIcon({ ensImage, size = 24, address }: Props): React.ReactElemen
     }
 
     return () => 0;
-  }, [icon, iconRef]);
+  }, [icon]);
 
-  return ensImage ? (
-    <Avatar src={ensImage} style={{ width: size, height: size }} />
-  ) : icon ? (
-    <div
-      ref={iconRef}
-      style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }}
-      className='inline-block [&>div]:rounded-full'
+  let iconSrc = src || ensImage;
+
+  if (address) {
+    if (address === zeroAddress) {
+      if (isToken) {
+        iconSrc ||= `/chain-icons/${chainId}`;
+      }
+    } else {
+      iconSrc = addressIcons[chainId]?.[address];
+    }
+  }
+
+  return (
+    <Avatar
+      src={iconSrc || undefined}
+      style={{ width: size, height: size }}
+      fallback={
+        <div
+          ref={iconRef}
+          style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }}
+          className='inline-block [&>div]:rounded-full'
+        />
+      }
     />
-  ) : (
-    <Avatar style={{ width: size, height: size }} />
   );
 }
 

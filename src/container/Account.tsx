@@ -9,7 +9,7 @@ import ArrowRight from '@mimir-wallet/assets/svg/ArrowRight.svg?react';
 import IconLink from '@mimir-wallet/assets/svg/icon-link-colored.svg?react';
 import IconQrcode from '@mimir-wallet/assets/svg/icon-qrcode-colored.svg?react';
 import IconTransfer from '@mimir-wallet/assets/svg/icon-transfer-colored.svg?react';
-import { AddressCell, Button, ButtonEnable, CopyButton, FormatBalance, TokenIcon } from '@mimir-wallet/components';
+import { AddressCell, AddressIcon, Button, ButtonEnable, CopyButton, FormatBalance } from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
 
 function Account({ handleClick }: { handleClick: () => void }) {
@@ -43,7 +43,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
         </Button>
         <Divider />
         <div className='flex items-center gap-1'>
-          <TokenIcon size={14} />
+          <AddressIcon isToken size={14} />
           <small className='text-opacity-50 text-foreground'>
             <FormatBalance decimals={data?.decimals} showSymbol symbol={data?.symbol} value={data?.value} />
           </small>

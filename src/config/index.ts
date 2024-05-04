@@ -4,4 +4,3 @@
 export * from './apps';
 export * from './deployments';
 export * from './service';
-export * from './tokens';

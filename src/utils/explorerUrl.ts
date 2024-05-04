@@ -3,12 +3,12 @@
 
 import type { Chain } from 'viem';
 
-type ExplorerType = 'address' | 'tx' | 'block' | 'token';
+type ExplorerType = 'address' | 'tx' | 'block' | 'token' | 'nft';
 
-export function explorerUrl(
-  type: ExplorerType,
+export function explorerUrl<Type extends ExplorerType>(
+  type: Type,
   chain: Chain,
-  value: string | number | { toString: () => string }
+  value: Type extends 'nft' ? [string, string] : string | number | { toString: () => string }
 ): string | undefined {
   if (!chain.blockExplorers?.default.url) {
     return undefined;
@@ -16,7 +16,7 @@ export function explorerUrl(
 
   const url = new URL(chain.blockExplorers.default.url);
 
-  url.pathname = `${type}/${value.toString()}`;
+  url.pathname = type === 'nft' ? `${type}/${(value as []).join('/')}` : `${type}/${value.toString()}`;
 
   return url.href;
 }
