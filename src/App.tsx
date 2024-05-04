@@ -8,6 +8,7 @@ import PageAccountSetting from './pages/account-setting';
 import PageAddressBook from './pages/address-book';
 import PageApps from './pages/apps';
 import PageAppExplorer from './pages/apps/app-explorer';
+import PageAssets from './pages/assets';
 import PageCreateMultisig from './pages/create-multisig';
 import PageProfile from './pages/profile';
 import PageReset from './pages/reset';
@@ -18,7 +19,7 @@ function App(): React.ReactElement {
     <Routes>
       <Route element={<BaseContainer withSideBar />}>
         <Route index element={<PageProfile />} />
-        <Route path='/assets' element={<>assets</>} />
+        <Route path='/assets' element={<PageAssets />} />
         <Route path='/apps' element={<PageApps />} />
         <Route path='/transactions' element={<PageTransactions />} />
         <Route path='/address-book' element={<PageAddressBook />} />

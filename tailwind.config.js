@@ -19,6 +19,12 @@ const config = {
       },
       height: {
         'sidebar-height': 'calc(100vh - 1px - var(--nextui-spacing-unit)*16)'
+      },
+      aspectRatio: {
+        '1/1': '1 / 1',
+      },
+      screens: {
+        '3xl': '1920px'
       }
     },
   },

@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
-import { AddressRow, ButtonEnable, FormatBalance, TokenIcon } from '@mimir-wallet/components';
+import { AddressIcon, AddressRow, ButtonEnable, FormatBalance } from '@mimir-wallet/components';
 import { useAllowanceDelegates, useAllowanceTokens, useTokens } from '@mimir-wallet/hooks';
 import { SafeContext } from '@mimir-wallet/providers';
 import { buildDeleteAllowance } from '@mimir-wallet/safe';
@@ -61,7 +61,7 @@ function Row({
       </div>
       <div className='col-span-3'>
         <FormatBalance
-          prefix={<TokenIcon address={token} size={20} />}
+          prefix={<AddressIcon isToken address={token} size={20} />}
           value={allowance[0] - allowance[1]}
           symbol={ercTokens[token]?.symbol || chain?.nativeCurrency.symbol}
           decimals={ercTokens[token]?.decimals || chain?.nativeCurrency.decimals}

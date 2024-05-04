@@ -7,7 +7,7 @@ import type { RecoveryTx } from './types';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { getServiceUrl } from '@mimir-wallet/utils/service';
+import { serviceUrl } from '@mimir-wallet/config';
 
 export function useRecoveryTxs(
   chainId: number,
@@ -16,7 +16,7 @@ export function useRecoveryTxs(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, isFetched, isFetching } = useQuery<any[]>({
     initialData: [],
-    queryKey: [address ? getServiceUrl(chainId, `tx/recovery/${address}`) : null]
+    queryKey: [address ? serviceUrl(chainId, `tx/recovery/${address}`) : null]
   });
 
   return useMemo(

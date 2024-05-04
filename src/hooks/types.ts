@@ -102,3 +102,39 @@ export interface RecoveryTx {
   txHash: Hash;
   value: bigint;
 }
+
+export type AccountAsset = {
+  tokenAddress: Address;
+  name: string;
+  symbol: string;
+  decimals: number;
+  icon?: string | null;
+  price: string;
+  balance: string;
+  balanceWei: string;
+  balanceUsd: string;
+};
+
+export type AccountBalances = {
+  assets: AccountAsset[];
+  totalBalanceUsd: string;
+  totalCount: number;
+};
+
+export interface Trait {
+  trait_type: string;
+  value: string;
+}
+export interface Nft {
+  blockchain: string;
+  name: string;
+  tokenId: string;
+  tokenUrl: string;
+  imageUrl: string;
+  collectionName: string;
+  symbol: string;
+  contractType: 'ERC721' | 'ERC1155' | 'UNDEFINED';
+  contractAddress: Address;
+  quantity?: string;
+  traits?: Trait[];
+}

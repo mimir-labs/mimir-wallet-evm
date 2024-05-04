@@ -9,6 +9,8 @@ import AddressName from './AddressName';
 import CopyButton from './CopyButton';
 
 interface Props {
+  isToken?: boolean;
+  icon?: string;
   address?: string | null | undefined;
   showFull?: boolean;
   iconSize?: number;
@@ -17,10 +19,10 @@ interface Props {
   withCopy?: boolean;
 }
 
-function AddressCell({ iconSize, address, fallbackName, disableEns, withCopy, showFull }: Props) {
+function AddressCell({ icon, isToken, iconSize, address, fallbackName, disableEns, withCopy, showFull }: Props) {
   return (
     <div className='address-cell inline-flex items-center gap-x-2.5 flex-grow-0'>
-      <AddressIcon size={iconSize} address={address} />
+      <AddressIcon src={icon} isToken={isToken} size={iconSize} address={address} />
       <div className='address-cell-content flex flex-col gap-y-1'>
         <div className='inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'>
           <AddressName address={address} disableEns={disableEns} fallback={fallbackName} />

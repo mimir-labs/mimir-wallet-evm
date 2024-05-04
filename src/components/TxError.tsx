@@ -17,6 +17,10 @@ function TxError({ error }: { error: unknown }) {
     return error.shortMessage;
   }
 
+  if (error instanceof Error) {
+    return error.message;
+  }
+
   return 'Failed!';
 }
 
