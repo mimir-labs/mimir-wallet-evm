@@ -2,19 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { Token } from '@mimir-wallet/hooks/types';
+import type { TokenMeta } from '@mimir-wallet/hooks/types';
 
 import dayjs from 'dayjs';
-import React, { useCallback, useContext, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
 import { useAccount } from 'wagmi';
 
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
-import { AddressIcon, AddressRow, ButtonEnable, FormatBalance } from '@mimir-wallet/components';
+import { AddressIcon, AddressRow, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import { useAllowanceDelegates, useAllowanceTokens, useTokens } from '@mimir-wallet/hooks';
-import { SafeContext } from '@mimir-wallet/providers';
 import { buildDeleteAllowance } from '@mimir-wallet/safe';
-import { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 type Allowance = [amount: bigint, spent: bigint, resetTimeMin: bigint, lastResetMin: bigint, nonce: bigint];
 
@@ -25,39 +22,22 @@ function Row({
   allowance,
   safeAccount
 }: {
-  ercTokens: Record<Address, Token>;
+  ercTokens: Record<Address, TokenMeta>;
   safeAccount: Address;
   delegate: Address;
   token: Address;
   allowance: Allowance;
 }) {
-  const { openTxModal } = useContext(SafeContext);
   const { chain } = useAccount();
-  const navigate = useNavigate();
 
-  const resetTime = allowance[2] ? dayjs(Number(allowance[3] + allowance[2]) * 60 * 1000).format() : 'Once';
-
-  const handleClick = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient) => {
-      const safeTx = await buildDeleteAllowance(client, safeAccount, delegate, token);
-
-      openTxModal(
-        {
-          website: 'mimir://internal/spend-limit',
-          isApprove: false,
-          address: safeAccount,
-          safeTx
-        },
-        () => navigate('/transactions')
-      );
-    },
-    [delegate, navigate, openTxModal, safeAccount, token]
-  );
+  const resetTime = allowance[2]
+    ? dayjs(Number(allowance[3] + allowance[2]) * 60 * 1000).format('YYYY-MM-DD HH:mm')
+    : 'Once';
 
   return (
     <>
-      <div className='col-span-3'>
-        <AddressRow iconSize={20} address={delegate} />
+      <div className='col-span-4'>
+        <AddressRow iconSize={20} address={delegate} withCopy />
       </div>
       <div className='col-span-3'>
         <FormatBalance
@@ -68,11 +48,23 @@ function Row({
           showSymbol
         />
       </div>
-      <div className='col-span-3'>{resetTime}</div>
-      <div className='col-span-1'>
-        <ButtonEnable onClick={handleClick} isToastError isIconOnly color='danger' size='tiny' variant='light'>
+      <div className='col-span-3 flex items-center justify-between'>
+        {resetTime}
+
+        <SafeTxButton
+          website='mimir://internal/spend-limit'
+          isApprove={false}
+          isCancel={false}
+          address={safeAccount}
+          buildTx={(_, client) => buildDeleteAllowance(client, safeAccount, delegate, token)}
+          isToastError
+          isIconOnly
+          color='danger'
+          size='tiny'
+          variant='light'
+        >
           <IconDelete />
-        </ButtonEnable>
+        </SafeTxButton>
       </div>
     </>
   );
@@ -84,11 +76,15 @@ function Delegates({ safeAccount }: { safeAccount: Address }) {
   const tokens = useMemo(() => Array.from(new Set(data.map((item) => item.token))), [data]);
   const ercTokens = useTokens(tokens);
 
+  if (data.length === 0) {
+    return null;
+  }
+
   return (
     <div className='grid grid-cols-10 gap-2.5'>
-      <div className='col-span-3 text-default-300'>Beneficiary</div>
+      <div className='col-span-4 text-default-300'>Beneficiary</div>
       <div className='col-span-3 text-default-300'>Token Limit</div>
-      <div className='col-span-4 text-default-300'>Reset Time</div>
+      <div className='col-span-3 text-default-300'>Reset Time</div>
       {data.map(({ token, delegate, allowance }) => (
         <Row
           safeAccount={safeAccount}

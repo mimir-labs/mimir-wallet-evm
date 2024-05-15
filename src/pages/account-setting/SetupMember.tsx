@@ -2,23 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { IPublicClient, IWalletClient, Multisig } from '@mimir-wallet/safe/types';
+import type { Multisig } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody } from '@nextui-org/react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
+import { AddressTransfer, Alert, Button, ButtonLinearBorder, Input, SafeTxButton } from '@mimir-wallet/components';
 import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
-import { AddressContext, SafeContext } from '@mimir-wallet/providers';
+import { AddressContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
 
 function SetupMember({ multisig }: { multisig?: Multisig }) {
   const { all } = useContext(AddressContext);
-  const { openTxModal } = useContext(SafeContext);
   const [selected, setSelected] = useState<Address[]>(multisig?.members || []);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
-  const [[threshold], setThreshold] = useInputNumber(multisig?.threshold.toString(), true);
+  const [[threshold], setThreshold] = useInputNumber(multisig?.threshold.toString(), true, 1);
   const navigate = useNavigate();
 
   const isValid = selected.length > 1 && Number(threshold) > 0;
@@ -29,25 +28,6 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
       setThreshold(multisig.threshold.toString());
     }
   };
-
-  const handleClick = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient) => {
-      if (multisig) {
-        const tx = await buildChangeMember(client, multisig.address, selected, threshold);
-
-        openTxModal(
-          {
-            website: 'mimir://internal/setup',
-            isApprove: false,
-            address: multisig.address,
-            safeTx: tx
-          },
-          () => navigate('/transactions')
-        );
-      }
-    },
-    [multisig, navigate, openTxModal, selected, threshold]
-  );
 
   const addresses = useMemo(
     () => all.filter((item) => item.toLowerCase() !== multisig?.address.toLowerCase()),
@@ -89,8 +69,6 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
             value={threshold}
             onChange={(e) => setThreshold(e.target.value)}
             label='Threshold'
-            type='number'
-            step={1}
             placeholder='Threshold'
             variant='bordered'
             labelPlacement='outside'
@@ -113,9 +91,25 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
           <ButtonLinearBorder onClick={reset} fullWidth radius='full'>
             Reset
           </ButtonLinearBorder>
-          <ButtonEnable isToastError onClick={handleClick} disabled={!isValid} fullWidth radius='full' color='primary'>
+          <SafeTxButton
+            website='mimir://internal/setup'
+            isApprove={false}
+            isCancel={false}
+            address={multisig?.address}
+            buildTx={
+              multisig?.address
+                ? (_, client) => buildChangeMember(client, multisig.address, selected, threshold)
+                : undefined
+            }
+            onSuccess={() => navigate('/transactions')}
+            isToastError
+            disabled={!isValid}
+            fullWidth
+            radius='full'
+            color='primary'
+          >
             Save
-          </ButtonEnable>
+          </SafeTxButton>
         </div>
       </CardBody>
     </Card>

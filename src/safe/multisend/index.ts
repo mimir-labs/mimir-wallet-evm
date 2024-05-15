@@ -1,25 +1,11 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address, Chain, Hex } from 'viem';
-import type { MetaTransaction, SafeTransaction } from '../types';
+import type { Address, Hex } from 'viem';
+import type { MetaTransaction } from '../types';
 
-import {
-  bytesToBigInt,
-  bytesToNumber,
-  concat,
-  encodeFunctionData,
-  encodePacked,
-  getAddress,
-  hexToBytes,
-  toHex
-} from 'viem';
+import { bytesToBigInt, bytesToNumber, concat, encodePacked, getAddress, hexToBytes, toHex } from 'viem';
 
-import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
-import { assert } from '@mimir-wallet/utils';
-
-import { buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
 
 function encodeMetaTransaction(tx: MetaTransaction): Hex {
@@ -34,29 +20,6 @@ function encodeMetaTransaction(tx: MetaTransaction): Hex {
 
 export function encodeMultiSend(txs: MetaTransaction[]): Hex {
   return concat(txs.map((tx) => encodeMetaTransaction(tx)));
-}
-
-export async function buildMultiSendSafeTx(
-  chain: Chain,
-  txs: MetaTransaction[],
-  nonce: bigint,
-  overrides?: Partial<SafeTransaction>
-): Promise<SafeTransaction> {
-  const multisendAddress = deployments[chain.id]?.MultiSend;
-
-  assert(multisendAddress, `multisend not support on ${chain.name}`);
-
-  const data = encodeFunctionData({
-    abi: abis.MultiSend,
-    functionName: 'multiSend',
-    args: [encodeMultiSend(txs)]
-  });
-
-  return buildSafeTransaction(multisendAddress, nonce, {
-    ...overrides,
-    operation: Operation.DelegateCall,
-    data
-  });
 }
 
 export function decodeMultisend(data: Hex): MetaTransaction[] {

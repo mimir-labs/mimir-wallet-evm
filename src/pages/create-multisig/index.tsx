@@ -4,7 +4,7 @@
 import type { Address } from 'abitype';
 import type { EnableClickHandler } from '@mimir-wallet/components/types';
 
-import { Card, CardBody, Divider, Tooltip } from '@nextui-org/react';
+import { Card, CardBody, CardFooter, Divider, Tooltip } from '@nextui-org/react';
 import { randomBytes } from 'crypto';
 import { useCallback, useContext, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,14 +24,14 @@ function CreateMultisig(): React.ReactElement {
   const [name, setName] = useInput();
   const [selected, setSelected] = useState<Address[]>([]);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
-  const [[threshold], setThreshold] = useInputNumber('1', true);
+  const [[threshold], setThreshold] = useInputNumber('1', true, 1);
   const navigate = useNavigate();
   const [isOpen, toggleOpen] = useToggle(false);
   const saltRef = useRef(bytesToBigInt(randomBytes(32)));
   const [state, start] = useCreateMultisig(selected, BigInt(threshold), name, saltRef.current);
   const retry = useRef<() => void>(() => {});
 
-  const isValid = selected.length > 1 && Number(threshold) > 0;
+  const isValid = selected.length > 0 && Number(threshold) > 0;
 
   const handleCreate = useCallback<EnableClickHandler>(
     (wallet, client) => {
@@ -95,8 +95,9 @@ function CreateMultisig(): React.ReactElement {
                   Threshold
                   <Tooltip
                     showArrow
-                    color='secondary'
+                    color='default'
                     content='The number of members required to agree in order to execute any transaction.'
+                    className='p-4'
                   >
                     <div>
                       <IconQuestion className='text-default-200' />
@@ -104,9 +105,6 @@ function CreateMultisig(): React.ReactElement {
                   </Tooltip>
                 </div>
               }
-              type='number'
-              step={1}
-              min={1}
               placeholder='Threshold'
               variant='bordered'
               labelPlacement='outside'
@@ -134,6 +132,10 @@ function CreateMultisig(): React.ReactElement {
             </ButtonEnable>
           </div>
         </CardBody>
+        <CardFooter className='flex gap-2 items-center justify-center opacity-50'>
+          Supported by
+          <img width={56} src='/images/safe.webp' alt='safe' />
+        </CardFooter>
       </Card>
       <CreateMultisigModal
         onRetry={(wallet, client) => {
@@ -141,6 +143,7 @@ function CreateMultisig(): React.ReactElement {
         }}
         state={state}
         isOpen={isOpen}
+        onClose={() => toggleOpen(false)}
         onDone={(account) => {
           toggleOpen(false);
           navigate('/');

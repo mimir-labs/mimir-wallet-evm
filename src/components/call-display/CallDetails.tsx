@@ -55,7 +55,7 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
     return multisend ? `${multisend.length} transactions` : <Bytes data={args[0] as Hex} />;
   }
 
-  return '--';
+  return '';
 }
 
 export default React.memo(CallDetails);

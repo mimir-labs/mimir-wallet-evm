@@ -9,8 +9,9 @@ import React from 'react';
 import { CallDisplay } from '@mimir-wallet/components';
 
 interface Props {
+  from: Address;
   data: Hash;
-  to?: Address;
+  to: Address;
   value: bigint;
   children: React.ReactNode;
 }
@@ -24,10 +25,10 @@ export function Item({ label, content }: { label: React.ReactNode; content: Reac
   );
 }
 
-function Details({ data, to, value, children }: Props) {
+function Details({ from, data, to, value, children }: Props) {
   return (
-    <div className='flex-1 space-y-2'>
-      <CallDisplay data={data} to={to} value={value} />
+    <div className='flex-1 space-y-2.5'>
+      <CallDisplay from={from} data={data} to={to} value={value} />
       <Divider />
       {children}
     </div>

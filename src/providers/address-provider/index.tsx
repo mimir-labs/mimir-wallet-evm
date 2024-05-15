@@ -1,6 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Address } from 'abitype';
 import type { State } from './types';
 
 import React, { createContext, useEffect, useMemo, useState } from 'react';
@@ -13,7 +14,7 @@ import { useCustomTokens } from './useCustomTokens';
 
 export const AddressContext = createContext<State>({ all: [], addresses: [], signers: [] } as unknown as State);
 
-function AddressProvider({ children }: React.PropsWithChildren) {
+function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{ defaultCurrent?: Address }>) {
   const tokens = useQueryTokens();
   const {
     isReady,
@@ -26,8 +27,8 @@ function AddressProvider({ children }: React.PropsWithChildren) {
     changeName,
     isCurrent,
     switchAddress
-  } = useAddress();
-  const { addresses, addressNames, node, addAddressBook } = useAddressBook(tokens, multisigs);
+  } = useAddress(defaultCurrent);
+  const { addresses, addressNames, node, addAddressBook, setAddressNames } = useAddressBook(tokens, multisigs);
   const { customTokens, addCustomToken } = useCustomTokens();
   const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
 
@@ -51,7 +52,7 @@ function AddressProvider({ children }: React.PropsWithChildren) {
   }, [tokens]);
 
   const all = useMemo(
-    () => addresses.concat(signers || []).concat(multisigs.map((item) => item.address)),
+    () => Array.from(new Set(addresses.concat(signers || []).concat(multisigs.map((item) => item.address)))),
     [addresses, multisigs, signers]
   );
 
@@ -73,7 +74,8 @@ function AddressProvider({ children }: React.PropsWithChildren) {
     isCurrent,
     switchAddress,
     addAddressBook,
-    addCustomToken
+    addCustomToken,
+    setAddressNames
   };
 
   return (

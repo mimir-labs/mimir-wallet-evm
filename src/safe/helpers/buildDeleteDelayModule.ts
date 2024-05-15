@@ -1,13 +1,12 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IPublicClient, SafeTransaction } from '../types';
+import type { IPublicClient, MetaTransaction } from '../types';
 
 import { type Address, encodeFunctionData, isAddressEqual } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
 
-import { getNonce } from '../account';
 import { getModulesMap } from '../modules';
 import { buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
@@ -36,9 +35,8 @@ export async function buildDeleteDelayModule(
   client: IPublicClient,
   safeAccount: Address,
   delayAddress: Address,
-  moduleAddress: Address,
-  nonce?: bigint
-): Promise<SafeTransaction> {
+  moduleAddress: Address
+): Promise<MetaTransaction> {
   const isModuleEnabled = await client.readContract({
     address: delayAddress,
     abi: abis.Delay,
@@ -54,9 +52,7 @@ export async function buildDeleteDelayModule(
 
   const prevModule = findPrevModule(modulesMap, moduleAddress);
 
-  nonce ??= await getNonce(client, safeAccount);
-
-  return buildSafeTransaction(delayAddress, nonce, {
+  return buildSafeTransaction(delayAddress, {
     data: encodeFunctionData({
       abi: abis.Delay,
       functionName: 'disableModule',

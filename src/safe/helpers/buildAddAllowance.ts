@@ -1,16 +1,14 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IPublicClient, MetaTransaction, SafeTransaction } from '../types';
+import type { IPublicClient, MetaTransaction } from '../types';
 
 import { type Address, encodeFunctionData, hexToNumber, isAddressEqual, sliceHex, zeroAddress } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
 
-import { getNonce } from '../account';
-import { buildMultiSendSafeTx } from '../multisend';
-import { buildSafeTransaction } from '../transaction';
+import { buildMultiSendSafeTx, buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
 
 export async function buildAddAllowance(
@@ -20,9 +18,8 @@ export async function buildAddAllowance(
   tokenAddress: Address,
   amount: bigint,
   resetTimeMin: number,
-  resetBaseMin: number,
-  nonce?: bigint
-): Promise<SafeTransaction> {
+  resetBaseMin: number
+): Promise<MetaTransaction> {
   const allowanceAddress = deployments[client.chain.id].modules.Allowance;
 
   const txs: MetaTransaction[] = [];
@@ -77,14 +74,12 @@ export async function buildAddAllowance(
     operation: Operation.Call
   });
 
-  nonce ??= await getNonce(client, safeAccount);
-
   if (txs.length > 1) {
-    return buildMultiSendSafeTx(client.chain, txs, nonce);
+    return buildMultiSendSafeTx(client.chain, txs);
   }
 
   if (txs.length === 1) {
-    return buildSafeTransaction(txs[0].to, nonce, {
+    return buildSafeTransaction(txs[0].to, {
       data: txs[0].data,
       operation: txs[0].operation,
       value: txs[0].value

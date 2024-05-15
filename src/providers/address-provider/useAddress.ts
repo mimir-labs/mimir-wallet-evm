@@ -12,7 +12,7 @@ import { CURRENT_ACCOUNT_KEY } from '@mimir-wallet/constants';
 import { useQueryParam } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
-import { initCurrent, querySync } from './utils';
+import { querySync } from './utils';
 
 async function _addMultisig(account: AccountResponse, setMultisigs: React.Dispatch<React.SetStateAction<Multisig[]>>) {
   if (account.type === 'safe') {
@@ -43,14 +43,15 @@ async function _addMultisig(account: AccountResponse, setMultisigs: React.Dispat
 }
 
 // @internal
-export function useAddress() {
+export function useAddress(defaultCurrent?: Address) {
   const chainId = useChainId();
 
   const [isReady, setIsReady] = useState(false);
-  const { addresses: signers, address } = useAccount();
+  const { address } = useAccount();
+  const signers = useMemo(() => (address ? [address] : []), [address]);
 
   const [multisigs, setMultisigs] = useState<Multisig[]>([]);
-  const [current, setCurrent] = useState<Address>();
+  const [current, setCurrent] = useState<Address | undefined>(defaultCurrent);
   const isSigner = useCallback(
     (value: string) => (signers || []).findIndex((item) => addressEq(item, value)) > -1,
     [signers]
@@ -73,22 +74,29 @@ export function useAddress() {
     },
     [switchAddress]
   );
-  const [, setQueryAddress] = useQueryParam('address');
+  const [urlAddress, setQueryAddress] = useQueryParam('address');
+  const [urlChainid, setQueryChainId] = useQueryParam('chainid');
 
   useEffect(() => {
     if (current) {
-      setQueryAddress(current, { replace: true });
+      if (current !== urlAddress) setQueryAddress(current, { replace: true });
+    } else {
+      setQueryAddress(undefined, { replace: true });
     }
-  }, [current, setQueryAddress]);
+  }, [current, setQueryAddress, urlAddress]);
+  useEffect(() => {
+    if (urlChainid !== chainId.toString()) setQueryChainId(chainId.toString(), { replace: true });
+  }, [chainId, setQueryChainId, urlChainid]);
 
   // sync multisig from server
   useEffect(() => {
-    setIsReady(false);
-
     if (address) {
-      querySync(chainId, address, setMultisigs, setCurrent).finally(() => setIsReady(true));
+      querySync(chainId, address, setMultisigs)
+        .then((multisigs) => {
+          setCurrent((value) => value || multisigs?.[0]?.address);
+        })
+        .finally(() => setIsReady(true));
     } else {
-      setCurrent(initCurrent(chainId, []));
       setIsReady(true);
     }
   }, [address, chainId]);

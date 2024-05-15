@@ -2,23 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, Hex } from 'viem';
+import type { SafeTransaction } from '@mimir-wallet/safe/types';
 
-import {
-  CircularProgress,
-  Input,
-  Listbox,
-  ListboxItem,
-  ListboxSection,
-  Modal,
-  ModalBody,
-  ModalContent
-} from '@nextui-org/react';
-import React, { useEffect, useState } from 'react';
+import { CircularProgress, Input, Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
-import { useChainId, useReadContract } from 'wagmi';
+import { useChainId } from 'wagmi';
 
-import { abis } from '@mimir-wallet/abis';
-import { useInput, useParseCall, usePendingTransactions } from '@mimir-wallet/hooks';
+import IconRefresh from '@mimir-wallet/assets/svg/icon-refresh.svg?react';
+import { useInputNumber, useParseCall, usePendingTransactions, useSafeNonce } from '@mimir-wallet/hooks';
 
 import Button from '../Button';
 
@@ -29,29 +21,48 @@ function FuncionName({ data }: { data: Hex }) {
 }
 
 function CustomNonce({
-  setCustomNonce,
-  txNonce,
+  safeTx,
+  address,
   isApprove,
-  address
+  isCancel,
+  setCustomNonce
 }: {
-  isApprove: boolean;
-  txNonce?: bigint;
+  safeTx?: SafeTransaction;
   address: Address;
-  setCustomNonce: (nonce: bigint) => void;
+  isApprove: boolean;
+  isCancel: boolean;
+  setCustomNonce: (value: bigint) => void;
 }) {
   const chainId = useChainId();
-  const { data: onChainNonce, isFetching } = useReadContract({
-    address,
-    abi: abis.SafeL2,
-    functionName: 'nonce'
-  });
-  const [nonce, setNonce] = useInput();
+  const [onChainNonce, isFetched, isFetching] = useSafeNonce(address);
+  const [[nonce], setNonce] = useInputNumber(undefined, true, 0);
   const [isOpen, toggleOpen] = useToggle(false);
-  const [{ current, queue }, , isTxFetching] = usePendingTransactions(chainId, address, onChainNonce);
+  const [{ current, queue }, isTxFetched, isTxFetching, refetch] = usePendingTransactions(
+    chainId,
+    address,
+    onChainNonce
+  );
   const [next, setNext] = useState<bigint>();
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const handleOpen = () => {
+    toggleOpen(true);
+  };
+
+  const handleClose = () => {
+    toggleOpen(false);
+  };
+
+  const replaceList = useMemo(() => {
+    const list = Object.entries(queue);
+
+    if (current) list.unshift([current[0].toString(), current[1]]);
+
+    return list;
+  }, [current, queue]);
 
   useEffect(() => {
-    if (!isApprove && onChainNonce !== undefined) {
+    if (!isApprove && !isCancel && onChainNonce !== undefined) {
       const max = Math.max(Number(current?.[0] || onChainNonce), ...Object.keys(queue).map(Number));
 
       if (!current) {
@@ -62,93 +73,119 @@ function CustomNonce({
 
       setNext(BigInt(max + 1));
     }
-  }, [current, onChainNonce, isApprove, queue, setCustomNonce, setNonce]);
+  }, [current, onChainNonce, isApprove, queue, setCustomNonce, setNonce, isCancel]);
 
   useEffect(() => {
     if (nonce) setCustomNonce(BigInt(nonce));
   }, [nonce, setCustomNonce]);
 
-  return (
-    <>
-      <Input
-        disabled={isApprove || isFetching || isTxFetching}
-        label='Nonce'
-        startContent='#'
-        value={isApprove ? txNonce?.toString() || '0' : nonce}
-        onChange={setNonce}
-        endContent={
-          isApprove ? null : isFetching || isTxFetching ? (
-            <CircularProgress classNames={{ svg: 'w-6 h-6' }} />
+  const replacedTx = useMemo(() => replaceList.find((item) => item[0] === nonce), [nonce, replaceList]);
+
+  const popoverContent = isOpen ? (
+    <div
+      ref={menuRef}
+      className='z-50 bg-white shadow-large absolute bottom-full left-0 right-0 rounded-medium overflow-y-scroll'
+    >
+      <Listbox>
+        <ListboxSection title='Recommended nonce'>
+          <ListboxItem
+            onClick={() => {
+              if (onChainNonce !== undefined) {
+                setNonce(onChainNonce.toString());
+                toggleOpen(false);
+              }
+            }}
+            key='next'
+            startContent={onChainNonce?.toString()}
+            description={
+              current ? (
+                <p className='text-danger'>
+                  Replace <FuncionName data={current[1][0].transaction.data} />{' '}
+                  {current[1].length - 1 > 0 ? `and other ${current[1].length - 1}` : ''}
+                </p>
+              ) : null
+            }
+          >
+            Next Execute
+          </ListboxItem>
+          {onChainNonce && onChainNonce > 0n ? (
+            <ListboxItem
+              key='order'
+              startContent={next?.toString()}
+              onClick={() => {
+                if (next) {
+                  setNonce(next.toString());
+                  toggleOpen(false);
+                }
+              }}
+            >
+              In Order
+            </ListboxItem>
           ) : (
-            <Button onClick={toggleOpen} size='sm' variant='light'>
-              Recommended
-            </Button>
-          )
-        }
-      />
-      <Modal isOpen={isOpen} size='xs' onClose={toggleOpen}>
-        <ModalContent>
-          <ModalBody>
-            <Listbox>
-              <ListboxSection title='Recommended nonce'>
-                <ListboxItem
-                  onClick={() => {
-                    if (onChainNonce !== undefined) {
-                      setNonce(onChainNonce.toString());
-                      toggleOpen(false);
-                    }
-                  }}
-                  key='next'
-                  startContent={onChainNonce?.toString()}
-                  description={
-                    current ? (
-                      <p className='text-danger'>
-                        Replace <FuncionName data={current[1][0].transaction.data} />{' '}
-                        {current[1].length - 1 > 0 ? `and other ${current[1].length - 1}` : ''}
-                      </p>
-                    ) : null
-                  }
-                >
-                  Next Execute
-                </ListboxItem>
-                <ListboxItem
-                  key='order'
-                  startContent={next?.toString()}
-                  onClick={() => {
-                    if (next) {
-                      setNonce(next.toString());
-                      toggleOpen(false);
-                    }
-                  }}
-                >
-                  In Order
-                </ListboxItem>
-              </ListboxSection>
-              <ListboxSection title='Replace existing'>
-                {Object.entries(queue).map(([nonce, items]) => (
-                  <ListboxItem
-                    key={nonce}
-                    startContent={nonce}
-                    onClick={() => {
-                      if (nonce) {
-                        setNonce(nonce);
-                        toggleOpen(false);
-                      }
-                    }}
-                  >
-                    {items.map(({ transaction }) => (
-                      <p className='text-small' key={transaction.data}>
-                        <FuncionName data={transaction.data} />
-                      </p>
-                    ))}
-                  </ListboxItem>
-                ))}
-              </ListboxSection>
-            </Listbox>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </>
+            <ListboxItem className='hidden' key='hidden' />
+          )}
+        </ListboxSection>
+        <ListboxSection title='Replace existing'>
+          {replaceList.map(([nonce, items], index) => (
+            <ListboxItem
+              key={`${nonce}.${index}`}
+              startContent={nonce}
+              onClick={() => {
+                if (nonce) {
+                  setNonce(nonce);
+                  toggleOpen(false);
+                }
+              }}
+            >
+              <FuncionName data={items[0].transaction.data} />{' '}
+              {items.length > 1 ? ` and other ${items.length - 1}` : ''}
+            </ListboxItem>
+          ))}
+        </ListboxSection>
+      </Listbox>
+    </div>
+  ) : null;
+
+  return (
+    <div className='relative w-full'>
+      <div
+        className='inline-flex items-center gap-2'
+        onBlur={(e) => {
+          if (!menuRef.current?.contains(e.relatedTarget)) {
+            handleClose();
+          }
+        }}
+      >
+        <Input
+          disabled={isApprove || isCancel || (isFetching && !isFetched) || (isTxFetching && !isTxFetched)}
+          label='Nonce #'
+          classNames={{
+            base: 'inline-flex w-auto',
+            inputWrapper: 'w-20'
+          }}
+          labelPlacement='outside-left'
+          value={isApprove || isCancel ? safeTx?.nonce.toString() || '0' : nonce}
+          onFocus={handleOpen}
+          onChange={setNonce}
+          endContent={
+            isApprove || isCancel ? null : isFetching || isTxFetching ? (
+              <CircularProgress size='sm' classNames={{ svg: 'w-4 h-4' }} />
+            ) : (
+              <Button isIconOnly onClick={() => refetch()} color='primary' size='tiny' variant='light'>
+                <IconRefresh style={{ opacity: 0.5 }} />
+              </Button>
+            )
+          }
+        />
+        {!isApprove && replacedTx && (
+          <p className='font-bold text-small text-danger'>
+            Replace transaction # {nonce}
+            {replacedTx[1].length > 1 ? ` and other ${replacedTx[1].length - 1}` : ''}
+          </p>
+        )}
+        {popoverContent}
+      </div>
+    </div>
   );
 }
 

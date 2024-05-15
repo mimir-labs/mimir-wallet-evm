@@ -5,8 +5,9 @@ import type { Address, Hex } from 'viem';
 import type { CallFunctions, ParsedCall } from '@mimir-wallet/hooks/types';
 
 export interface CallDisplayProps {
+  from: Address;
   data: Hex;
-  to?: Address;
+  to: Address;
   value?: bigint;
   parsed?: ParsedCall<CallFunctions>;
 }

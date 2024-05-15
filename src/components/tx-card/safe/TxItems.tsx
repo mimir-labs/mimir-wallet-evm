@@ -1,7 +1,8 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IPublicClient, IWalletClient, MetaTransaction } from '@mimir-wallet/safe/types';
+import type { Address } from 'abitype';
+import type { BaseAccount, MetaTransaction } from '@mimir-wallet/safe/types';
 
 import { Chip } from '@nextui-org/react';
 import React from 'react';
@@ -11,15 +12,27 @@ import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconFail from '@mimir-wallet/assets/svg/icon-failed-outlined.svg?react';
 import IconMember from '@mimir-wallet/assets/svg/icon-member.svg?react';
 import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?react';
-import { Button, ButtonEnable, CallDetails, FormatBalance } from '@mimir-wallet/components';
+import { Button, CallDetails, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
-import { CallFunctions, ParsedCall, TransactionResponse, TransactionStatus } from '@mimir-wallet/hooks/types';
+import {
+  CallFunctions,
+  ParsedCall,
+  SignatureResponse,
+  TransactionResponse,
+  TransactionStatus
+} from '@mimir-wallet/hooks/types';
+import { buildSafeTransaction } from '@mimir-wallet/safe';
 import { formatAgo } from '@mimir-wallet/utils';
 
 interface Props {
+  isSignatureReady: boolean;
+  account: BaseAccount;
+  filterPaths: Array<Address[]>;
+  hasCancelTx: boolean;
   isOpen: boolean;
   transaction: TransactionResponse;
+  signatures: SignatureResponse[];
   approval: number;
   threshold: number;
   dataSize: number;
@@ -27,7 +40,7 @@ interface Props {
   multisend?: MetaTransaction[] | null;
   toggleOpen: (value?: unknown) => void;
   openOverview: () => void;
-  handleApprove?: (wallet: IWalletClient, client: IPublicClient) => void;
+  refetch?: () => void;
 }
 
 function TimeCell({ time }: { time?: number }) {
@@ -45,13 +58,18 @@ function TimeCell({ time }: { time?: number }) {
 }
 
 function TxItems({
-  handleApprove,
+  isSignatureReady,
+  refetch,
+  hasCancelTx,
+  account,
+  filterPaths,
   multisend,
   isOpen,
   toggleOpen,
   dataSize,
   parsed,
   transaction,
+  signatures,
   approval,
   threshold,
   openOverview
@@ -113,19 +131,42 @@ function TxItems({
           {transaction.status === TransactionStatus.Pending ? (
             isConnected ? (
               <>
-                <ButtonEnable
-                  size='tiny'
-                  radius='full'
-                  variant='light'
-                  isIconOnly
-                  color='success'
-                  onClick={handleApprove}
-                >
-                  <IconSuccess />
-                </ButtonEnable>
-                <ButtonEnable size='tiny' radius='full' variant='light' isIconOnly color='danger'>
-                  <IconFail />
-                </ButtonEnable>
+                {(filterPaths.length > 0 || isSignatureReady) && (
+                  <SafeTxButton
+                    isApprove
+                    isCancel={false}
+                    isSignatureReady={isSignatureReady}
+                    safeTx={transaction}
+                    signatures={signatures}
+                    address={account.address}
+                    onSuccess={refetch}
+                    size='tiny'
+                    radius='full'
+                    variant='light'
+                    isIconOnly
+                    color='success'
+                  >
+                    <IconSuccess />
+                  </SafeTxButton>
+                )}
+                {!hasCancelTx && (
+                  <SafeTxButton
+                    isApprove={false}
+                    isCancel
+                    website={`mimir://internal/cancel-tx?nonce=${transaction.nonce.toString()}`}
+                    address={account.address}
+                    buildTx={async () => buildSafeTransaction(account.address, { value: 0n })}
+                    cancelNonce={transaction.nonce}
+                    onSuccess={refetch}
+                    size='tiny'
+                    radius='full'
+                    variant='light'
+                    isIconOnly
+                    color='danger'
+                  >
+                    <IconFail />
+                  </SafeTxButton>
+                )}
               </>
             ) : null
           ) : (

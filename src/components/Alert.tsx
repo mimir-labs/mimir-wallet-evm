@@ -7,6 +7,7 @@ import IconSuccess from '@mimir-wallet/assets/svg/icon-success-fill.svg?react';
 import IconWarning from '@mimir-wallet/assets/svg/icon-warning-fill.svg?react';
 
 interface Props {
+  variant?: 'fill' | 'text';
   severity?: 'default' | 'success' | 'error' | 'warning';
   color?: 'primary' | 'success' | 'danger' | 'warning' | 'default';
   title: React.ReactNode;
@@ -14,7 +15,14 @@ interface Props {
   size?: 'sm' | 'tiny' | 'medium';
 }
 
-function Alert({ severity = 'default', size = 'sm', title, content, color: propsColor }: Props): React.ReactElement {
+function Alert({
+  variant = 'fill',
+  severity = 'default',
+  size = 'sm',
+  title,
+  content,
+  color: propsColor
+}: Props): React.ReactElement {
   const color =
     propsColor ||
     (severity === 'success'
@@ -30,7 +38,10 @@ function Alert({ severity = 'default', size = 'sm', title, content, color: props
   return (
     <div
       data-size={size}
-      className={`p-2.5 py-2.5 data-[size=tiny]:py-1.5 flex flex-col gap-y-2.5 bg-${color} bg-opacity-10 rounded-medium`}
+      data-variant={variant}
+      className={`flex flex-col gap-y-2.5 bg-opacity-10 rounded-medium`.concat(
+        variant === 'fill' ? ` bg-${color} p-2.5 data-[size=tiny]:py-1.5` : ' p-0'
+      )}
     >
       <div className={`flex gap-x-1 items-center text-${color} text-${size} font-bold`}>
         {severity === 'success' ? (

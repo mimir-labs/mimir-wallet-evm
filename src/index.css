@@ -61,4 +61,15 @@
     --toastify-text-color-warning: #fff;
     --toastify-text-color-error: #fff;
   }
+
+  input[type="number"] {
+    /* stylelint-disable-next-line property-no-vendor-prefix */
+    -moz-appearance:textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button {
+      /* stylelint-disable-next-line property-no-vendor-prefix */
+      -webkit-appearance: none;
+      margin: 0;
+  }
 }

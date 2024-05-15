@@ -8,9 +8,10 @@ import { Outlet } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 import Logo from '@mimir-wallet/assets/images/logo.png';
-import { ButtonEnable, MimirLoading } from '@mimir-wallet/components';
+import { ButtonEnable, ButtonLinear, MimirLoading } from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
 
+import Networks from './Networks';
 import SideBar from './SideBar';
 
 function BaseContainer({ withSideBar }: { withSideBar: boolean }): React.ReactElement {
@@ -32,8 +33,9 @@ function BaseContainer({ withSideBar }: { withSideBar: boolean }): React.ReactEl
               chainStatus={{ smallScreen: 'icon', largeScreen: 'full' }}
             />
           ) : (
-            <ButtonEnable color='primary' radius='full' withConnect />
+            <ButtonEnable Component={ButtonLinear} color='primary' radius='full' withConnect />
           )}
+          <Networks />
         </NavbarContent>
       </Navbar>
       {isReady ? (

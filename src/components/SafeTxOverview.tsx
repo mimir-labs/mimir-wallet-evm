@@ -1,20 +1,26 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { SignatureResponse } from '@mimir-wallet/hooks/types';
+import type { Address } from 'abitype';
+import type { SignatureResponse, TransactionResponse } from '@mimir-wallet/hooks/types';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import React, { useEffect } from 'react';
 import ReactFlow, { Edge, Handle, Node, NodeProps, Position, useEdgesState, useNodesState } from 'reactflow';
+import { useAccount } from 'wagmi';
 
+import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?react';
+import { approveCounts } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
-import { approveCounts } from './safe-tx-modal/utils';
 import AddressCell from './AddressCell';
+import SafeTxButton from './SafeTxButton';
 
 interface Props {
   account: BaseAccount;
+  transaction: TransactionResponse;
   signatures: SignatureResponse[];
+  onApprove?: () => void;
 }
 
 type NodeData = {
@@ -23,9 +29,15 @@ type NodeData = {
   members: BaseAccount[];
   isApprove: boolean;
   address: string;
+  addressChain: Address[];
+  transaction: TransactionResponse;
+  signatures: SignatureResponse[];
+  onApprove?: () => void;
 };
 
 const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) => {
+  const { address } = useAccount();
+
   return (
     <>
       {data.members.length > 0 && (
@@ -37,11 +49,33 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
           type='source'
         />
       )}
-      <div className='w-[220px] bg-white flex justify-between items-center text-left p-2.5 h-auto rounded-medium border-1 border-secondary active:scale-[0.97] transition-all hover:bg-secondary shadow-medium hover:border-primary/5'>
-        <div>
-          <AddressCell fallbackName={data.name} withCopy address={data.address} iconSize={30} />
+      <div className='overflow-hidden w-[220px] h-auto rounded-medium border-1 border-secondary transition-all hover:bg-secondary shadow-medium hover:border-primary/5'>
+        <div className='flex justify-between items-center text-left bg-white pt-2.5 pl-2.5 pr-2.5'>
+          <div>
+            <AddressCell fallbackName={data.name} withCopy address={data.address} iconSize={30} />
+          </div>
+          {data.isApprove && <div className='w-2.5 h-2.5 rounded-full bg-success' />}
         </div>
-        {data.isApprove && <div className='w-2.5 h-2.5 rounded-full bg-success' />}
+        {address && !data.isApprove && addressEq(address, data.address) && (
+          <SafeTxButton
+            isApprove
+            isCancel={false}
+            safeTx={data.transaction}
+            signatures={data.signatures}
+            address={data.transaction.address as Address}
+            addressChain={data.addressChain}
+            onSuccess={data.onApprove}
+            startContent={<IconSuccess />}
+            fullWidth
+            size='sm'
+            color='success'
+            radius='none'
+            className='flex bg-success/10 border-none text-success'
+            variant='flat'
+          >
+            Approve
+          </SafeTxButton>
+        )}
       </div>
       {data.parentId ? (
         <Handle
@@ -62,6 +96,7 @@ const nodeTypes = {
 
 function makeNodes(
   account: BaseAccount,
+  transaction: TransactionResponse,
   signatures: SignatureResponse[],
   isApprove: boolean,
   parentId: string | null,
@@ -71,7 +106,8 @@ function makeNodes(
   yOffset: number,
   onYChange?: (offset: number) => void,
   nodes: Node<NodeData>[] = [],
-  edges: Edge[] = []
+  edges: Edge[] = [],
+  onApprove?: () => void
 ): void {
   const members = account.members || [];
 
@@ -86,7 +122,11 @@ function makeNodes(
       name: account.name,
       parentId,
       members,
-      isApprove
+      isApprove,
+      transaction,
+      signatures,
+      addressChain: nodeId.split('-').slice(2) as Address[],
+      onApprove
     },
     position: { x: xPos, y: yPos },
     connectable: false
@@ -116,6 +156,7 @@ function makeNodes(
 
     makeNodes(
       _account,
+      transaction,
       _signature?.children || [],
       _account.type === 'safe'
         ? approveCounts(_account, _signature?.children || []) >= (_account.threshold || 1)
@@ -130,7 +171,8 @@ function makeNodes(
         nextY += offset;
       },
       nodes,
-      edges
+      edges,
+      onApprove
     );
 
     if (index < childCount - 1) {
@@ -144,7 +186,7 @@ function makeNodes(
   onYChange?.(node.position.y - oldY);
 }
 
-function SafeTxOverview({ account, signatures }: Props) {
+function SafeTxOverview({ account, signatures, transaction, onApprove }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -154,6 +196,7 @@ function SafeTxOverview({ account, signatures }: Props) {
 
     makeNodes(
       account,
+      transaction,
       signatures,
       approveCounts(account, signatures) >= (account.threshold || 1),
       null,
@@ -163,12 +206,13 @@ function SafeTxOverview({ account, signatures }: Props) {
       78,
       undefined,
       nodes,
-      edges
+      edges,
+      onApprove
     );
 
     setNodes(nodes);
     setEdges(edges);
-  }, [account, setEdges, setNodes, signatures]);
+  }, [account, onApprove, setEdges, setNodes, signatures, transaction]);
 
   return (
     <ReactFlow

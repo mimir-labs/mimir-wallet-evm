@@ -15,14 +15,12 @@ const Button = forwardRef(
         ref={ref}
         size={size === 'tiny' ? 'sm' : size}
         disabled={disabled}
-        className={(className || '')
-          .concat(
-            `${disabled ? ' opacity-disabled pointer-events-none' : ''} border-1 font-bold ${size === 'sm' ? 'min-w-12' : ''}`
-          )
+        className={`${disabled ? ' opacity-disabled' : ''} border-1 font-bold ${size === 'sm' ? 'min-w-12' : ''}`
           .concat(
             size === 'tiny' ? ' data-[icon-only=true]:w-5 data-[icon-only=true]:px-0 h-5 min-w-5 min-h-5 px-2' : ''
           )
-          .concat(' data-[icon-only=true]:min-w-5')}
+          .concat(' data-[icon-only=true]:min-w-5')
+          .concat(` ${className}`)}
       />
     );
   }

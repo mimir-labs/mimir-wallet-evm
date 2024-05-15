@@ -11,7 +11,7 @@ import { useAccount } from 'wagmi';
 import RecoveryImg from '@mimir-wallet/assets/images/recover.svg';
 import { Button } from '@mimir-wallet/components';
 import Recovery from '@mimir-wallet/features/recovery';
-import { useDelayModules, useMultisig, useQueryParam } from '@mimir-wallet/hooks';
+import { useDelayModules, useMultisig, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -21,10 +21,11 @@ import SpendLimit from './spend-limit';
 function AccountSetting() {
   const navigate = useNavigate();
   const [tab, setTab] = useQueryParam('tab', 'setup', { replace: true });
-  const { current: address } = useContext(AddressContext);
-  const [delayModules] = useDelayModules(address);
+  const { current } = useContext(AddressContext);
+  const [delayModules] = useDelayModules(current);
   const { address: account } = useAccount();
   const [recoveryOpen, toggleRecovery] = useToggle(true);
+  const safeAccount = useQueryAccount(current);
 
   const recoveryInfo = useMemo(
     () =>
@@ -34,9 +35,9 @@ function AccountSetting() {
     [account, delayModules]
   );
 
-  const multisig = useMultisig(address);
+  const multisig = useMultisig(current);
 
-  if (!address || !isAddress(address)) return null;
+  if (!current || !isAddress(current)) return null;
 
   if (recoveryOpen && recoveryInfo) {
     return (
@@ -82,12 +83,16 @@ function AccountSetting() {
         <Tab key='setup' title='Setup'>
           <Setup multisig={multisig} />
         </Tab>
-        <Tab key='spend-limit' title='Easy Expense'>
-          <SpendLimit address={multisig?.address} />
-        </Tab>
-        <Tab key='recovery' title='Recovery'>
-          <Recovery address={multisig?.address} />
-        </Tab>
+        {safeAccount?.type === 'safe' && (
+          <Tab key='spend-limit' title='Easy Expense'>
+            <SpendLimit address={current} />
+          </Tab>
+        )}
+        {safeAccount?.type === 'safe' && (
+          <Tab key='recovery' title='Recovery'>
+            <Recovery address={current} />
+          </Tab>
+        )}
       </Tabs>
     </div>
   );

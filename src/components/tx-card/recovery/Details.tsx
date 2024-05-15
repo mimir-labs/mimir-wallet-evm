@@ -3,9 +3,9 @@
 
 import type { RecoveryTx } from '@mimir-wallet/hooks/types';
 
-import { Divider } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import React from 'react';
+import { useToggle } from 'react-use';
 import { useAccount } from 'wagmi';
 
 import { AddressRow, Bytes, FormatBalance } from '@mimir-wallet/components';
@@ -16,9 +16,11 @@ import { Item } from '../tx-cell/Details';
 interface Props {
   tx: RecoveryTx;
   cooldown?: number;
+  expiration?: number;
 }
 
-function Details({ tx, cooldown }: Props) {
+function Details({ tx, cooldown, expiration }: Props) {
+  const [isOpen, toggleOpen] = useToggle(false);
   const { chain } = useAccount();
 
   return (
@@ -26,11 +28,22 @@ function Details({ tx, cooldown }: Props) {
       <Item label='Transaction Hash' content={tx.transaction} />
       <Item label='Created' content={dayjs(tx.createdAt).format()} />
       {cooldown && <Item label='Executable' content={dayjs(tx.createdAt + cooldown).format()} />}
-      <Divider />
-      <Item label='Module' content={<AddressRow iconSize={16} withCopy address={tx.address} />} />
-      <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
-      <Item label='Operation' content={Operation[tx.operation]} />
-      <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+      {expiration && cooldown && (
+        <Item label='Expiration' content={dayjs(tx.createdAt + cooldown + expiration).format()} />
+      )}
+
+      <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>
+        View Details
+      </div>
+
+      {isOpen && (
+        <>
+          <Item label='Module' content={<AddressRow iconSize={16} withCopy address={tx.address} />} />
+          <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
+          <Item label='Operation' content={Operation[tx.operation]} />
+          <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+        </>
+      )}
     </>
   );
 }

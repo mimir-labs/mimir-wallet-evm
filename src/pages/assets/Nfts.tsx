@@ -4,22 +4,18 @@
 import type { Address } from 'abitype';
 
 import { Checkbox, Divider } from '@nextui-org/react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useMemo, useState } from 'react';
 import { encodeFunctionData, erc721Abi, isAddress } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
-import { Button, ButtonEnable, Empty, NftCard } from '@mimir-wallet/components';
+import { Button, Empty, NftCard, SafeTxButton } from '@mimir-wallet/components';
 import { useAccountNFTs } from '@mimir-wallet/hooks';
-import { SafeContext } from '@mimir-wallet/providers';
-import { buildMultiSendSafeTx, getNonce } from '@mimir-wallet/safe';
-import { IPublicClient, IWalletClient, MetaTransaction, Operation } from '@mimir-wallet/safe/types';
+import { buildMultiSendSafeTx } from '@mimir-wallet/safe';
+import { IWalletClient, MetaTransaction, Operation } from '@mimir-wallet/safe/types';
 import { addressEq } from '@mimir-wallet/utils';
 
 function Nfts({ address }: { address: Address }) {
-  const { openTxModal } = useContext(SafeContext);
   const [data] = useAccountNFTs(address);
-  const navigate = useNavigate();
   const collections = useMemo(
     () =>
       data.assets.reduce<string[]>((results, item) => {
@@ -41,8 +37,8 @@ function Nfts({ address }: { address: Address }) {
     [_collection, data.assets]
   );
 
-  const handleClick = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient) => {
+  const buildTx = useCallback(
+    async (wallet: IWalletClient) => {
       const receive = window.prompt('Receiver');
 
       if (!receive || !isAddress(receive)) {
@@ -81,19 +77,9 @@ function Nfts({ address }: { address: Address }) {
         });
       }
 
-      const safeTx = await buildMultiSendSafeTx(wallet.chain, txs, await getNonce(client, address));
-
-      openTxModal(
-        {
-          website: 'mimir://internal/transfer-nft',
-          isApprove: false,
-          address,
-          safeTx
-        },
-        () => navigate('/transactions')
-      );
+      return buildMultiSendSafeTx(wallet.chain, txs);
     },
-    [address, data.assets, navigate, openTxModal, selected]
+    [address, data.assets, selected]
   );
 
   if (data.assets.length === 0) {
@@ -152,9 +138,19 @@ function Nfts({ address }: { address: Address }) {
               Clear
             </Button>
           </span>
-          <ButtonEnable isToastError onClick={handleClick} color='primary' size='sm' radius='full'>
+          <SafeTxButton
+            website='mimir://internal/transfer-nft'
+            isApprove={false}
+            isCancel={false}
+            address={address}
+            buildTx={buildTx}
+            isToastError
+            color='primary'
+            size='sm'
+            radius='full'
+          >
             Send
-          </ButtonEnable>
+          </SafeTxButton>
         </div>
       )}
     </div>

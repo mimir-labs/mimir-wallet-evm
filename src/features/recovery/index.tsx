@@ -17,21 +17,20 @@ import {
   ModalFooter,
   ModalHeader
 } from '@nextui-org/react';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
 import { isAddress } from 'viem';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
-import { Button, ButtonEnable, Input } from '@mimir-wallet/components';
+import { Button, Input, SafeTxButton } from '@mimir-wallet/components';
 import { useDelayModules, useInputAddress } from '@mimir-wallet/hooks';
-import { SafeContext } from '@mimir-wallet/providers';
 import { buildAddRecovery } from '@mimir-wallet/safe';
-import { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import Recoverer from './Recoverer';
 
 const reviewWindows = {
+  [60 * 10]: '10 Mins',
   [60 * 60 * 24 * 2]: '2 Days',
   [60 * 60 * 24 * 7]: '7 Days',
   [60 * 60 * 24 * 14]: '14 Days',
@@ -41,6 +40,7 @@ const reviewWindows = {
 
 const expiryTimes = {
   0: 'Never',
+  [60 * 10]: '10 Mins',
   [60 * 60 * 24 * 2]: '2 Days',
   [60 * 60 * 24 * 7]: '7 Days',
   [60 * 60 * 24 * 14]: '14 Days',
@@ -49,7 +49,6 @@ const expiryTimes = {
 } as const;
 
 function Recovery({ address }: { address?: Address }) {
-  const { openTxModal } = useContext(SafeContext);
   const [isOpen, toggleOpen] = useToggle(false);
   const [[recoverer], setRecoverer] = useInputAddress();
   const [cooldown, setCooldown] = useState<number>(60 * 60 * 24 * 28);
@@ -80,26 +79,6 @@ function Recovery({ address }: { address?: Address }) {
     }
   ];
 
-  const handleClick = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient) => {
-      if (!address || !isAddress(recoverer)) return;
-
-      const safeTx = await buildAddRecovery(client, address, recoverer, cooldown, expiration, data.at(0)?.address);
-
-      toggleOpen(false);
-      openTxModal(
-        {
-          website: 'mimir://internal/recovery',
-          isApprove: false,
-          address,
-          safeTx
-        },
-        () => navigate('/transactions')
-      );
-    },
-    [address, cooldown, data, expiration, navigate, openTxModal, recoverer, toggleOpen]
-  );
-
   return (
     <>
       <Card>
@@ -116,7 +95,7 @@ function Recovery({ address }: { address?: Address }) {
             </div>
           ))}
           <Divider />
-          {address && <Recoverer data={data} safeAccount={address} />}
+          {address && data.length > 0 && <Recoverer data={data} safeAccount={address} />}
           <Button onClick={toggleOpen} fullWidth radius='full' color='primary'>
             Add Recovery
           </Button>
@@ -166,9 +145,25 @@ function Recovery({ address }: { address?: Address }) {
             </div>
           </ModalBody>
           <ModalFooter>
-            <ButtonEnable onClick={handleClick} isToastError fullWidth radius='full' color='primary'>
+            <SafeTxButton
+              website='mimir://internal/recovery'
+              isApprove={false}
+              isCancel={false}
+              address={address}
+              buildTx={
+                address && isAddress(recoverer)
+                  ? (_, client) =>
+                      buildAddRecovery(client, address, recoverer, cooldown, expiration, data.at(0)?.address)
+                  : undefined
+              }
+              onSuccess={() => navigate('/transactions')}
+              isToastError
+              fullWidth
+              radius='full'
+              color='primary'
+            >
               Confirm
-            </ButtonEnable>
+            </SafeTxButton>
           </ModalFooter>
         </ModalContent>
       </Modal>

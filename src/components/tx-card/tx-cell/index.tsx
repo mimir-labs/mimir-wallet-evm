@@ -10,8 +10,9 @@ import React from 'react';
 import Details from './Details';
 
 interface Props {
+  from: Address;
   data: Hex;
-  to?: Address;
+  to: Address;
   value: bigint;
   isOpen: boolean;
   items: React.ReactNode;
@@ -19,7 +20,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-function TxCell({ isOpen, items, children, details, to, value, data }: Props) {
+function TxCell({ from, isOpen, items, children, details, to, value, data }: Props) {
   const willChange = useWillChange();
 
   return (
@@ -36,7 +37,7 @@ function TxCell({ isOpen, items, children, details, to, value, data }: Props) {
               variants={TRANSITION_VARIANTS.collapse}
             >
               <div className='flex justify-between gap-3 p-3 mb-3 ml-3 mr-3 bg-white rounded-medium'>
-                <Details data={data} to={to} value={value}>
+                <Details from={from} data={data} to={to} value={value}>
                   {details}
                 </Details>
                 {children}

@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IPublicClient, MetaTransaction, SafeTransaction } from '../types';
+import type { IPublicClient, MetaTransaction } from '../types';
 
 import { type Address, encodeFunctionData, getAddress, isAddressEqual } from 'viem';
 
@@ -9,9 +9,8 @@ import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
 import { assert, diffArray } from '@mimir-wallet/utils';
 
-import { getNonce, getOwners, getOwnersMap, getThreshold, SENTINEL_OWNERS } from '../account';
-import { buildMultiSendSafeTx } from '../multisend';
-import { buildSafeTransaction } from '../transaction';
+import { getOwners, getOwnersMap, getThreshold, SENTINEL_OWNERS } from '../account';
+import { buildMultiSendSafeTx, buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
 
 // @internal
@@ -38,9 +37,8 @@ export async function buildChangeMember(
   client: IPublicClient,
   safeAddress: Address,
   newMembers: Address[],
-  newThreshold: bigint | number | string,
-  nonce?: bigint
-): Promise<SafeTransaction> {
+  newThreshold: bigint | number | string
+): Promise<MetaTransaction> {
   const multisendAddress = deployments[client.chain.id]?.MultiSend;
 
   assert(multisendAddress, `multisend not support on ${client.chain.name}`);
@@ -53,8 +51,6 @@ export async function buildChangeMember(
   if (BigInt(newMembers.length) < newThreshold) {
     throw new Error(`Threshold cannot exceed owner count`);
   }
-
-  nonce ??= await getNonce(client, safeAddress);
 
   let threshold = await getThreshold(client, safeAddress);
   const ownersMap = await getOwnersMap(client, safeAddress);
@@ -153,11 +149,11 @@ export async function buildChangeMember(
   }
 
   if (txs.length > 1) {
-    return buildMultiSendSafeTx(client.chain, txs, nonce);
+    return buildMultiSendSafeTx(client.chain, txs);
   }
 
   if (txs.length === 1) {
-    return buildSafeTransaction(safeAddress, nonce, {
+    return buildSafeTransaction(safeAddress, {
       data: txs[0].data,
       operation: Operation.Call
     });

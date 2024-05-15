@@ -81,3 +81,14 @@ export function createTx(
     headers: jsonHeader
   });
 }
+
+export function simulateTx(
+  chainId: number,
+  bundles: { from: Address; to: Address; value: string; data: Hex }[]
+): Promise<{ success: boolean; simulation?: any[] }> {
+  return fetcher(serviceUrl(chainId, 'simulate'), {
+    method: 'POST',
+    body: JSON.stringify({ bundles }),
+    headers: jsonHeader
+  });
+}

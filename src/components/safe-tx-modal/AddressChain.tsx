@@ -6,7 +6,6 @@ import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 import type { Multisig } from '@mimir-wallet/safe/types';
 
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
-import { isAddressEqual } from 'viem';
 
 import { AddressContext } from '@mimir-wallet/providers';
 
@@ -15,47 +14,27 @@ import InputAddress from '../InputAddress';
 interface Props {
   multisig: Multisig;
   deep: number;
+  filterPaths: Array<Address[]>;
   addressChain: Address[];
   setAddressChain: React.Dispatch<React.SetStateAction<Address[]>>;
   signatures?: SignatureResponse[];
 }
 
-function getFiltered(
-  multisig: Multisig,
-  multisigs: Multisig[],
-  isMultisig: (address: Address) => boolean,
-  signatures?: SignatureResponse[]
-): Address[] {
-  return multisig.members.filter((item) => {
-    const sig = signatures?.find((sig) => isAddressEqual(sig.signature.signer, item));
-
-    if (isMultisig(item)) {
-      if (sig) {
-        const subMultisig = multisigs.find((multisig) => isAddressEqual(multisig.address, item));
-
-        if (subMultisig) {
-          return getFiltered(subMultisig, multisigs, isMultisig, sig.children).length > 0;
-        }
-
-        return true;
-      }
-
-      return true;
-    }
-
-    return !sig;
-  });
-}
-
-function AddressChain({ multisig, deep, addressChain, setAddressChain, signatures }: Props) {
-  const { signers, isMultisig, multisigs } = useContext(AddressContext);
+function AddressChain({ multisig, filterPaths, deep, addressChain, setAddressChain, signatures }: Props) {
+  const { signers, multisigs } = useContext(AddressContext);
   const selected: Address | undefined = addressChain[deep];
 
   const subMultisig = useMemo(() => multisigs.find((item) => item.address === selected), [multisigs, selected]);
 
   const filtered = useMemo(
-    () => getFiltered(multisig, multisigs, isMultisig, signatures),
-    [multisig, isMultisig, multisigs, signatures]
+    () =>
+      multisig.members.filter((member) => {
+        return filterPaths
+          .map((item) => item[deep])
+          .filter((item) => !!item)
+          .includes(member);
+      }),
+    [deep, filterPaths, multisig.members]
   );
 
   useEffect(() => {
@@ -102,6 +81,7 @@ function AddressChain({ multisig, deep, addressChain, setAddressChain, signature
             multisig={subMultisig}
             addressChain={addressChain}
             deep={deep + 1}
+            filterPaths={filterPaths}
             setAddressChain={setAddressChain}
           />
         </div>

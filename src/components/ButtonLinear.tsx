@@ -12,7 +12,7 @@ function ButtonLinear({ className, ...props }: ButtonProps) {
     <Button
       {...props}
       variant='solid'
-      className={(className || '').concat(' bg-gradient-to-r from-[#0194FF] to-[#D306FF] text-white')}
+      className={(className || '').concat(' bg-gradient-to-r from-[#0194FF] to-[#D306FF] text-white border-none')}
     />
   );
 }

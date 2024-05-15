@@ -23,6 +23,7 @@ export interface TransactionResponse {
   gasToken: Address;
   refundReceiver: Address;
   nonce: bigint;
+  address: Address;
   status: TransactionStatus;
   createdAt: number;
   updatedAt: number;
@@ -53,12 +54,14 @@ export type CallFunctions =
   | 'addOwnerWithThreshold'
   | 'removeOwner'
   | 'swapOwner'
-  | 'changeThreshold';
+  | 'changeThreshold'
+  | 'transfer';
 
 export interface CallArgs {
   [other: string]: unknown;
   multiSend: [Hex];
   transferToken: [token: Address, receiver: Address, amount: bigint];
+  transfer: [receiver: Address, amount: bigint];
   addOwnerWithThreshold: [owner: Address, threshold: bigint];
   removeOwner: [prevOwner: Address, owner: Address, threshold: bigint];
   swapOwner: [prevOwner: Address, oldOwner: Address, newOwner: Address];
@@ -72,11 +75,17 @@ export interface ParsedCall<F extends CallFunctions = CallFunctions> {
   types: string[];
 }
 
-export type Token = {
+export interface TokenMeta {
+  chainId: number;
+  address: Address;
   name: string;
   symbol: string;
   decimals: number;
-};
+}
+
+export interface TokenInfo extends TokenMeta {
+  icon?: string | null;
+}
 
 export interface DelayModuleResponse {
   address: Address;

@@ -4,7 +4,7 @@
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Divider, Switch } from '@nextui-org/react';
-import { useCallback, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAsyncFn, useToggle } from 'react-use';
 import {
@@ -20,29 +20,40 @@ import {
 import { useAccount } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
-import { AddressCell, Button, ButtonEnable, FormatBalance, Input, InputToken } from '@mimir-wallet/components';
+import {
+  AddressCell,
+  Button,
+  ButtonEnable,
+  FormatBalance,
+  Input,
+  InputToken,
+  SafeTxButton
+} from '@mimir-wallet/components';
 import { deployments } from '@mimir-wallet/config';
 import {
   useAccountBalance,
   useAccountTokens,
   useDelegateAllowance,
   useInputAddress,
-  useInputNumber,
-  useMultisig,
-  useSafeNonce
+  useInputNumber
 } from '@mimir-wallet/hooks';
-import { AddressContext, SafeContext } from '@mimir-wallet/providers';
+import { AddressContext } from '@mimir-wallet/providers';
 import { buildSafeTransaction } from '@mimir-wallet/safe';
 
-function Transfer({ receive, token: propsToken }: { token?: Address; receive?: Address }) {
+function Transfer({
+  receive,
+  token: propsToken,
+  callbackPath
+}: {
+  token?: Address;
+  receive?: Address;
+  callbackPath?: string;
+}) {
   const navigate = useNavigate();
   const { current } = useContext(AddressContext);
-  const { openTxModal } = useContext(SafeContext);
   const { address } = useAccount();
   const [[to], setTo] = useInputAddress(receive);
-  const [[amount], setAmount] = useInputNumber();
-  const multisig = useMultisig(current);
-  const [nonce] = useSafeNonce(multisig?.address);
+  const [[amount], setAmount] = useInputNumber(undefined, false, 0);
   const [useSpendLimit, toggleSpendLimit] = useToggle(false);
   const [tokens] = useAccountTokens(current);
   const [token, setToken] = useState<Address>(propsToken || zeroAddress);
@@ -68,33 +79,6 @@ function Transfer({ receive, token: propsToken }: { token?: Address; receive?: A
     },
     [address, allowance, token, amount, current, to]
   );
-
-  const handleClick = useCallback(async () => {
-    if (!to || !current || !balance || !amount || nonce === undefined || !multisig || !isAddress(to)) {
-      return;
-    }
-
-    const tx =
-      token === zeroAddress
-        ? buildSafeTransaction(to, nonce, { value: parseEther(amount) })
-        : buildSafeTransaction(token, nonce, {
-            data: encodeFunctionData({
-              abi: erc20Abi,
-              functionName: 'transfer',
-              args: [to, parseUnits(amount, balance.decimals)]
-            })
-          });
-
-    openTxModal(
-      {
-        website: 'mimir://app/transfer',
-        isApprove: false,
-        address: multisig.address,
-        safeTx: tx
-      },
-      () => navigate('/transactions')
-    );
-  }, [to, current, balance, amount, nonce, multisig, token, openTxModal, navigate]);
 
   return (
     <div className='max-w-lg mx-auto space-y-5'>
@@ -124,7 +108,6 @@ function Transfer({ receive, token: propsToken }: { token?: Address; receive?: A
           </div>
           <div className='flex'>
             <Input
-              type='number'
               labelPlacement='outside'
               classNames={{ label: ['flex', 'items-center', 'justify-between', 'w-full'] }}
               label={
@@ -146,9 +129,6 @@ function Transfer({ receive, token: propsToken }: { token?: Address; receive?: A
                   Max
                 </Button>
               }
-              min={0}
-              step={0.00000001}
-              max={balance ? Number(formatUnits(balance.value, balance.decimals)) : undefined}
               onChange={setAmount}
               placeholder='Enter amount'
               value={amount}
@@ -183,15 +163,33 @@ function Transfer({ receive, token: propsToken }: { token?: Address; receive?: A
               Submit
             </ButtonEnable>
           ) : (
-            <ButtonEnable
-              disabled={!to || !current || !balance || !amount || nonce === undefined || !multisig || !isAddress(to)}
-              onClick={handleClick}
+            <SafeTxButton
+              isApprove={false}
+              isCancel={false}
+              address={current}
+              website='mimir://app/transfer'
+              buildTx={
+                isAddress(to) && balance
+                  ? async () =>
+                      token === zeroAddress
+                        ? buildSafeTransaction(to, { value: parseEther(amount) })
+                        : buildSafeTransaction(token, {
+                            data: encodeFunctionData({
+                              abi: erc20Abi,
+                              functionName: 'transfer',
+                              args: [to, parseUnits(amount, balance.decimals)]
+                            })
+                          })
+                  : undefined
+              }
+              onSuccess={() => navigate(callbackPath ? decodeURIComponent(callbackPath) : '/transactions')}
+              disabled={!to || !current || !balance || !amount || !isAddress(to)}
               fullWidth
               radius='full'
               color='primary'
             >
               Submit
-            </ButtonEnable>
+            </SafeTxButton>
           )}
         </div>
       </div>

@@ -1,16 +1,16 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'abitype';
 import type { RecoveryTx, SignatureResponse, TransactionResponse } from '@mimir-wallet/hooks/types';
-import type { BaseAccount, IPublicClient, IWalletClient, SafeTransaction } from '@mimir-wallet/safe/types';
+import type { BaseAccount, IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody, CardHeader, Divider, Link } from '@nextui-org/react';
 import React, { useCallback, useMemo } from 'react';
-import { toFunctionSelector } from 'viem';
-import { useReadContracts } from 'wagmi';
+import { size, toFunctionSelector } from 'viem';
+import { useAccount, useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
+import { memberPaths } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
 import SafeTxCell from '../safe/Cell';
@@ -21,16 +21,11 @@ interface Props {
   defaultOpen?: boolean;
   tx: RecoveryTx;
   pendingTxs: { transaction: TransactionResponse; signatures: SignatureResponse[] }[];
-  handleCancel: (wallet: IWalletClient, client: IPublicClient, address: Address, cancel: bigint) => void;
-  handleApproveCancel?: (
-    wallet: IWalletClient,
-    client: IPublicClient,
-    safeTx: SafeTransaction,
-    signatures: SignatureResponse[]
-  ) => void;
+  refetch?: () => void;
 }
 
-function RecoveryTxCard({ handleCancel, account, defaultOpen, tx, pendingTxs, handleApproveCancel }: Props) {
+function RecoveryTxCard({ account, defaultOpen, tx, pendingTxs, refetch }: Props) {
+  const { address: signer } = useAccount();
   const { data } = useReadContracts({
     allowFailure: false,
     contracts: [
@@ -52,8 +47,8 @@ function RecoveryTxCard({ handleCancel, account, defaultOpen, tx, pendingTxs, ha
       }
     ]
   });
-
   const cooldown = data ? Number(data[0]) * 1000 : undefined;
+  const expiration = data ? Number(data[1]) * 1000 : undefined;
 
   const cancelTxs = useMemo(
     () =>
@@ -64,6 +59,7 @@ function RecoveryTxCard({ handleCancel, account, defaultOpen, tx, pendingTxs, ha
       ),
     [pendingTxs, tx.address]
   );
+  const allPaths = useMemo(() => (account && signer ? memberPaths(account, signer) : []), [account, signer]);
 
   const execute = useCallback(
     async (wallet: IWalletClient, client: IPublicClient) => {
@@ -79,11 +75,6 @@ function RecoveryTxCard({ handleCancel, account, defaultOpen, tx, pendingTxs, ha
     [tx.address, tx.data, tx.operation, tx.to, tx.value]
   );
 
-  const cancel = useCallback(
-    (wallet: IWalletClient, client: IPublicClient) => handleCancel(wallet, client, tx.address, tx.queueNonce),
-    [handleCancel, tx.address, tx.queueNonce]
-  );
-
   return (
     <Card>
       <CardHeader className='text-tiny'>
@@ -97,20 +88,30 @@ function RecoveryTxCard({ handleCancel, account, defaultOpen, tx, pendingTxs, ha
         <CardBody className='space-y-3'>
           {cancelTxs.map((item) => (
             <SafeTxCell
+              allPaths={allPaths}
               account={account}
-              handleApprove={handleApproveCancel}
+              hasCancelTx={
+                cancelTxs.findIndex(
+                  (item) =>
+                    size(item.transaction.data) === 0 &&
+                    item.transaction.value === 0n &&
+                    addressEq(item.transaction.to, item.transaction.address)
+                ) > -1
+              }
               key={item.transaction.hash}
               defaultOpen={false}
               transaction={item.transaction}
               signatures={item.signatures}
+              refetch={refetch}
             />
           ))}
           <Cell
             handleExecute={execute}
-            handleCancel={cancel}
             cooldown={cooldown ? Number(cooldown) : undefined}
+            expiration={expiration ? Number(expiration) : undefined}
             defaultOpen={defaultOpen}
             tx={tx}
+            refetch={refetch}
           />
         </CardBody>
       ) : null}

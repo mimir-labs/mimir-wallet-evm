@@ -2,5 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export * from './apps';
+export * from './config';
 export * from './deployments';
 export * from './service';

@@ -1,28 +1,33 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'abitype';
+import type { RecoveryTx } from '@mimir-wallet/hooks/types';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Accordion, AccordionItem, Progress } from '@nextui-org/react';
 import React from 'react';
+import { encodeFunctionData } from 'viem';
 
+import { abis } from '@mimir-wallet/abis';
 import ArrowLeft from '@mimir-wallet/assets/svg/ArrowLeft.svg?react';
 import AddressCell from '@mimir-wallet/components/AddressCell';
+import Alert from '@mimir-wallet/components/Alert';
 import ButtonEnable from '@mimir-wallet/components/ButtonEnable';
+import SafeTxButton from '@mimir-wallet/components/SafeTxButton';
+import { buildSafeTransaction } from '@mimir-wallet/safe';
 
 function Process({
-  sender,
-  createdAt,
   cooldown,
-  handleCancel,
-  handleExecute
+  expiration,
+  tx,
+  handleExecute,
+  refetch
 }: {
-  sender: Address;
-  createdAt: number;
   cooldown?: number;
-  handleCancel: (wallet: IWalletClient, client: IPublicClient) => void;
+  expiration?: number;
+  tx: RecoveryTx;
   handleExecute: (wallet: IWalletClient, client: IPublicClient) => void;
+  refetch?: () => void;
 }) {
   const now = Date.now();
 
@@ -43,26 +48,56 @@ function Process({
           title='Recoverer'
         >
           <div className='rounded-medium bg-primary/5 p-[5px]'>
-            <AddressCell iconSize={30} withCopy address={sender} />
+            <AddressCell iconSize={30} withCopy address={tx.sender} />
             <div className='px-[40px]'>
               <Progress
                 className='h-[3px]'
                 size='sm'
-                value={cooldown === undefined ? createdAt : now}
-                maxValue={createdAt + (cooldown || 0)}
-                minValue={createdAt}
+                value={cooldown === undefined ? tx.createdAt : now}
+                maxValue={tx.createdAt + (cooldown || 0)}
+                minValue={tx.createdAt}
                 color='primary'
               />
             </div>
           </div>
         </AccordionItem>
       </Accordion>
+      {cooldown && expiration && now > tx.createdAt + cooldown + expiration && (
+        <Alert severity='error' title='This recovery expired, please cancel it' />
+      )}
       <div className='flex items-center gap-x-4'>
-        <ButtonEnable onClick={handleCancel} fullWidth radius='full' color='primary' variant='bordered'>
+        <SafeTxButton
+          website='mimir://internal/cancel-recovery'
+          isApprove={false}
+          isCancel={false}
+          address={tx.to}
+          buildTx={async () =>
+            buildSafeTransaction(tx.address, {
+              value: 0n,
+              data: encodeFunctionData({
+                abi: abis.Delay,
+                functionName: 'setTxNonce',
+                args: [tx.queueNonce + 1n]
+              })
+            })
+          }
+          onSuccess={refetch}
+          fullWidth
+          radius='full'
+          color='danger'
+          variant='bordered'
+        >
           Cancel
-        </ButtonEnable>
-        {cooldown && now > createdAt + cooldown && (
-          <ButtonEnable isToastError onClick={handleExecute} fullWidth radius='full' color='primary'>
+        </SafeTxButton>
+        {cooldown && now > tx.createdAt + cooldown && (
+          <ButtonEnable
+            isToastError
+            onClick={handleExecute}
+            fullWidth
+            radius='full'
+            color='primary'
+            disabled={!!cooldown && !!expiration && now > tx.createdAt + cooldown + expiration}
+          >
             Execute
           </ButtonEnable>
         )}

@@ -3,15 +3,15 @@
 
 import { useCallback, useState } from 'react';
 
-import { isValidInteger, isValidNumber } from '@mimir-wallet/utils';
+import { isPositiveNumber, isValidInteger, isValidNumber } from '@mimir-wallet/utils';
 
 export function useInputNumber(
   defaultValue?: string,
-  integer: boolean = false
+  integer: boolean = false,
+  min?: number
 ): [
   [address: string, isValidAddress: boolean],
-  setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void,
-  setValid: (valid: boolean) => void
+  setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void
 ] {
   const [value, setValue] = useState<[string, boolean]>([defaultValue?.toString() || '', true]);
 
@@ -25,14 +25,24 @@ export function useInputNumber(
         v = _value.target.value;
       }
 
+      if (!isValidNumber(v) && v !== '-') {
+        return;
+      }
+
+      if (min !== undefined && min >= 0) {
+        if (!isPositiveNumber(v)) {
+          return;
+        }
+      }
+
       if (integer && v.includes('.')) {
-        v = parseInt(v, 10).toString();
+        return;
       }
 
       setValue([v, v ? (integer ? isValidInteger(v) : isValidNumber(v)) : true]);
     },
-    [integer]
+    [integer, min]
   );
 
-  return [value, onChange, (valid) => setValue(([address]) => [address, valid])];
+  return [value, onChange];
 }

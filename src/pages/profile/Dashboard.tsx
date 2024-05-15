@@ -26,7 +26,12 @@ function Dashboard({ address }: { address: Address }) {
         <h6 className='font-bold text-medium mb-2.5'>Info</h6>
         <Card>
           <CardBody className='w-full h-[240px] p-4'>
-            <Info nftCounts={nftData.assets.length} totalUsd={data.totalBalanceUsd} address={address} />
+            <Info
+              isSafe={account?.type === 'safe'}
+              nftCounts={nftData.assets.length}
+              totalUsd={data.totalBalanceUsd}
+              address={address}
+            />
           </CardBody>
         </Card>
       </div>
