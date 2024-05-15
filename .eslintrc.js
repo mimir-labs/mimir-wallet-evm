@@ -87,6 +87,7 @@ module.exports = {
     '@typescript-eslint/no-restricted-imports': 'off',
     '@typescript-eslint/no-shadow': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-explicit-any': 'warn',
     'react/require-default-props': 'off',
     'react/no-did-update-set-state': 'off',
     'react/no-find-dom-node': 'off',

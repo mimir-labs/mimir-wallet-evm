@@ -8,3 +8,7 @@ export function isValidNumber(value: unknown): boolean {
 export function isValidInteger(value: unknown): boolean {
   return isValidNumber(value) && Number.isInteger(value);
 }
+
+export function isPositiveNumber(value: { toString: () => string }): boolean {
+  return isValidNumber(value) && Number(value) >= 0;
+}

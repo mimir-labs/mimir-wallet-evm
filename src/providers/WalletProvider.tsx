@@ -3,11 +3,9 @@
 
 import type React from 'react';
 
-import { getDefaultConfig, lightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
+import { lightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fallback, http } from 'viem';
-import { WagmiProvider } from 'wagmi';
-import { sepolia } from 'wagmi/chains';
+import { Config, WagmiProvider } from 'wagmi';
 
 import { AddressIcon } from '@mimir-wallet/components';
 import { fetcher } from '@mimir-wallet/utils/fetcher';
@@ -17,22 +15,6 @@ const queryClient = new QueryClient({
     queries: {
       queryFn: ({ queryKey }) => (queryKey[0] ? fetcher(queryKey[0] as string) : undefined)
     }
-  }
-});
-
-const projectId = '7d03930c3d8c2558da5d59066df0877a';
-
-const config = getDefaultConfig({
-  appName: 'Mimir Wallet',
-  projectId,
-  chains: [sepolia],
-  transports: {
-    [sepolia.id]: fallback([
-      http('https://sepolia.drpc.org'),
-      http('https://rpc2.sepolia.org'),
-      http(),
-      http('https://ethereum-sepolia-rpc.publicnode.com	')
-    ])
   }
 });
 
@@ -47,9 +29,9 @@ const theme = {
   ...defaultTheme,
   colors: {
     ...defaultTheme.colors,
-    actionButtonBorder: '#F4F0FF',
-    actionButtonBorderMobile: '#F4F0FF',
-    actionButtonSecondaryBackground: '#F4F0FF',
+    actionButtonBorder: '#F5F3FF',
+    actionButtonBorderMobile: '#F5F3FF',
+    actionButtonSecondaryBackground: '#F5F3FF',
     connectButtonBackgroundError: '#E82F5E',
     connectButtonText: '#151F34',
     connectionIndicator: '#00DBA6',
@@ -78,7 +60,7 @@ const theme = {
   }
 } as Theme;
 
-function WalletProvider({ children }: { children: React.ReactNode }): JSX.Element {
+function WalletProvider({ children, config }: { config: Config; children: React.ReactNode }): JSX.Element {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

@@ -18,19 +18,16 @@ import {
   ModalHeader
 } from '@nextui-org/react';
 import dayjs from 'dayjs';
-import React, { useCallback, useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useToggle } from 'react-use';
 import { isAddress, parseEther, zeroAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
-import { Button, ButtonEnable, Input } from '@mimir-wallet/components';
+import { Button, Input, SafeTxButton } from '@mimir-wallet/components';
 import { deployments } from '@mimir-wallet/config';
 import { useInputAddress, useInputNumber, useSafeModuleEnabled } from '@mimir-wallet/hooks';
-import { SafeContext } from '@mimir-wallet/providers';
 import { buildAddAllowance } from '@mimir-wallet/safe';
-import { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import Delegates from './Delegates';
 
@@ -42,7 +39,6 @@ const resetTimes = {
 } as const;
 
 function SpendLimit({ address }: { address?: Address }) {
-  const { openTxModal } = useContext(SafeContext);
   const chainId = useChainId();
   const allowanceAddress = deployments[chainId].modules.Allowance;
   const isModuleEnabled = useSafeModuleEnabled(address, allowanceAddress);
@@ -50,7 +46,6 @@ function SpendLimit({ address }: { address?: Address }) {
   const [[delegate], setDelegate] = useInputAddress();
   const [[amount], setAmount] = useInputNumber();
   const [reset, setReset] = useState<number>(0);
-  const navigate = useNavigate();
 
   const items = [
     {
@@ -69,34 +64,6 @@ function SpendLimit({ address }: { address?: Address }) {
       desc: 'You can choose to set a one-time allowance or to have it automatically refill after a defined time-period'
     }
   ];
-
-  const handleClick = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient) => {
-      if (!address || !isAddress(delegate)) return;
-
-      const safeTx = await buildAddAllowance(
-        client,
-        address,
-        delegate,
-        zeroAddress,
-        parseEther(amount),
-        reset,
-        reset === 0 ? 0 : Math.ceil(dayjs().startOf('hours').valueOf() / 1000 / 60)
-      );
-
-      toggleOpen(false);
-      openTxModal(
-        {
-          website: 'mimir://internal/spend-limit',
-          isApprove: false,
-          address,
-          safeTx
-        },
-        () => navigate('/transactions')
-      );
-    },
-    [address, amount, delegate, navigate, openTxModal, reset, toggleOpen]
-  );
 
   return (
     <>
@@ -163,9 +130,32 @@ function SpendLimit({ address }: { address?: Address }) {
             </div>
           </ModalBody>
           <ModalFooter>
-            <ButtonEnable onClick={handleClick} isToastError fullWidth radius='full' color='primary'>
+            <SafeTxButton
+              website='mimir://internal/spend-limit'
+              isApprove={false}
+              isCancel={false}
+              address={address}
+              buildTx={
+                address && isAddress(delegate)
+                  ? (_, client) =>
+                      buildAddAllowance(
+                        client,
+                        address,
+                        delegate,
+                        zeroAddress,
+                        parseEther(amount),
+                        reset,
+                        reset === 0 ? 0 : Math.ceil(dayjs().startOf('hours').valueOf() / 1000 / 60)
+                      )
+                  : undefined
+              }
+              isToastError
+              fullWidth
+              radius='full'
+              color='primary'
+            >
               Confirm
-            </ButtonEnable>
+            </SafeTxButton>
           </ModalFooter>
         </ModalContent>
       </Modal>

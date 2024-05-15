@@ -11,7 +11,7 @@ import { registerSW } from 'virtual:pwa-register';
 
 import Providers from './providers/providers';
 import App from './App';
-import { initializeFavoriteApps } from './config';
+import { initializeFavoriteApps, initMimirConfig } from './config';
 
 dayjs.extend((_, dayjsClass) => {
   const oldFormat = dayjsClass.prototype.format;
@@ -23,6 +23,8 @@ dayjs.extend((_, dayjsClass) => {
 registerSW();
 initializeFavoriteApps();
 
+const mimirConfig = initMimirConfig();
+
 const container = document.querySelector('#root');
 
 if (container) {
@@ -31,7 +33,7 @@ if (container) {
   root.render(
     <StrictMode>
       <BrowserRouter>
-        <Providers>
+        <Providers address={mimirConfig.address} config={mimirConfig.walletConfig}>
           <App />
         </Providers>
       </BrowserRouter>

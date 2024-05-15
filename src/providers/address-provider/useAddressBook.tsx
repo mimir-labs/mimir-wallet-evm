@@ -98,5 +98,5 @@ export function useAddressBook(
     />
   );
 
-  return { addresses, addressNames, addAddressBook, setAddress, setName, node };
+  return { addresses, addressNames, addAddressBook, setAddress, setName, setAddressNames, node };
 }

@@ -49,9 +49,9 @@ const config = {
         extend: 'light',
         colors: {
           foreground: {DEFAULT: '#151F34'},
-          divider: {DEFAULT: '#F4F0FF'},
+          divider: {DEFAULT: '#F5F3FF'},
           primary: {
-            50: '#F4F0FF',
+            50: '#F5F3FF',
             100: '#EEE8FF',
             200: '#CEBFFF',
             300: '#AB96FF',
@@ -66,7 +66,7 @@ const config = {
           },
           secondary: {
             foreground: '#5F45FF',
-            DEFAULT: '#F4F0FF'
+            DEFAULT: '#F5F3FF'
           },
           success: {
             foreground: '#FFF',

@@ -6,8 +6,7 @@ import type { CallFunctions, ParsedCall } from '@mimir-wallet/hooks/types';
 
 import { TRANSITION_VARIANTS } from '@nextui-org/framer-utils';
 import { domAnimation, LazyMotion, motion, useWillChange } from 'framer-motion';
-import React from 'react';
-import { useToggle } from 'react-use';
+import React, { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
@@ -20,18 +19,33 @@ import CallDetails from './CallDetails';
 // eslint-disable-next-line import/no-cycle
 import CallDisplay from './CallDisplay';
 
-function Item({ index, to, value, data }: { index: number; data: Hex; to: Address; value: bigint }) {
-  const [isOpen, toggleOpen] = useToggle(false);
+function Item({
+  from,
+  index,
+  to,
+  value,
+  data,
+  isOpen,
+  toggleOpen
+}: {
+  index: number;
+  data: Hex;
+  to: Address;
+  from: Address;
+  value: bigint;
+  isOpen: boolean;
+  toggleOpen: () => void;
+}) {
   const [dataSize, parsed] = useParseCall(data);
   const multisend = useParseMultisend(parsed);
   const { chain } = useAccount();
   const willChange = useWillChange();
 
   const Top = (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-10' onClick={toggleOpen}>
-      <div className='col-span-3 flex items-center'>{index}</div>
-      <div className='col-span-3 flex items-center'>{parsed.functionName}</div>
-      <div className='col-span-3 flex items-center'>
+    <div className='cursor-pointer h-10 px-3 grid grid-cols-10 text-tiny' onClick={toggleOpen}>
+      <div className='col-span-1 flex items-center'>{index}</div>
+      <div className='col-span-4 flex items-center'>{parsed.functionName}</div>
+      <div className='col-span-4 flex items-center'>
         {dataSize ? (
           <CallDetails multisend={multisend} parsed={parsed} />
         ) : (
@@ -73,7 +87,7 @@ function Item({ index, to, value, data }: { index: number; data: Hex; to: Addres
           variants={TRANSITION_VARIANTS.collapse}
         >
           <div className='mb-2.5 ml-2.5 mr-2.5 bg-white rounded-medium p-2.5'>
-            <CallDisplay data={data} to={to} value={value} />
+            <CallDisplay from={from} data={data} to={to} value={value} />
           </div>
         </motion.div>
       </LazyMotion>
@@ -81,8 +95,9 @@ function Item({ index, to, value, data }: { index: number; data: Hex; to: Addres
   );
 }
 
-function Multisend({ parsed, data }: { parsed: ParsedCall<CallFunctions>; data: Hex }) {
+function Multisend({ parsed, from, data }: { parsed: ParsedCall<CallFunctions>; from: Address; data: Hex }) {
   const txs = useParseMultisend(parsed);
+  const [isOpen, setOpen] = useState<Record<number, boolean>>({});
 
   if (!txs) {
     return <FunctionArgs data={data} />;
@@ -90,9 +105,59 @@ function Multisend({ parsed, data }: { parsed: ParsedCall<CallFunctions>; data: 
 
   return (
     <div className='space-y-2.5'>
-      <div className='font-bold text-small'>Actions</div>
+      <div className='flex items-center justify-between font-bold text-small'>
+        Actions
+        <div>
+          <Button
+            color='primary'
+            variant='light'
+            size='tiny'
+            onClick={() =>
+              setOpen(
+                Array.from({ length: txs.length }).reduce<Record<number, boolean>>((result, _, index) => {
+                  result[index] = true;
+
+                  return result;
+                }, {})
+              )
+            }
+          >
+            Expend all
+          </Button>
+          <Button
+            color='primary'
+            variant='light'
+            size='tiny'
+            onClick={() =>
+              setOpen(
+                Array.from({ length: txs.length }).reduce<Record<number, boolean>>((result, _, index) => {
+                  result[index] = false;
+
+                  return result;
+                }, {})
+              )
+            }
+          >
+            Collapse all
+          </Button>
+        </div>
+      </div>
       {txs.map((tx, index) => (
-        <Item data={tx.data} value={tx.value} to={tx.to} index={index + 1} key={index} />
+        <Item
+          from={from}
+          data={tx.data}
+          value={tx.value}
+          to={tx.to}
+          index={index + 1}
+          key={index}
+          isOpen={!!isOpen[index]}
+          toggleOpen={() =>
+            setOpen((values) => ({
+              ...values,
+              [index]: !values[index]
+            }))
+          }
+        />
       ))}
     </div>
   );

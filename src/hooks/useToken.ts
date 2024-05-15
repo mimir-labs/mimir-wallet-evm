@@ -2,17 +2,64 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { Token } from './types';
+import type { TokenMeta } from './types';
 
-import { useEffect, useState } from 'react';
-import { erc20Abi } from 'viem';
-import { useChainId, usePublicClient } from 'wagmi';
+import { useEffect, useMemo, useState } from 'react';
+import { Chain, erc20Abi, zeroAddress } from 'viem';
+import { useChainId, useClient, useReadContracts } from 'wagmi';
 
-import { IPublicClient } from '@mimir-wallet/safe/types';
+async function extraTokens(
+  data: (
+    | {
+        error: Error;
+        result?: undefined;
+        status: 'failure';
+      }
+    | {
+        error?: undefined;
+        result: string | number | bigint;
+        status: 'success';
+      }
+  )[],
+  chain: Chain,
+  tokens: Address[]
+): Promise<Record<Address, TokenMeta>> {
+  const results: Record<Address, TokenMeta> = {};
 
-async function queryToken(client: IPublicClient, tokens: Address[]): Promise<Record<Address, Token>> {
-  const data = await client.multicall({
+  for (let i = 0; i < tokens.length; i++) {
+    const [name, symbol, decimals] = data.slice(i * 3, i * 3 + 3);
+
+    if (tokens[i] === zeroAddress) {
+      results[tokens[i]] = {
+        chainId: chain.id,
+        address: tokens[i],
+        name: chain.nativeCurrency.name || 'Ether',
+        symbol: chain.nativeCurrency.symbol || 'ETH',
+        decimals: chain.nativeCurrency.decimals || 18
+      };
+    } else if (name.status === 'success' && symbol.status === 'success' && decimals.status === 'success') {
+      results[tokens[i]] = {
+        chainId: chain.id,
+        address: tokens[i],
+        name: name.result.toString() || '',
+        symbol: symbol.result.toString() || '',
+        decimals: Number(decimals.result) || 18
+      };
+    }
+  }
+
+  return results;
+}
+
+export function useTokens(tokens: Address[]): Record<Address, TokenMeta> {
+  const chainId = useChainId();
+  const client = useClient({ chainId });
+  const { data: results } = useReadContracts({
     allowFailure: true,
+    query: {
+      initialData: [],
+      refetchInterval: 14_000
+    },
     contracts: tokens
       .map((token) => [
         {
@@ -33,34 +80,76 @@ async function queryToken(client: IPublicClient, tokens: Address[]): Promise<Rec
       ])
       .flat()
   });
-
-  const results: Record<Address, Token> = {};
-
-  for (let i = 0; i < tokens.length; i++) {
-    const [name, symbol, decimals] = data.slice(i * 3, i * 3 + 3);
-
-    if (name.status === 'success' && symbol.status === 'success' && decimals.status === 'success') {
-      results[tokens[i]] = {
-        name: name.result.toString() || '',
-        symbol: symbol.result.toString() || '',
-        decimals: Number(decimals.result) || 18
-      };
-    }
-  }
-
-  return results;
-}
-
-export function useTokens(tokens: Address[]): Record<Address, Token> {
-  const chainId = useChainId();
-  const client = usePublicClient({ chainId });
-  const [data, setData] = useState<Record<Address, Token>>({});
+  const [data, setData] = useState<Record<Address, TokenMeta>>({});
 
   useEffect(() => {
-    if (client && tokens.length > 0) {
-      queryToken(client, tokens).then(setData);
+    if (client && tokens.length > 0 && results && results.length > 0) {
+      extraTokens(results, client.chain, tokens).then(setData);
     }
-  }, [client, tokens]);
+  }, [client, results, tokens]);
 
   return data;
+}
+
+export function useToken(tokenAddr: Address): TokenMeta | undefined {
+  const chainId = useChainId();
+  const client = useClient({ chainId });
+  const { data } = useReadContracts({
+    allowFailure: false,
+    query: {
+      refetchInterval: 14_000
+    },
+    contracts:
+      tokenAddr !== zeroAddress
+        ? [
+            {
+              chainId,
+              address: tokenAddr,
+              abi: erc20Abi,
+              functionName: 'name'
+            },
+            {
+              chainId,
+              address: tokenAddr,
+              abi: erc20Abi,
+              functionName: 'symbol'
+            },
+            {
+              chainId,
+              address: tokenAddr,
+              abi: erc20Abi,
+              functionName: 'decimals'
+            }
+          ]
+        : undefined
+  });
+
+  return useMemo(
+    () =>
+      tokenAddr === zeroAddress
+        ? {
+            chainId,
+            address: tokenAddr,
+            name: client?.chain.nativeCurrency.name || 'Ether',
+            symbol: client?.chain.nativeCurrency.symbol || 'ETH',
+            decimals: client?.chain.nativeCurrency.decimals || 18
+          }
+        : data
+          ? {
+              chainId,
+              address: tokenAddr,
+              name: data[0],
+              symbol: data[1],
+              decimals: data[2]
+            }
+          : undefined,
+    [
+      chainId,
+      client?.chain.nativeCurrency.decimals,
+      client?.chain.nativeCurrency.name,
+      client?.chain.nativeCurrency.symbol,
+      data,
+      tokenAddr
+    ]
+  );
 }

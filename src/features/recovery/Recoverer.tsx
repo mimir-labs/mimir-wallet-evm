@@ -3,15 +3,13 @@
 
 import type { Address } from 'abitype';
 
-import React, { useCallback, useContext } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
-import { AddressRow, ButtonEnable } from '@mimir-wallet/components';
+import { AddressRow, SafeTxButton } from '@mimir-wallet/components';
 import { ONE_DAY } from '@mimir-wallet/constants';
-import { SafeContext } from '@mimir-wallet/providers';
 import { buildDeleteDelayModule } from '@mimir-wallet/safe';
-import { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 function Row({
   safeAccount,
@@ -26,25 +24,7 @@ function Row({
   expiration: bigint;
   cooldown: bigint;
 }) {
-  const { openTxModal } = useContext(SafeContext);
   const navigate = useNavigate();
-
-  const handleClick = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient) => {
-      const safeTx = await buildDeleteDelayModule(client, safeAccount, address, module);
-
-      openTxModal(
-        {
-          website: 'mimir://internal/recovery',
-          isApprove: false,
-          address: safeAccount,
-          safeTx
-        },
-        () => navigate('/transactions')
-      );
-    },
-    [address, module, navigate, openTxModal, safeAccount]
-  );
 
   return (
     <>
@@ -54,9 +34,21 @@ function Row({
       <div className='col-span-3'>{Number(cooldown) / ONE_DAY} Days</div>
       <div className='col-span-3'>{Number(expiration) / ONE_DAY} Days</div>
       <div className='col-span-1'>
-        <ButtonEnable isToastError onClick={handleClick} isIconOnly color='danger' size='tiny' variant='light'>
+        <SafeTxButton
+          website='mimir://internal/recovery'
+          isApprove={false}
+          isCancel={false}
+          address={safeAccount}
+          buildTx={(_, client) => buildDeleteDelayModule(client, safeAccount, address, module)}
+          onSuccess={() => navigate('/transactions')}
+          isToastError
+          isIconOnly
+          color='danger'
+          size='tiny'
+          variant='light'
+        >
           <IconDelete />
-        </ButtonEnable>
+        </SafeTxButton>
       </div>
     </>
   );
@@ -79,12 +71,12 @@ function Recoverer({
       <div className='col-span-3 text-default-300'>Recoverer</div>
       <div className='col-span-3 text-default-300'>Review Window</div>
       <div className='col-span-4 text-default-300'>Proposal Expiry</div>
-      {data.map((item) => (
-        <>
+      {data.map((item, index) => (
+        <React.Fragment key={index}>
           {item.modules.map((module) => (
             <Row key={`${item.address}-${module}`} safeAccount={safeAccount} {...item} module={module} />
           ))}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );

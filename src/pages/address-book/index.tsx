@@ -40,7 +40,9 @@ function AddressBook() {
                 </Button>
                 <Button
                   as={Link}
-                  to={{ pathname: `/apps/${encodeURIComponent(`mimir://app/transfer?receive=${item}`)}` }}
+                  to={{
+                    pathname: `/apps/${encodeURIComponent(`mimir://app/transfer?receive=${item}&callbackPath=${encodeURIComponent('/address-book')}`)}`
+                  }}
                   color='primary'
                   radius='full'
                   fullWidth

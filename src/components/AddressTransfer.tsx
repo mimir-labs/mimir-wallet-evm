@@ -70,7 +70,7 @@ function AddressTransfer({ onChange, addresses, selected }: Props) {
       <Content
         onSelect={(value) => onChange((_selected) => [..._selected, value])}
         addresses={available}
-        title='Address List'
+        title='Address Book'
       />
       <Content
         isSelected

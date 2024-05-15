@@ -6,12 +6,12 @@ import type { Hex } from 'viem';
 import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 
 import { Chip, Divider, Link } from '@nextui-org/react';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { AppName, Empty } from '@mimir-wallet/components';
-import { approveCounts } from '@mimir-wallet/components/safe-tx-modal/utils';
 import { useParseCall, usePendingTransactions, useQueryAccount, useSafeNonce } from '@mimir-wallet/hooks';
+import { approveCounts } from '@mimir-wallet/safe';
 import { BaseAccount } from '@mimir-wallet/safe/types';
 
 function Item({
@@ -42,9 +42,7 @@ function Item({
       <div className='col-span-2'>
         <AppName website={website} />
       </div>
-      <div className='col-span-1'>
-        Nonce <span className='font-bold text-primary'>#{nonce.toString()}</span>
-      </div>
+      <div className='col-span-1'>#{nonce.toString()}</div>
       <div className='col-span-2'>{parsed.functionName}</div>
       <div className='col-span-1 justify-self-end'>
         <Chip color='primary' size='sm' className='h-5'>
@@ -68,34 +66,32 @@ function PendingTx({ address }: { address: Address }) {
   return (
     <div className='space-y-2'>
       {current && (
-        <>
+        <React.Fragment key={`${current[0]}`}>
           <Item
             address={address}
             hash={current[1][0]?.transaction.hash}
             website={current[1][0]?.transaction.website}
-            key={current[0].toString()}
             nonce={current[0]}
             data={current[1][0]?.transaction.data}
             account={account}
             signatures={current[1]?.[0].signatures || []}
           />
           <Divider />
-        </>
+        </React.Fragment>
       )}
       {Object.entries(queue).map(([nonce, item]) => (
-        <>
+        <React.Fragment key={`${nonce}`}>
           <Item
             address={address}
             hash={item[0]?.transaction.hash}
             website={item[0]?.transaction.website}
             nonce={nonce}
-            key={nonce}
             data={item[0]?.transaction.data}
             account={account}
             signatures={item[0]?.signatures || []}
           />
           <Divider />
-        </>
+        </React.Fragment>
       ))}
     </div>
   );

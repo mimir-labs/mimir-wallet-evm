@@ -4,40 +4,16 @@
 import type { Address } from 'abitype';
 import type { Multisig } from '@mimir-wallet/safe/types';
 
-import { CURRENT_ACCOUNT_KEY } from '@mimir-wallet/constants';
 import { service, sleep } from '@mimir-wallet/utils';
-
-export function initCurrent(chainId: number, multisigs: Multisig[]): Address | undefined {
-  const search = new URLSearchParams(window.location.search);
-  const searchItem = search.get('address') as Address;
-  const item = localStorage.getItem(`${CURRENT_ACCOUNT_KEY}:${chainId}`);
-
-  let local: Address;
-
-  if (searchItem) {
-    local = searchItem;
-  } else if (item) {
-    local = JSON.parse(item);
-  } else {
-    local = multisigs[0].address;
-  }
-
-  localStorage.setItem(`${CURRENT_ACCOUNT_KEY}:${chainId}`, JSON.stringify(local));
-
-  return local;
-}
 
 export async function querySync(
   chainId: number,
   address: Address,
-  setMultisigs: (values: Multisig[]) => void,
-  setCurrent: (address: Address) => void
-) {
+  setMultisigs: (values: Multisig[]) => void
+): Promise<Multisig[]> {
   return service
     .getOwnedAccount(chainId, address)
     .then((data) => {
-      if (data.length === 0) return;
-
       const multisigs: Multisig[] = data
         .filter((item) => item.type === 'safe')
         .map((account) => ({
@@ -57,14 +33,13 @@ export async function querySync(
           updateTransaction: account.updateTransaction
         }));
 
-      const local = initCurrent(chainId, multisigs);
-
-      if (local) setCurrent(local);
       setMultisigs(multisigs);
+
+      return multisigs;
     })
     .catch(async () => {
       await sleep(3000);
 
-      await querySync(chainId, address, setMultisigs, setCurrent);
+      return querySync(chainId, address, setMultisigs);
     });
 }

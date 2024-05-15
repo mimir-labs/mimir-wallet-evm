@@ -5,14 +5,42 @@ import type { Address } from 'abitype';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { Tab, Tabs } from '@nextui-org/react';
-import { useContext, useEffect } from 'react';
+import dayjs from 'dayjs';
+import { useContext, useEffect, useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { SafeTxCard } from '@mimir-wallet/components';
-import { useHistoryTransactions, useQueryAccount, useQueryParam, useSafeNonce } from '@mimir-wallet/hooks';
+import {
+  TransactionItem,
+  useHistoryTransactions,
+  useQueryAccount,
+  useQueryParam,
+  useSafeNonce
+} from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import Pending from './Pending';
+
+function Contents({ account, items }: { account: BaseAccount; items: Record<string, TransactionItem[]> }) {
+  const data = useMemo(
+    () =>
+      Object.entries(items)
+        .map((item) => [BigInt(item[0]), item[1]] as const)
+        .sort((l, r) => (l > r ? 1 : -1)),
+    [items]
+  );
+
+  return data.map(([nonce, value]) => (
+    <SafeTxCard
+      hiddenConflictWarning
+      defaultOpen={false}
+      account={account}
+      key={`queue-${nonce}`}
+      data={value}
+      nonce={nonce}
+    />
+  ));
+}
 
 function History({ account }: { account: BaseAccount }) {
   const chainId = useChainId();
@@ -21,15 +49,11 @@ function History({ account }: { account: BaseAccount }) {
 
   return (
     <div className='space-y-5'>
-      {Object.entries(items).map(([nonce, value]) => (
-        <SafeTxCard
-          hiddenConflictWarning
-          defaultOpen={false}
-          account={account}
-          key={`queue-${nonce}`}
-          data={value}
-          nonce={BigInt(nonce)}
-        />
+      {Object.entries(items).map(([dayStart, values]) => (
+        <div key={dayStart} className='space-y-2.5'>
+          <p className='font-bold text-medium'>{dayjs(Number(dayStart)).format('YYYY-MM-DD')}</p>
+          <Contents account={account} items={values} />
+        </div>
       ))}
     </div>
   );

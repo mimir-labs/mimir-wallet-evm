@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { IPublicClient, MetaTransaction, SafeTransaction } from '../types';
+import type { IPublicClient, MetaTransaction } from '../types';
 
 import { randomBytes } from 'crypto';
 import { type Address, bytesToBigInt, encodeAbiParameters, encodeFunctionData, Hex } from 'viem';
@@ -9,9 +9,7 @@ import { type Address, bytesToBigInt, encodeAbiParameters, encodeFunctionData, H
 import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
 
-import { getNonce } from '../account';
-import { buildMultiSendSafeTx } from '../multisend';
-import { buildSafeTransaction } from '../transaction';
+import { buildMultiSendSafeTx, buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
 
 function createSetupDelay(owner: Address, avatar: Address, target: Address, cooldown: bigint, expiration: bigint): Hex {
@@ -33,9 +31,8 @@ export async function buildAddRecovery(
   recoverer: Address,
   cooldown: number,
   expiration: number,
-  delayAddress?: Address,
-  nonce?: bigint
-): Promise<SafeTransaction> {
+  delayAddress?: Address
+): Promise<MetaTransaction> {
   const moduleProxyFactory = deployments[client.chain.id].ModuleProxyFactory;
   const delaySingleton = deployments[client.chain.id].modules.Delay;
 
@@ -87,13 +84,11 @@ export async function buildAddRecovery(
     operation: Operation.Call
   });
 
-  nonce ??= await getNonce(client, safeAccount);
-
   if (txs.length > 1) {
-    return buildMultiSendSafeTx(client.chain, txs, nonce);
+    return buildMultiSendSafeTx(client.chain, txs);
   }
 
-  return buildSafeTransaction(txs[0].to, nonce, {
+  return buildSafeTransaction(txs[0].to, {
     data: txs[0].data,
     operation: txs[0].operation
   });

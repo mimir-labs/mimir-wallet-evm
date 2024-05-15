@@ -57,6 +57,14 @@ export const apps: AppConfig[] = [
   },
   {
     id: 5,
+    name: 'Cancel',
+    url: 'mimir://internal/cancel-tx',
+    desc: 'Cancel Transaction',
+    tags: [],
+    icon: Failed
+  },
+  {
+    id: 6,
     name: 'Transfer NFT',
     url: 'mimir://internal/transfer-nft',
     desc: 'Transfer NFT',

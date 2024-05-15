@@ -1,19 +1,21 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Accordion, AccordionItem } from '@nextui-org/react';
+import type { Address } from 'abitype';
+
+import { Accordion, AccordionItem, Divider } from '@nextui-org/react';
 import React, { useMemo } from 'react';
-import { Address, size } from 'viem';
-import { useAccount } from 'wagmi';
+import { useToggle } from 'react-use';
+import { useAccount, useChainId } from 'wagmi';
 
 import ArrowLeft from '@mimir-wallet/assets/svg/ArrowLeft.svg?react';
 import { hashSafeTransaction } from '@mimir-wallet/safe';
-import { Operation, type SafeTransaction } from '@mimir-wallet/safe/types';
+import { MetaTransaction, Operation, SafeTransaction } from '@mimir-wallet/safe/types';
 
 import AddressRow from '../AddressRow';
 import Bytes from '../Bytes';
+import { CallDisplay } from '../call-display';
 import FormatBalance from '../FormatBalance';
-import FunctionArgs from '../FunctionArgs';
 import FunctionName from '../FunctionName';
 
 function Item({ label, content }: { label: React.ReactNode; content: React.ReactNode }) {
@@ -27,12 +29,13 @@ function Item({ label, content }: { label: React.ReactNode; content: React.React
   );
 }
 
-function TxDetails({ tx, address, nonce }: { tx: Omit<SafeTransaction, 'nonce'>; address: Address; nonce?: bigint }) {
+function TxDetails({ tx, safeTx, address }: { tx: MetaTransaction; safeTx?: SafeTransaction; address: Address }) {
+  const [isOpen, toggleOpen] = useToggle(false);
+  const chainId = useChainId();
   const { chain } = useAccount();
-  const dataSize = useMemo(() => size(tx.data), [tx.data]);
   const hash = useMemo(
-    () => (chain && nonce !== undefined ? hashSafeTransaction(chain, address, { ...tx, nonce }) : null),
-    [chain, address, nonce, tx]
+    () => (safeTx ? hashSafeTransaction(chainId, address, safeTx) : null),
+    [safeTx, chainId, address]
   );
 
   return (
@@ -56,21 +59,28 @@ function TxDetails({ tx, address, nonce }: { tx: Omit<SafeTransaction, 'nonce'>;
           </>
         }
       >
-        {dataSize ? (
-          <div className='bg-secondary rounded-small p-2.5 space-y-1'>
-            <FunctionArgs data={tx.data} />
-          </div>
-        ) : null}
-        <div className='bg-secondary rounded-small p-2.5 space-y-1'>
-          <Item label='Hash' content={hash} />
-          <Item label='To' content={<AddressRow iconSize={16} withCopy address={tx.to} />} />
-          <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
-          <Item label='Operation' content={Operation[tx.operation]} />
-          <Item label='safeTxGas' content={<FormatBalance value={tx.safeTxGas} showSymbol={false} />} />
-          <Item label='baseGas' content={<FormatBalance value={tx.baseGas} showSymbol={false} />} />
-          <Item label='refundReceiver' content={<AddressRow iconSize={16} withCopy address={tx.refundReceiver} />} />
-          <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+        <div className='py-2'>
+          <CallDisplay from={address} to={tx.to} data={tx.data} value={tx.value} />
         </div>
+        <Divider />
+        <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>
+          Details
+        </div>
+        {isOpen && (
+          <div className='bg-secondary rounded-small p-2.5 space-y-1'>
+            <Item label='Hash' content={hash} />
+            <Item label='To' content={<AddressRow iconSize={16} withCopy address={tx.to} />} />
+            <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
+            <Item label='Operation' content={Operation[tx.operation]} />
+            <Item label='safeTxGas' content={<FormatBalance value={safeTx?.safeTxGas} showSymbol={false} />} />
+            <Item label='baseGas' content={<FormatBalance value={safeTx?.baseGas} showSymbol={false} />} />
+            <Item
+              label='refundReceiver'
+              content={<AddressRow iconSize={16} withCopy address={safeTx?.refundReceiver} />}
+            />
+            <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+          </div>
+        )}
       </AccordionItem>
     </Accordion>
   );

@@ -16,13 +16,20 @@ interface Props {
   isOpen: boolean;
   onRetry: EnableClickHandler;
   onDone: (account: AccountResponse) => void;
+  onClose: () => void;
 }
 
-function CreateMultisigModal({ isOpen, onDone, state, onRetry }: Props) {
+function CreateMultisigModal({ isOpen, onDone, state, onClose, onRetry }: Props) {
   const { steps, title, error, result, isLoading } = state;
 
   return (
-    <Modal placement='auto' size='md' isOpen={isOpen} hideCloseButton>
+    <Modal
+      placement='auto'
+      size='md'
+      isOpen={isOpen}
+      hideCloseButton={state.isLoading}
+      onClose={state.isLoading ? undefined : onClose}
+    >
       <ModalContent>
         <ModalBody className='flex flex-col items-center gap-5 py-10'>
           <img src={LogoCircle} className='w-[70px]' alt='mimir' />
@@ -40,7 +47,7 @@ function CreateMultisigModal({ isOpen, onDone, state, onRetry }: Props) {
             </Button>
           ) : (
             <ButtonEnable onClick={onRetry} disabled={isLoading} color='primary' radius='full'>
-              {isLoading ? 'Progress...' : 'Retry'}
+              {isLoading ? 'Progressing...' : 'Retry'}
             </ButtonEnable>
           )}
         </ModalFooter>

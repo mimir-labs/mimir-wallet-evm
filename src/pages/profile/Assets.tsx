@@ -6,7 +6,7 @@ import type { AccountAsset } from '@mimir-wallet/hooks/types';
 import { Divider, Link } from '@nextui-org/react';
 import React from 'react';
 
-import IconSend from '@mimir-wallet/assets/svg/icon-send.svg?react';
+import IconSend from '@mimir-wallet/assets/svg/icon-send-filled.svg?react';
 import { AddressIcon, Button } from '@mimir-wallet/components';
 
 function Assets({ assets }: { assets: AccountAsset[] }) {
@@ -26,7 +26,7 @@ function Assets({ assets }: { assets: AccountAsset[] }) {
             </div>
             <Button
               as={Link}
-              href={`/apps/${encodeURIComponent(`mimir://app/transfer?token=${asset.tokenAddress}`)}`}
+              href={`/apps/${encodeURIComponent(`mimir://app/transfer?token=${asset.tokenAddress}&callbackPath=${encodeURIComponent('/')}`)}`}
               color='primary'
               radius='full'
               endContent={<IconSend color='white' />}

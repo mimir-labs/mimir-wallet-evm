@@ -34,7 +34,7 @@ export async function signSafeTransaction(
     });
   }
 
-  const messageData = encodeSafeTransaction(wallet.chain, safeAddress, safeTransaction);
+  const messageData = encodeSafeTransaction(wallet.chain.id, safeAddress, safeTransaction);
 
   let address = safeAddress;
 

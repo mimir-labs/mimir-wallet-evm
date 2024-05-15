@@ -1,14 +1,17 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BaseAccount, IPublicClient, IWalletClient, SafeTransaction } from '@mimir-wallet/safe/types';
+import type { BaseAccount } from '@mimir-wallet/safe/types';
 
-import { Card, CardBody, CardHeader, Divider } from '@nextui-org/react';
-import dayjs from 'dayjs';
-import React from 'react';
+import { Card, CardBody, CardHeader, Divider, Link } from '@nextui-org/react';
+import React, { useMemo } from 'react';
+import { size } from 'viem';
+import { useAccount } from 'wagmi';
 
 import { Alert } from '@mimir-wallet/components';
 import { type SignatureResponse, type TransactionResponse } from '@mimir-wallet/hooks/types';
+import { memberPaths } from '@mimir-wallet/safe';
+import { addressEq } from '@mimir-wallet/utils';
 
 import Cell from './Cell';
 
@@ -18,43 +21,61 @@ interface Props {
   nonce: bigint;
   data: { transaction: TransactionResponse; signatures: SignatureResponse[] }[];
   hiddenConflictWarning?: boolean;
-  handleApprove?: (
-    wallet: IWalletClient,
-    client: IPublicClient,
-    safeTx: SafeTransaction,
-    signatures: SignatureResponse[]
-  ) => void;
+  refetch?: () => void;
 }
 
-function SafeTxCard({ account, hiddenConflictWarning, defaultOpen, handleApprove, data, nonce }: Props) {
-  const time = data.at(0)?.transaction.createdAt;
+function SafeTxCard({ account, hiddenConflictWarning, defaultOpen, data, nonce, refetch }: Props) {
+  const { address } = useAccount();
+  const hasCancelTx = useMemo(
+    () =>
+      data.findIndex(
+        (item) =>
+          size(item.transaction.data) === 0 &&
+          item.transaction.value === 0n &&
+          addressEq(item.transaction.to, item.transaction.address)
+      ) > -1,
+    [data]
+  );
+
+  const allPaths = useMemo(() => (account && address ? memberPaths(account, address) : []), [account, address]);
 
   return (
     <Card>
       <CardHeader className='flex-col items-start gap-y-2'>
         <div className='w-full flex items-center justify-between'>
           <h4 className='text-primary font-bold text-xl'># {nonce.toString()}</h4>
-          <span className='text-small'>{dayjs(time).format()}</span>
         </div>
+
         {!hiddenConflictWarning && data.length > 1 && (
           <Alert
             size='tiny'
             title={
               <div>
-                Conflicting transactions. Executing one will automatically replace the others. Why did this happen?
+                Conflicting transactions. Executing one will automatically replace the others.{' '}
+                <Link
+                  href='https://help.safe.global/en/articles/40839-why-are-transactions-with-the-same-nonce-conflicting-with-each-other'
+                  isExternal
+                  className='text-tiny'
+                >
+                  Why did this happen?
+                </Link>
               </div>
             }
             severity='error'
           />
         )}
       </CardHeader>
+
       <Divider className='mx-3 w-auto' />
+
       {account ? (
         <CardBody className='space-y-3'>
           {data.map((item) => (
             <Cell
+              refetch={refetch}
               account={account}
-              handleApprove={handleApprove}
+              allPaths={allPaths}
+              hasCancelTx={hasCancelTx}
               key={item.transaction.hash}
               defaultOpen={defaultOpen}
               transaction={item.transaction}

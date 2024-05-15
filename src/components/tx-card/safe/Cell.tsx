@@ -1,85 +1,93 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { BaseAccount, IPublicClient, IWalletClient, SafeTransaction } from '@mimir-wallet/safe/types';
+import type { Address } from 'abitype';
+import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { Modal, ModalBody, ModalContent } from '@nextui-org/react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useToggle } from 'react-use';
+import { useAccount } from 'wagmi';
 
 import { SafeTxOverview } from '@mimir-wallet/components';
-import { approveCounts } from '@mimir-wallet/components/safe-tx-modal/utils';
 import { useParseCall, useParseMultisend } from '@mimir-wallet/hooks';
 import { type SignatureResponse, type TransactionResponse } from '@mimir-wallet/hooks/types';
+import { approveCounts } from '@mimir-wallet/safe';
 
 import TxCell from '../tx-cell';
 import Details from './Details';
 import Process from './Process';
 import TxItems from './TxItems';
+import { findWaitApproveFilter } from './utils';
 
 interface Props {
   account: BaseAccount;
-  handleApprove?: (
-    wallet: IWalletClient,
-    client: IPublicClient,
-    safeTx: SafeTransaction,
-    signatures: SignatureResponse[]
-  ) => void;
+  allPaths: Array<Address[]>;
   defaultOpen?: boolean;
   transaction: TransactionResponse;
   signatures: SignatureResponse[];
+  hasCancelTx: boolean;
+  refetch?: () => void;
 }
 
-function Cell({ transaction, signatures, account, handleApprove, defaultOpen }: Props) {
+function Cell({ transaction, allPaths, signatures, account, hasCancelTx, defaultOpen, refetch }: Props) {
+  const { address } = useAccount();
   const [isOpen, toggleOpen] = useToggle(defaultOpen || false);
   const [isOverviewOpen, toggleOverview] = useToggle(false);
   const approval = useMemo(() => approveCounts(account, signatures), [account, signatures]);
   const [dataSize, parsed] = useParseCall(transaction.data);
   const multisend = useParseMultisend(parsed);
 
-  const _handleApprove = useCallback(
-    (wallet: IWalletClient, client: IPublicClient) => {
-      return handleApprove?.(wallet, client, transaction, signatures);
-    },
-    [handleApprove, signatures, transaction]
+  const filterPaths = useMemo(
+    () => (address ? findWaitApproveFilter(allPaths, signatures, address) : []),
+    [address, allPaths, signatures]
   );
 
   return (
     <>
       <TxCell
+        from={transaction.address}
         isOpen={isOpen}
         data={transaction.data}
         to={transaction.to}
         value={transaction.value}
         items={
           <TxItems
-            handleApprove={_handleApprove}
+            hasCancelTx={hasCancelTx}
+            isSignatureReady={approval >= (account.threshold || 1)}
+            account={account}
+            filterPaths={filterPaths}
             multisend={multisend}
             isOpen={isOpen}
             toggleOpen={toggleOpen}
             dataSize={dataSize}
             parsed={parsed}
             transaction={transaction}
+            signatures={signatures}
             approval={approval}
             threshold={account.threshold || 1}
             openOverview={toggleOverview}
+            refetch={refetch}
           />
         }
-        details={<Details address={account.address} transaction={transaction} />}
+        details={<Details defaultOpen={defaultOpen} address={account.address} transaction={transaction} />}
       >
         <Process
-          handleApprove={
-            handleApprove ? (wallet, client) => handleApprove(wallet, client, transaction, signatures) : undefined
-          }
+          hasCancelTx={hasCancelTx}
+          transaction={transaction}
+          filterPaths={filterPaths}
+          isSignatureReady={approval >= (account.threshold || 1)}
           signatures={signatures}
           account={account}
+          refetch={refetch}
         />
+        <div id='safe-tx-modal' />
       </TxCell>
       <Modal size='5xl' placement='center' isOpen={isOverviewOpen} onClose={toggleOverview}>
         <ModalContent>
           <ModalBody>
             <div className='w-full h-[60vh]'>
-              <SafeTxOverview signatures={signatures} account={account} />
+              <SafeTxOverview onApprove={refetch} transaction={transaction} signatures={signatures} account={account} />
             </div>
           </ModalBody>
         </ModalContent>

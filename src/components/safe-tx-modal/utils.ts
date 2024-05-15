@@ -3,34 +3,7 @@
 
 import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 
-import { getSignatureType, SignatureTree } from '@mimir-wallet/safe';
-import { type BaseAccount, type SafeAccount, SignatureType } from '@mimir-wallet/safe/types';
-
-export function approveCounts(account: BaseAccount, signatures: SignatureResponse[]): number {
-  let approveCount = 0;
-
-  for (const signature of signatures) {
-    const signatureType = getSignatureType(signature.signature.signature);
-
-    if (signatureType === SignatureType.eoa_signature) {
-      approveCount++;
-    } else if (signatureType === SignatureType.contract_signature) {
-      const subAccount = (account as SafeAccount)?.members?.find(
-        (item) => item.address === signature.signature.signer
-      ) as SafeAccount | undefined;
-
-      if (subAccount) {
-        const _approveCount = approveCounts(subAccount, signature.children || []);
-
-        if (_approveCount >= subAccount.threshold) {
-          approveCount++;
-        }
-      }
-    }
-  }
-
-  return approveCount;
-}
+import { SignatureTree } from '@mimir-wallet/safe';
 
 // @internal
 function _createSigTree(sigResponse: SignatureResponse): SignatureTree {

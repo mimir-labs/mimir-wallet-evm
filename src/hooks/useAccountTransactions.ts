@@ -5,19 +5,23 @@ import type { Address } from 'abitype';
 import type { SignatureResponse, TransactionResponse } from './types';
 
 import { QueryFunctionContext, useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { useMemo } from 'react';
 
 import { service } from '@mimir-wallet/utils';
 
-type Item = { transaction: TransactionResponse; signatures: SignatureResponse[] };
-type PendingData = { current: [bigint, Array<Item>] | null; queue: Record<string, Array<Item>> };
-type HistoryData = Record<string, Array<Item>>;
+export type TransactionItem = { transaction: TransactionResponse; signatures: SignatureResponse[] };
+export type PendingData = {
+  current: [bigint, Array<TransactionItem>] | null;
+  queue: Record<string, Array<TransactionItem>>;
+};
+export type HistoryData = Record<string, Record<string, Array<TransactionItem>>>; // day => nonce => item[]
 
 const queryFn = async ({
   queryKey: [chainId, address, nonce, isHistory]
 }: QueryFunctionContext<
   [chainId: number, address?: Address, nonce?: bigint | number | string, isHistory?: boolean]
->): Promise<Array<Item>> =>
+>): Promise<Array<TransactionItem>> =>
   address && nonce !== undefined && nonce !== null
     ? service[isHistory ? 'historyTx' : 'pendingTx'](chainId, address, nonce).then((data) =>
         data.map(
@@ -44,8 +48,8 @@ export function usePendingTransactions(
   chainId: number,
   address?: Address,
   nonce?: bigint
-): [PendingData, isFetched: boolean, isFetching: boolean] {
-  const { data, isFetched, isFetching } = useQuery({
+): [PendingData, isFetched: boolean, isFetching: boolean, refetch: () => void] {
+  const { data, isFetched, isFetching, refetch } = useQuery({
     initialData: [],
     queryKey: [chainId, address, nonce?.toString(), false],
     queryFn
@@ -77,9 +81,10 @@ export function usePendingTransactions(
         { current: null, queue: {} }
       ),
       isFetched,
-      isFetching
+      isFetching,
+      () => refetch()
     ],
-    [data, isFetched, isFetching, nonce]
+    [data, isFetched, isFetching, nonce, refetch]
   );
 }
 
@@ -97,12 +102,19 @@ export function useHistoryTransactions(
   return useMemo(
     () => [
       data.reduce<HistoryData>((result, value) => {
-        const key = value.transaction.nonce.toString();
+        const dayStart = dayjs(value.transaction.updatedAt).startOf('days').valueOf();
+        const nonceKey = value.transaction.nonce.toString();
 
-        if (result[key]) {
-          result[key].push(value);
+        if (result[dayStart]) {
+          if (result[dayStart][nonceKey]) {
+            result[dayStart][nonceKey].push(value);
+          } else {
+            result[dayStart][nonceKey] = [value];
+          }
         } else {
-          result[key] = [value];
+          result[dayStart] = {
+            [nonceKey]: [value]
+          };
         }
 
         return result;

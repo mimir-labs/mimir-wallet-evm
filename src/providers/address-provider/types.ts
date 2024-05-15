@@ -23,6 +23,7 @@ export interface State {
   switchAddress: (address: Address) => void;
   addAddressBook: (value?: [address: Address, name: string]) => Promise<[address: Address, name: string]>;
   addCustomToken: (token: CustomToken) => void;
+  setAddressNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 export interface CustomToken {

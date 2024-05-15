@@ -38,7 +38,7 @@ function Tokens({ address }: { address: Address }) {
             <TableCell className='text-end'>
               <Button
                 as={Link}
-                href={`/apps/${encodeURIComponent(`mimir://app/transfer?token=${item.tokenAddress}`)}`}
+                href={`/apps/${encodeURIComponent(`mimir://app/transfer?token=${item.tokenAddress}&callbackPath=${encodeURIComponent('/assets')}`)}`}
                 size='sm'
                 variant='bordered'
                 color='primary'

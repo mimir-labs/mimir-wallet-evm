@@ -11,16 +11,28 @@ import IconSet from '@mimir-wallet/assets/svg/icon-set.svg?react';
 import { Button, FormatBalance } from '@mimir-wallet/components';
 import { formatDisplay } from '@mimir-wallet/components/FormatBalance';
 
-function Info({ address, nftCounts, totalUsd }: { address: Address; totalUsd: string; nftCounts: number }) {
+function Info({
+  address,
+  nftCounts,
+  totalUsd,
+  isSafe
+}: {
+  address: Address;
+  totalUsd: string;
+  nftCounts: number;
+  isSafe: boolean;
+}) {
   const { data } = useBalance({ address, query: { refetchInterval: 14_000 } });
 
   return (
     <div className='space-y-5 h-full'>
       <div className='flex items-center gap-x-2 justify-between'>
         <h1 className='font-bold text-[40px] leading-[1]'>$ {formatDisplay(totalUsd)}</h1>
-        <Button as={Link} href='/account-setting' size='sm' color='primary' variant='bordered' radius='full'>
-          <IconSet />
-        </Button>
+        {isSafe && (
+          <Button as={Link} href='/account-setting' size='sm' color='primary' variant='bordered' radius='full'>
+            <IconSet />
+          </Button>
+        )}
       </div>
       <Divider />
       <div className='grid grid-cols-2 gap-5'>
@@ -37,7 +49,7 @@ function Info({ address, nftCounts, totalUsd }: { address: Address; totalUsd: st
         <div className='col-span-1'>
           <Button
             as={Link}
-            href={`/apps/${encodeURIComponent('mimir://app/transfer')}`}
+            href={`/apps/${encodeURIComponent(`mimir://app/transfer?callbackPath=${encodeURIComponent('/')}`)}`}
             variant='bordered'
             color='primary'
             radius='full'

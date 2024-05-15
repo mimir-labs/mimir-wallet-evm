@@ -50,10 +50,10 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
   if (address) {
     if (address === zeroAddress) {
       if (isToken) {
-        iconSrc ||= `/chain-icons/${chainId}`;
+        iconSrc = `/chain-icons/${chainId}.webp`;
       }
     } else {
-      iconSrc = addressIcons[chainId]?.[address];
+      iconSrc = addressIcons?.[chainId]?.[address];
     }
   }
 

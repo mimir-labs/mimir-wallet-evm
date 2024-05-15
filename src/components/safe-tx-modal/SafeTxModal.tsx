@@ -1,36 +1,47 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { UseSafeTx } from './types';
+
 import { Divider, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import React from 'react';
 
-import { useMultisig } from '@mimir-wallet/hooks';
-
+import Alert from '../Alert';
+import Button from '../Button';
 import ButtonEnable from '../ButtonEnable';
-import ButtonLinearBorder from '../ButtonLinearBorder';
 import AddressChain from './AddressChain';
+import BalanceChange from './BalanceChange';
 import CustomNonce from './CustomNonce';
 import Interact from './Interact';
 import SafetyCheck from './SafetyCheck';
 import Sender from './Sender';
 import TxDetails from './TxDetails';
-import { UseSafeTx, useSafeTx } from './useSafeTx';
+import { useSafeTx } from './useSafeTx';
 
-function SafeTxModal<Approve extends boolean>(props: UseSafeTx<Approve>) {
-  const { isApprove, signatures } = props;
+function ItemWrapper({ children }: { children: React.ReactNode }) {
+  return <div className='border-1 border-divider rounded-medium p-2.5'>{children}</div>;
+}
+
+function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: UseSafeTx<Approve, Cancel>) {
   const {
+    isApprove,
+    isCancel,
+    hasSameTx,
     onClose,
-    isSignatureReady,
-    setCustomNonce,
-    handleExecute,
+    signatures,
     handleSign,
+    handleExecute,
+    multisig,
+    filterPaths,
     address,
+    tx,
     safeTx,
-    nonce,
+    setCustomNonce,
     addressChain,
-    setAddressChain
+    simulation,
+    setAddressChain,
+    isSignatureReady
   } = useSafeTx(props);
-  const multisig = useMultisig(address);
 
   return (
     <ModalContent>
@@ -39,52 +50,83 @@ function SafeTxModal<Approve extends boolean>(props: UseSafeTx<Approve>) {
       </ModalHeader>
       <Divider />
       <ModalBody className='space-y-2.5 px-3'>
-        <Sender address={address} />
-        <Interact address={safeTx.to} />
-        <TxDetails tx={safeTx} nonce={nonce} address={address} />
-        <SafetyCheck nonce={nonce} tx={safeTx} address={address} />
+        <ItemWrapper>
+          <Sender address={address} />
+        </ItemWrapper>
+        <ItemWrapper>
+          <Interact address={tx.to} />
+        </ItemWrapper>
+        <ItemWrapper>
+          <TxDetails safeTx={safeTx} tx={tx} address={address} />
+        </ItemWrapper>
+        {simulation.assetChange.length > 0 && (
+          <ItemWrapper>
+            <BalanceChange address={address} assetChange={simulation.assetChange} />
+          </ItemWrapper>
+        )}
+        <ItemWrapper>
+          <SafetyCheck simulation={simulation} />
+        </ItemWrapper>
         {isSignatureReady ? null : multisig ? (
-          <AddressChain
-            signatures={signatures}
-            addressChain={addressChain}
-            setAddressChain={setAddressChain}
-            deep={0}
-            multisig={multisig}
-          />
+          <ItemWrapper>
+            <AddressChain
+              filterPaths={filterPaths}
+              signatures={signatures}
+              addressChain={addressChain}
+              setAddressChain={setAddressChain}
+              deep={0}
+              multisig={multisig}
+            />
+          </ItemWrapper>
         ) : null}
-        <CustomNonce txNonce={nonce} isApprove={isApprove} address={address} setCustomNonce={setCustomNonce} />
+        <ItemWrapper>
+          <CustomNonce
+            safeTx={safeTx}
+            address={address}
+            isApprove={isApprove}
+            isCancel={isCancel}
+            setCustomNonce={setCustomNonce}
+          />
+        </ItemWrapper>
       </ModalBody>
       <Divider />
-      <ModalFooter className='gap-2.5 px-3'>
-        <ButtonLinearBorder onClick={onClose} radius='full' fullWidth>
-          Cancel
-        </ButtonLinearBorder>
-        {isSignatureReady ? (
-          <ButtonEnable
-            isToastError
-            onClick={handleExecute}
-            color='primary'
-            fullWidth
-            radius='full'
-            disabled={nonce === undefined}
-          >
-            Execute
-          </ButtonEnable>
-        ) : (
-          <ButtonEnable
-            disabled={nonce === undefined}
-            isToastError
-            onClick={handleSign}
-            color='primary'
-            fullWidth
-            radius='full'
-          >
-            Sign
-          </ButtonEnable>
+      <ModalFooter className='flex-col gap-2.5 px-3'>
+        {!isApprove && hasSameTx && (
+          <Alert severity='warning' title='The nonce determines the order of transactions in the queue.' />
         )}
+        <div className='flex gap-2.5'>
+          <Button variant='bordered' color='primary' onClick={onClose} radius='full' fullWidth>
+            Cancel
+          </Button>
+          {isSignatureReady ? (
+            <ButtonEnable
+              isToastError
+              onClick={handleExecute}
+              color='primary'
+              fullWidth
+              radius='full'
+              disabled={!safeTx}
+              isLoading={simulation.isPending}
+            >
+              Execute
+            </ButtonEnable>
+          ) : (
+            <ButtonEnable
+              isToastError
+              onClick={handleSign}
+              color='primary'
+              fullWidth
+              radius='full'
+              disabled={!safeTx || (!isApprove && hasSameTx)}
+              isLoading={simulation.isPending}
+            >
+              Sign
+            </ButtonEnable>
+          )}
+        </div>
       </ModalFooter>
     </ModalContent>
   );
 }
 
-export default React.memo(SafeTxModal);
+export default React.memo<typeof SafeTxModal>(SafeTxModal);

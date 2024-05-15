@@ -7,3 +7,4 @@ export * from './helpers';
 export * from './multisend';
 export * from './signature';
 export * from './transaction';
+export * from './utils';
