@@ -65,11 +65,11 @@ export function hashSafeMessage(chain: Chain, address: Address, bytes: Hex): Has
   });
 }
 
-export async function buildMultiSendSafeTx(
+export function buildMultiSendSafeTx(
   chain: Chain,
   txs: MetaTransaction[],
   overrides?: Partial<SafeTransaction>
-): Promise<MetaTransaction> {
+): MetaTransaction {
   const multisendAddress = deployments[chain.id]?.MultiSend;
 
   assert(multisendAddress, `multisend not support on ${chain.name}`);

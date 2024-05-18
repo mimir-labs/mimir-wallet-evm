@@ -4,6 +4,7 @@
 import { createElement, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { AppFrame } from '@mimir-wallet/components';
 import { apps } from '@mimir-wallet/config';
 
 function AppExplorer() {
@@ -27,6 +28,8 @@ function AppExplorer() {
         app?.Component?.().then((C) => {
           setElement(createElement(C, props));
         });
+      } else {
+        setElement(<AppFrame appUrl={url} allowedFeaturesList='' />);
       }
     }
   }, [url]);

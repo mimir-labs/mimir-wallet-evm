@@ -8,24 +8,18 @@ import React, { useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { Empty, RecoveryTxCard, SafeTxCard } from '@mimir-wallet/components';
-import { usePendingTransactions, useRecoveryTxs, useSafeNonce } from '@mimir-wallet/hooks';
+import { usePendingTransactions, useRecoveryTxs } from '@mimir-wallet/hooks';
 
 function Pending({ account }: { account: BaseAccount }) {
   const chainId = useChainId();
-  const [nonce, isFetched, isFetching] = useSafeNonce(account.address);
-  const [{ current, queue }, isFetchedTx, isFetchingTx, refetch] = usePendingTransactions(
-    chainId,
-    account.address,
-    nonce
-  );
+  const [{ current, queue }, isFetchedTx, isFetchingTx, refetch] = usePendingTransactions(chainId, account.address);
   const [recoveryTxs, isFetchedRecovery, isFetchingRecovery] = useRecoveryTxs(chainId, account.address);
 
   const allPending = useMemo(() => {
     return (current ? [...current[1]] : []).concat(...Object.values(queue).flat());
   }, [current, queue]);
 
-  const showSkeleton =
-    (isFetching || isFetchingTx || isFetchingRecovery) && (!isFetched || !isFetchedTx || !isFetchedRecovery);
+  const showSkeleton = (isFetchingTx || isFetchingRecovery) && (!isFetchedTx || !isFetchedRecovery);
 
   if (showSkeleton) {
     return (
@@ -74,7 +68,6 @@ function Pending({ account }: { account: BaseAccount }) {
               defaultOpen
               account={account}
               key={`current-${current[0].toString()}`}
-              refetch={refetch}
               data={current[1]}
               nonce={current[0]}
             />
@@ -86,13 +79,7 @@ function Pending({ account }: { account: BaseAccount }) {
           <h6 className='font-bold text-medium mb-2'>Queuing</h6>
           <div className='space-y-5'>
             {Object.entries(queue).map(([nonce, value]) => (
-              <SafeTxCard
-                account={account}
-                key={`queue-${nonce}`}
-                data={value}
-                nonce={BigInt(nonce)}
-                refetch={refetch}
-              />
+              <SafeTxCard account={account} key={`queue-${nonce}`} data={value} nonce={BigInt(nonce)} />
             ))}
           </div>
         </div>

@@ -10,7 +10,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import { CURRENT_ACCOUNT_KEY } from '@mimir-wallet/constants';
 import { useQueryParam } from '@mimir-wallet/hooks';
-import { addressEq } from '@mimir-wallet/utils';
+import { addressEq, store } from '@mimir-wallet/utils';
 
 import { querySync } from './utils';
 
@@ -63,7 +63,7 @@ export function useAddress(defaultCurrent?: Address) {
   const switchAddress = useCallback(
     (address: Address) => {
       setCurrent(address);
-      localStorage.setItem(`${CURRENT_ACCOUNT_KEY}:${chainId}`, JSON.stringify(address));
+      store.set(`${CURRENT_ACCOUNT_KEY}:${chainId}`, JSON.stringify(address));
     },
     [chainId]
   );
@@ -104,9 +104,9 @@ export function useAddress(defaultCurrent?: Address) {
   return {
     isReady,
     current,
-    isSigner,
     signers: useMemo(() => [...(signers || [])], [signers]),
     isMultisig,
+    isSigner,
     multisigs,
     addMultisig,
     changeName: useCallback(

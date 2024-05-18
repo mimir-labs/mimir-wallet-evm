@@ -14,7 +14,13 @@ import { AddressContext } from '@mimir-wallet/providers';
 import Networks from './Networks';
 import SideBar from './SideBar';
 
-function BaseContainer({ withSideBar }: { withSideBar: boolean }): React.ReactElement {
+function BaseContainer({
+  withSideBar,
+  withPadding
+}: {
+  withSideBar: boolean;
+  withPadding: boolean;
+}): React.ReactElement {
   const { isReady } = useContext(AddressContext);
   const { isConnected } = useAccount();
 
@@ -41,7 +47,7 @@ function BaseContainer({ withSideBar }: { withSideBar: boolean }): React.ReactEl
       {isReady ? (
         <div className='flex'>
           {withSideBar ? <SideBar /> : null}
-          <div className='flex-1 p-5'>
+          <div className={`flex-1 ${withPadding ? 'p-5' : 'p-0'}`}>
             <Outlet />
           </div>
         </div>

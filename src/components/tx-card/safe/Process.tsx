@@ -1,18 +1,15 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'abitype';
-import type { BaseAccount, SafeAccount, SafeTransaction } from '@mimir-wallet/safe/types';
+import type { BaseAccount, SafeAccount } from '@mimir-wallet/safe/types';
 
 import { Accordion, AccordionItem, Progress } from '@nextui-org/react';
 import React, { useMemo } from 'react';
 
 import ArrowLeft from '@mimir-wallet/assets/svg/ArrowLeft.svg?react';
 import AddressCell from '@mimir-wallet/components/AddressCell';
-import Alert from '@mimir-wallet/components/Alert';
-import SafeTxButton from '@mimir-wallet/components/SafeTxButton';
 import { SignatureResponse } from '@mimir-wallet/hooks/types';
-import { approveCounts, buildSafeTransaction } from '@mimir-wallet/safe';
+import { approveCounts } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
 function ProgressItem({ signature, account }: { account?: BaseAccount; signature: SignatureResponse }) {
@@ -42,20 +39,12 @@ function ProgressItem({ signature, account }: { account?: BaseAccount; signature
 
 function Process({
   account,
-  filterPaths,
-  hasCancelTx,
-  transaction,
   signatures,
-  isSignatureReady,
-  refetch
+  children
 }: {
-  hasCancelTx: boolean;
   account: BaseAccount;
-  filterPaths: Array<Address[]>;
-  transaction: SafeTransaction;
   signatures: SignatureResponse[];
-  isSignatureReady: boolean;
-  refetch?: () => void;
+  children?: React.ReactNode;
 }) {
   return (
     <div className='w-[24%] rounded-medium bg-primary/[0.04] p-3 space-y-2'>
@@ -84,45 +73,7 @@ function Process({
         </AccordionItem>
       </Accordion>
 
-      {filterPaths.length === 0 && (
-        <Alert variant='text' severity='warning' size='tiny' title='Waiting for other members’ approvement.' />
-      )}
-
-      <div className='flex items-center gap-x-2.5'>
-        {!hasCancelTx && (
-          <SafeTxButton
-            isApprove={false}
-            isCancel
-            website={`mimir://internal/cancel-tx?nonce=${transaction.nonce.toString()}`}
-            address={account.address}
-            buildTx={async () => buildSafeTransaction(account.address, { value: 0n })}
-            cancelNonce={transaction.nonce}
-            onSuccess={refetch}
-            fullWidth
-            variant='bordered'
-            radius='full'
-            color='danger'
-          >
-            Reject
-          </SafeTxButton>
-        )}
-        {(filterPaths.length > 0 || isSignatureReady) && (
-          <SafeTxButton
-            isApprove
-            isCancel={false}
-            isSignatureReady={isSignatureReady}
-            safeTx={transaction}
-            signatures={signatures}
-            address={account.address}
-            onSuccess={refetch}
-            fullWidth
-            radius='full'
-            color='primary'
-          >
-            {isSignatureReady ? 'Execute' : 'Approve'}
-          </SafeTxButton>
-        )}
-      </div>
+      {children}
     </div>
   );
 }

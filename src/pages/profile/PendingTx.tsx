@@ -10,7 +10,7 @@ import React, { useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { AppName, Empty } from '@mimir-wallet/components';
-import { useParseCall, usePendingTransactions, useQueryAccount, useSafeNonce } from '@mimir-wallet/hooks';
+import { useParseCall, usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
 import { approveCounts } from '@mimir-wallet/safe';
 import { BaseAccount } from '@mimir-wallet/safe/types';
 
@@ -55,8 +55,7 @@ function Item({
 
 function PendingTx({ address }: { address: Address }) {
   const chainId = useChainId();
-  const [nonce] = useSafeNonce(address);
-  const [{ current, queue }] = usePendingTransactions(chainId, address, nonce);
+  const [{ current, queue }] = usePendingTransactions(chainId, address);
   const account = useQueryAccount(address);
 
   if (!current && Object.keys(queue).length === 0) {

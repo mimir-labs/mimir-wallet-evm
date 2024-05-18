@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export * from './animation';
+export * from './app-frame';
 export * from './safe-tx-modal';
 export * from './tx-card';
 export * from './call-display';

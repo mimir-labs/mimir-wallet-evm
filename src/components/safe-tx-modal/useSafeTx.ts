@@ -9,6 +9,7 @@ import { useCallback, useContext, useMemo, useState } from 'react';
 import { zeroAddress } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
+import { PENDING_SAFE_TX_PREFIX } from '@mimir-wallet/constants';
 import { useMultisig, usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import {
@@ -19,7 +20,7 @@ import {
   memberPaths,
   signSafeTransaction
 } from '@mimir-wallet/safe';
-import { service } from '@mimir-wallet/utils';
+import { service, session } from '@mimir-wallet/utils';
 
 import { findWaitApproveFilter } from '../tx-card/safe/utils';
 import { useSimulation } from './useSimulation';
@@ -43,7 +44,7 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
   const [addressChain, setAddressChain] = useState<Address[]>(propsAddressChain || []);
   const [customNonce, setCustomNonce] = useState<bigint>();
   const multisig = useMultisig(address);
-  const [{ current, queue }] = usePendingTransactions(chainId, address);
+  const [{ current, queue }, , , refetch] = usePendingTransactions(chainId, address);
   const account = useQueryAccount(address);
   const { address: signer } = useAccount();
   const simulation = useSimulation(tx, address);
@@ -91,18 +92,24 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
       const signature = await signSafeTransaction(wallet, client, address, safeTx, signer, addressChain);
 
       await service.createTx(wallet.chain.id, address, signature, signer, safeTx, addressChain, website);
-      onSuccess?.();
+      refetch();
+      onSuccess?.(safeTx);
     },
-    [addressChain, isSigner, address, onSuccess, safeTx, website]
+    [safeTx, addressChain, isSigner, address, website, refetch, onSuccess]
   );
   const handleExecute = useCallback(
     async (wallet: IWalletClient, client: IPublicClient): Promise<void> => {
       if (!safeTx) return;
 
-      await execute(wallet, client, address, safeTx, buildBytesSignatures(buildSigTree(signatures)));
-      onSuccess?.();
+      const hash = await execute(wallet, client, address, safeTx, buildBytesSignatures(buildSigTree(signatures)));
+
+      await client.waitForTransactionReceipt({ hash });
+
+      session.set(`${PENDING_SAFE_TX_PREFIX}${chainId}:${address}:${safeTx.nonce}`, true);
+      refetch();
+      onSuccess?.(safeTx);
     },
-    [address, onSuccess, safeTx, signatures]
+    [address, chainId, onSuccess, refetch, safeTx, signatures]
   );
 
   const hasSameTx = useMemo(() => {

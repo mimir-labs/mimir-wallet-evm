@@ -71,6 +71,29 @@ export async function buildAddRecovery(
       }),
       operation: Operation.Call
     });
+  } else {
+    txs.push(
+      {
+        to: delayAddress,
+        value: 0n,
+        data: encodeFunctionData({
+          abi: abis.Delay,
+          functionName: 'setTxCooldown',
+          args: [BigInt(cooldown)]
+        }),
+        operation: Operation.Call
+      },
+      {
+        to: delayAddress,
+        value: 0n,
+        data: encodeFunctionData({
+          abi: abis.Delay,
+          functionName: 'setTxExpiration',
+          args: [BigInt(expiration)]
+        }),
+        operation: Operation.Call
+      }
+    );
   }
 
   txs.push({

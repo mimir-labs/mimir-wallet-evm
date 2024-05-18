@@ -18,12 +18,10 @@ export type PendingData = {
 export type HistoryData = Record<string, Record<string, Array<TransactionItem>>>; // day => nonce => item[]
 
 const queryFn = async ({
-  queryKey: [chainId, address, nonce, isHistory]
-}: QueryFunctionContext<
-  [chainId: number, address?: Address, nonce?: bigint | number | string, isHistory?: boolean]
->): Promise<Array<TransactionItem>> =>
-  address && nonce !== undefined && nonce !== null
-    ? service[isHistory ? 'historyTx' : 'pendingTx'](chainId, address, nonce).then((data) =>
+  queryKey: [chainId, address, isHistory]
+}: QueryFunctionContext<[chainId: number, address?: Address, isHistory?: boolean]>): Promise<Array<TransactionItem>> =>
+  address
+    ? service[isHistory ? 'historyTx' : 'pendingTx'](chainId, address).then((data) =>
         data.map(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (item: any) => ({
@@ -46,20 +44,19 @@ const queryFn = async ({
 
 export function usePendingTransactions(
   chainId: number,
-  address?: Address,
-  nonce?: bigint
+  address?: Address
 ): [PendingData, isFetched: boolean, isFetching: boolean, refetch: () => void] {
   const { data, isFetched, isFetching, refetch } = useQuery({
     initialData: [],
-    queryKey: [chainId, address, nonce?.toString(), false],
+    queryKey: [chainId, address, false],
     queryFn
   });
 
   return useMemo(
     () => [
       data.reduce<PendingData>(
-        (result, value) => {
-          if (value.transaction.nonce === nonce) {
+        (result, value, index) => {
+          if (result.current?.[0] === value.transaction.nonce || index === 0) {
             // current
             if (result.current) {
               result.current[1].push(value);
@@ -84,18 +81,17 @@ export function usePendingTransactions(
       isFetching,
       () => refetch()
     ],
-    [data, isFetched, isFetching, nonce, refetch]
+    [data, isFetched, isFetching, refetch]
   );
 }
 
 export function useHistoryTransactions(
   chainId: number,
-  address?: Address,
-  nonce?: bigint
+  address?: Address
 ): [HistoryData, isFetched: boolean, isFetching: boolean] {
   const { data, isFetched, isFetching } = useQuery({
     initialData: [],
-    queryKey: [chainId, address, nonce?.toString(), true],
+    queryKey: [chainId, address, true],
     queryFn
   });
 

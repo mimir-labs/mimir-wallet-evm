@@ -4,7 +4,7 @@
 import type { Address } from 'abitype';
 import type { BaseAccount, MetaTransaction } from '@mimir-wallet/safe/types';
 
-import { Chip } from '@nextui-org/react';
+import { Chip, CircularProgress } from '@nextui-org/react';
 import React from 'react';
 import { useAccount } from 'wagmi';
 
@@ -25,14 +25,18 @@ import {
 import { buildSafeTransaction } from '@mimir-wallet/safe';
 import { formatAgo } from '@mimir-wallet/utils';
 
-interface Props {
+interface OperateCellProps {
   isSignatureReady: boolean;
   account: BaseAccount;
   filterPaths: Array<Address[]>;
   hasCancelTx: boolean;
-  isOpen: boolean;
+  isIndexing: boolean;
   transaction: TransactionResponse;
   signatures: SignatureResponse[];
+}
+
+interface Props extends OperateCellProps {
+  isOpen: boolean;
   approval: number;
   threshold: number;
   dataSize: number;
@@ -40,7 +44,6 @@ interface Props {
   multisend?: MetaTransaction[] | null;
   toggleOpen: (value?: unknown) => void;
   openOverview: () => void;
-  refetch?: () => void;
 }
 
 function TimeCell({ time }: { time?: number }) {
@@ -57,14 +60,92 @@ function TimeCell({ time }: { time?: number }) {
         : `${formatAgo(Number(time), 'D')} days ago`;
 }
 
+function OperateCell({
+  isSignatureReady,
+  hasCancelTx,
+  account,
+  filterPaths,
+  isIndexing,
+  transaction,
+  signatures
+}: OperateCellProps) {
+  const { isConnected } = useAccount();
+
+  return transaction.status === TransactionStatus.Pending ? (
+    isIndexing ? (
+      <Chip
+        color='warning'
+        variant='light'
+        size='sm'
+        startContent={<CircularProgress color='warning' size='sm' classNames={{ svg: 'w-4 h-4' }} />}
+      >
+        Indexing...
+      </Chip>
+    ) : (
+      isConnected && (
+        <>
+          {!account.isReadOnly && (filterPaths.length > 0 || isSignatureReady) && (
+            <SafeTxButton
+              isApprove
+              isCancel={false}
+              isSignatureReady={isSignatureReady}
+              safeTx={transaction}
+              signatures={signatures}
+              address={account.address}
+              size='tiny'
+              radius='full'
+              variant='light'
+              isIconOnly
+              color='success'
+            >
+              <IconSuccess />
+            </SafeTxButton>
+          )}
+          {!account.isReadOnly && !hasCancelTx && (
+            <SafeTxButton
+              isApprove={false}
+              isCancel
+              website={`mimir://internal/cancel-tx?nonce=${transaction.nonce.toString()}`}
+              address={account.address}
+              buildTx={async () => buildSafeTransaction(account.address, { value: 0n })}
+              cancelNonce={transaction.nonce}
+              size='tiny'
+              radius='full'
+              variant='light'
+              isIconOnly
+              color='danger'
+            >
+              <IconFail />
+            </SafeTxButton>
+          )}
+        </>
+      )
+    )
+  ) : (
+    <Chip
+      color={
+        transaction.status === TransactionStatus.Successed
+          ? 'success'
+          : transaction.status === TransactionStatus.Failed
+            ? 'danger'
+            : 'warning'
+      }
+      variant='light'
+      size='sm'
+    >
+      {TransactionStatus[transaction.status]}
+    </Chip>
+  );
+}
+
 function TxItems({
   isSignatureReady,
-  refetch,
   hasCancelTx,
   account,
   filterPaths,
   multisend,
   isOpen,
+  isIndexing,
   toggleOpen,
   dataSize,
   parsed,
@@ -74,7 +155,7 @@ function TxItems({
   threshold,
   openOverview
 }: Props) {
-  const { isConnected, chain } = useAccount();
+  const { chain } = useAccount();
 
   return (
     <div className='cursor-pointer h-10 px-3 grid grid-cols-6' onClick={toggleOpen}>
@@ -128,62 +209,15 @@ function TxItems({
       </div>
       <div className='col-span-1 flex items-center justify-between'>
         <div className='space-x-2'>
-          {transaction.status === TransactionStatus.Pending ? (
-            isConnected ? (
-              <>
-                {(filterPaths.length > 0 || isSignatureReady) && (
-                  <SafeTxButton
-                    isApprove
-                    isCancel={false}
-                    isSignatureReady={isSignatureReady}
-                    safeTx={transaction}
-                    signatures={signatures}
-                    address={account.address}
-                    onSuccess={refetch}
-                    size='tiny'
-                    radius='full'
-                    variant='light'
-                    isIconOnly
-                    color='success'
-                  >
-                    <IconSuccess />
-                  </SafeTxButton>
-                )}
-                {!hasCancelTx && (
-                  <SafeTxButton
-                    isApprove={false}
-                    isCancel
-                    website={`mimir://internal/cancel-tx?nonce=${transaction.nonce.toString()}`}
-                    address={account.address}
-                    buildTx={async () => buildSafeTransaction(account.address, { value: 0n })}
-                    cancelNonce={transaction.nonce}
-                    onSuccess={refetch}
-                    size='tiny'
-                    radius='full'
-                    variant='light'
-                    isIconOnly
-                    color='danger'
-                  >
-                    <IconFail />
-                  </SafeTxButton>
-                )}
-              </>
-            ) : null
-          ) : (
-            <Chip
-              color={
-                transaction.status === TransactionStatus.Successed
-                  ? 'success'
-                  : transaction.status === TransactionStatus.Failed
-                    ? 'danger'
-                    : 'warning'
-              }
-              variant='light'
-              size='sm'
-            >
-              {TransactionStatus[transaction.status]}
-            </Chip>
-          )}
+          <OperateCell
+            isSignatureReady={isSignatureReady}
+            hasCancelTx={hasCancelTx}
+            account={account}
+            filterPaths={filterPaths}
+            isIndexing={isIndexing}
+            transaction={transaction}
+            signatures={signatures}
+          />
         </div>
         <Button
           data-open={isOpen}

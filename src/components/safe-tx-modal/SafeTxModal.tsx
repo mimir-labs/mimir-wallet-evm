@@ -129,4 +129,4 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
   );
 }
 
-export default React.memo<typeof SafeTxModal>(SafeTxModal);
+export default React.memo<typeof SafeTxModal>(SafeTxModal) as typeof SafeTxModal;

@@ -3,7 +3,6 @@
 
 export * from './useAccountNFTs';
 export * from './useAccountTokens';
-export * from './useAccountTransactions';
 export * from './useAddressName';
 export * from './useAllowanceDelegates';
 export * from './useApps';
@@ -18,7 +17,10 @@ export * from './useParseCall';
 export * from './useQueryAccount';
 export * from './useQueryParams';
 export * from './useQueryTokens';
+export * from './useQueryTransactions';
 export * from './useRecoveryTx';
 export * from './useSafeInfo';
 export * from './useSafeModules';
+export * from './useStore';
 export * from './useToken';
+export * from './useTxIsIndexing';

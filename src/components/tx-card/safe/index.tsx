@@ -21,10 +21,9 @@ interface Props {
   nonce: bigint;
   data: { transaction: TransactionResponse; signatures: SignatureResponse[] }[];
   hiddenConflictWarning?: boolean;
-  refetch?: () => void;
 }
 
-function SafeTxCard({ account, hiddenConflictWarning, defaultOpen, data, nonce, refetch }: Props) {
+function SafeTxCard({ account, hiddenConflictWarning, defaultOpen, data, nonce }: Props) {
   const { address } = useAccount();
   const hasCancelTx = useMemo(
     () =>
@@ -72,7 +71,6 @@ function SafeTxCard({ account, hiddenConflictWarning, defaultOpen, data, nonce, 
         <CardBody className='space-y-3'>
           {data.map((item) => (
             <Cell
-              refetch={refetch}
               account={account}
               allPaths={allPaths}
               hasCancelTx={hasCancelTx}

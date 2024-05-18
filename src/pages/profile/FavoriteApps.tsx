@@ -17,7 +17,7 @@ function FavoriteApps({
   removeFavorite: (id: number) => void;
 }) {
   return (
-    <div className='grid grid-cols-12'>
+    <div className='grid grid-cols-12 gap-5'>
       {favorites.map((app) => {
         return (
           <div key={app.id} className='col-span-4'>

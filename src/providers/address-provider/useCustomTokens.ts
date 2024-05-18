@@ -3,14 +3,14 @@
 
 import type { CustomToken } from './types';
 
-import { useCallback, useState } from 'react';
-import store from 'store';
+import { useCallback } from 'react';
 
 import { CUSTOM_TOKENS_KEY } from '@mimir-wallet/constants';
+import { useLocalStore } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
 export function useCustomTokens() {
-  const [customTokens, setCustomTokens] = useState<CustomToken[]>(store.get(CUSTOM_TOKENS_KEY) || []);
+  const [customTokens, setCustomTokens] = useLocalStore<CustomToken[]>(CUSTOM_TOKENS_KEY, []);
 
   const addCustomToken = useCallback(
     (token: CustomToken) => {
@@ -20,8 +20,6 @@ export function useCustomTokens() {
         }
 
         const newVal = [...values, token];
-
-        store.set(CUSTOM_TOKENS_KEY, newVal);
 
         return newVal;
       });

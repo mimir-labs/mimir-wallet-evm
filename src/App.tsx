@@ -17,7 +17,7 @@ import PageTransactions from './pages/transactions';
 function App(): React.ReactElement {
   return (
     <Routes>
-      <Route element={<BaseContainer withSideBar />}>
+      <Route element={<BaseContainer withPadding withSideBar />}>
         <Route index element={<PageProfile />} />
         <Route path='/assets' element={<PageAssets />} />
         <Route path='/apps' element={<PageApps />} />
@@ -26,8 +26,10 @@ function App(): React.ReactElement {
         <Route path='/account-setting' element={<PageAccountSetting />} />
         <Route path='/reset/:delayAddress' element={<PageReset />} />
       </Route>
-      <Route element={<BaseContainer withSideBar={false} />}>
+      <Route element={<BaseContainer withPadding withSideBar={false} />}>
         <Route path='/create-multisig' element={<PageCreateMultisig />} />
+      </Route>
+      <Route element={<BaseContainer withSideBar={false} withPadding={false} />}>
         <Route path='/apps/:url' element={<PageAppExplorer />} />
       </Route>
     </Routes>

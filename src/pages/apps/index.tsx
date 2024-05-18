@@ -8,7 +8,7 @@ function Apps() {
   const { apps, isFavorite, removeFavorite, addFavorite } = useVisibleApps();
 
   return (
-    <div className='grid grid-cols-12'>
+    <div className='grid grid-cols-12 gap-5'>
       {apps.map((app) => {
         return (
           <div key={app.id} className='col-span-4'>

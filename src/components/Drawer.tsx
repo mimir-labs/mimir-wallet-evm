@@ -38,7 +38,7 @@ function Drawer({ isOpen, className, classNames, children, ...props }: ModalProp
       }}
     >
       <ModalContent>
-        <ModalBody className='p-0 pt-10'>{children}</ModalBody>
+        <ModalBody className='p-0 pt-10 overflow-y-auto'>{children}</ModalBody>
       </ModalContent>
     </Modal>
   );

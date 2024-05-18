@@ -59,16 +59,18 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
       isOpen={isOpen}
       onClose={onClose}
       classNames={{
-        base: ['w-[240px]', 'relative']
+        base: ['w-[240px]', 'relative', 'pb-5']
       }}
     >
-      <div className='p-2.5 space-y-2.5 text-small'>
+      <div className='p-2.5'>
         <Input
           variant='bordered'
           placeholder='Search'
           labelPlacement='outside'
           endContent={<IconSearch className='text-foreground opacity-30' />}
         />
+      </div>
+      <div className='flex-1 p-2.5 space-y-2.5 text-small max-h-[calc(100%-100px)] overflow-y-auto'>
         <p>Current Account</p>
         <Cell isSelect>
           <AddressCell withCopy iconSize={30} address={current} />
@@ -103,7 +105,7 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
         ))} */}
       </div>
       <ButtonLinear
-        className='absolute bottom-5 left-5 right-5 w-auto'
+        className='mx-5 w-auto flex-shrink-0'
         as={Link}
         href='/create-multisig'
         size='lg'

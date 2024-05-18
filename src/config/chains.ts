@@ -5,7 +5,7 @@ import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { Chain, isAddress } from 'viem';
-import { moonbeam, scroll, sepolia } from 'viem/chains';
+import { moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
 import { type Config, createStorage } from 'wagmi';
 
 import { CURRENT_ACCOUNT_KEY } from '@mimir-wallet/constants';
@@ -15,11 +15,26 @@ export type MimirConfig = {
   walletConfig: Config;
 };
 
+type ChainBlockExplorer = {
+  name: string;
+  url: string;
+  apiUrl: string | undefined;
+};
+
+export type CustomChain = Chain & {
+  blockExplorers: {
+    [key: string]: ChainBlockExplorer;
+    default: ChainBlockExplorer;
+  };
+  iconUrl: string;
+};
+
 export const supportedChains = [
   { ...moonbeam, iconUrl: '/chain-icons/1284.webp' },
   { ...scroll, iconUrl: '/chain-icons/534352.webp' },
-  { ...sepolia, iconUrl: '/chain-icons/11155111.webp' }
-] as const;
+  { ...sepolia, iconUrl: '/chain-icons/11155111.webp' },
+  { ...scrollSepolia, iconUrl: '/chain-icons/534351.webp' }
+] as CustomChain[];
 
 const projectId = '7d03930c3d8c2558da5d59066df0877a';
 
