@@ -48,7 +48,7 @@ function TxItems({ isOpen, cooldown, expiration, tx, handleExecute, toggleOpen, 
 
   const now = Date.now();
 
-  const isExpiration = cooldown && expiration ? tx.createdAt + cooldown + expiration > now : false;
+  const isExpiration = cooldown && expiration ? tx.createdAt + cooldown + expiration < now : false;
 
   return (
     <div className='cursor-pointer h-10 px-3 grid grid-cols-6' onClick={toggleOpen}>

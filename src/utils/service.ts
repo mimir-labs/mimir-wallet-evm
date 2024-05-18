@@ -13,15 +13,15 @@ export const jsonHeader = { 'Content-Type': 'application/json' };
 
 export const getAuthorizationHeader = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
 
-export function pendingTx(chainId: number, address: Address, nonce: bigint | number | string) {
-  return fetcher(serviceUrl(chainId, `tx/pending/${address}?nonce=${nonce.toString()}`), {
+export function pendingTx(chainId: number, address: Address) {
+  return fetcher(serviceUrl(chainId, `tx/pending/${address}`), {
     method: 'GET',
     headers: jsonHeader
   });
 }
 
-export function historyTx(chainId: number, address: Address, nonce: bigint | number | string) {
-  return fetcher(serviceUrl(chainId, `tx/history/${address}?nonce=${nonce.toString()}`), {
+export function historyTx(chainId: number, address: Address) {
+  return fetcher(serviceUrl(chainId, `tx/history/${address}`), {
     method: 'GET',
     headers: jsonHeader
   });
@@ -85,10 +85,17 @@ export function createTx(
 export function simulateTx(
   chainId: number,
   bundles: { from: Address; to: Address; value: string; data: Hex }[]
-): Promise<{ success: boolean; simulation?: any[] }> {
+): Promise<{ success: boolean; simulation?: unknown[] }> {
   return fetcher(serviceUrl(chainId, 'simulate'), {
     method: 'POST',
     body: JSON.stringify({ bundles }),
+    headers: jsonHeader
+  });
+}
+
+export function getSafeTx(chainId: number, hash: string): Promise<{ executeTransaction?: Hash }> {
+  return fetcher(serviceUrl(chainId, `tx/${hash}`), {
+    method: 'GET',
     headers: jsonHeader
   });
 }

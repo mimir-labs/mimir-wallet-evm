@@ -60,6 +60,6 @@ export interface UseSafeTx<Approve extends boolean, Cancel extends boolean> {
   filterPaths?: Array<Address[]>;
   website?: string;
   addressChain?: Address[];
-  onSuccess?: () => void;
+  onSuccess?: (safeTx: SafeTransaction) => void;
   onClose?: () => void;
 }

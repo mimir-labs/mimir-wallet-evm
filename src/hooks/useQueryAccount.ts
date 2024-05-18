@@ -5,7 +5,7 @@ import type { Address } from 'abitype';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { useQuery } from '@tanstack/react-query';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { AddressContext } from '@mimir-wallet/providers';
@@ -30,7 +30,7 @@ function findNames(account: BaseAccount): Record<string, string> {
 
 export function useQueryAccount(address?: Address): BaseAccount | null {
   const chainId = useChainId();
-  const { setAddressNames } = useContext(AddressContext);
+  const { setAddressNames, isMultisig } = useContext(AddressContext);
 
   const { data } = useQuery({
     initialData: null,
@@ -46,5 +46,14 @@ export function useQueryAccount(address?: Address): BaseAccount | null {
     }
   }, [setAddressNames, data]);
 
-  return data;
+  return useMemo(
+    () =>
+      data
+        ? {
+            ...data,
+            isReadOnly: !isMultisig(data.address)
+          }
+        : null,
+    [data, isMultisig]
+  );
 }

@@ -20,7 +20,16 @@ export interface ButtonEnableProps extends Omit<ButtonProps, 'onClick'> {
 
 const ButtonEnable = forwardRef(
   (
-    { children, Component = Button, onClick, isToastError, withConnect, disabled, ...props }: ButtonEnableProps,
+    {
+      children,
+      Component = Button,
+      onClick,
+      isToastError,
+      withConnect,
+      disabled,
+      isIconOnly,
+      ...props
+    }: ButtonEnableProps,
     ref: React.Ref<HTMLButtonElement> | undefined
   ): React.ReactElement => {
     const { address, chainId, isConnected } = useAccount();
@@ -61,14 +70,16 @@ const ButtonEnable = forwardRef(
         );
       }
 
-      return (
-        <Component {...props} disabled ref={ref}>
-          Unsupported chain
-        </Component>
-      );
+      if (!isIconOnly) {
+        return (
+          <Component {...props} disabled ref={ref}>
+            Wrong Network
+          </Component>
+        );
+      }
     }
 
-    if (withConnect) {
+    if (withConnect && !isIconOnly) {
       return (
         <Component onClick={openConnectModal} {...props} ref={ref}>
           Connect Wallet

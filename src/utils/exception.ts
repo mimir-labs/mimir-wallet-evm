@@ -12,3 +12,23 @@ export function assertReturn<T>(value: T | undefined | null, message: string | (
 
   return value;
 }
+
+export const asError = (thrown: unknown): Error => {
+  if (thrown instanceof Error) {
+    return thrown;
+  }
+
+  let message: string;
+
+  if (typeof thrown === 'string') {
+    message = thrown;
+  } else {
+    try {
+      message = JSON.stringify(thrown);
+    } catch {
+      message = String(thrown);
+    }
+  }
+
+  return new Error(message);
+};

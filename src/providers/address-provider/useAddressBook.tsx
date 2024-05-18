@@ -4,23 +4,22 @@
 import type { Address } from 'abitype';
 import type { Multisig } from '@mimir-wallet/safe/types';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useToggle } from 'react-use';
-import store from 'store';
 import { isAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { AddAddressModal } from '@mimir-wallet/components';
 import { ADDRESS_BOOK_KEY, ADDRESS_NAMES_KEY } from '@mimir-wallet/constants';
-import { useInput, useInputAddress } from '@mimir-wallet/hooks';
+import { useInput, useInputAddress, useLocalStore } from '@mimir-wallet/hooks';
 
 export function useAddressBook(
   tokens: { name: string; symbol: string; chainId: number; address: Address; icon?: string | null }[],
   multisigs: Multisig[]
 ) {
   const chainId = useChainId();
-  const [addresses, setAddresses] = useState<Address[]>(store.get(ADDRESS_BOOK_KEY) || []);
-  const [addressNames, setAddressNames] = useState<Record<string, string>>(store.get(ADDRESS_NAMES_KEY) || {});
+  const [addresses, setAddresses] = useLocalStore<Address[]>(ADDRESS_BOOK_KEY, []);
+  const [addressNames, setAddressNames] = useLocalStore<Record<string, string>>(ADDRESS_NAMES_KEY, {});
 
   const [[address], setAddress] = useInputAddress();
   const [name, setName] = useInput('');
@@ -43,7 +42,7 @@ export function useAddressBook(
         return value;
       }, {})
     }));
-  }, [chainId, multisigs, tokens]);
+  }, [chainId, multisigs, setAddressNames, tokens]);
 
   const addAddressBook = useCallback(
     (value?: [Address, string]) => {
@@ -76,14 +75,10 @@ export function useAddressBook(
           setAddresses((value) => {
             const newVal = Array.from(new Set([...value, address]));
 
-            setTimeout(() => store.set(ADDRESS_BOOK_KEY, newVal));
-
             return newVal;
           });
           setAddressNames((value) => {
             const newVal = { ...value, [address]: name };
-
-            setTimeout(() => store.set(ADDRESS_NAMES_KEY, newVal));
 
             return newVal;
           });

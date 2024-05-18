@@ -20,7 +20,7 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
   const [[threshold], setThreshold] = useInputNumber(multisig?.threshold.toString(), true, 1);
   const navigate = useNavigate();
 
-  const isValid = selected.length > 1 && Number(threshold) > 0;
+  const isValid = selected.length > 0 && Number(threshold) > 0;
 
   const reset = () => {
     if (multisig) {

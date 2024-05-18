@@ -3,8 +3,9 @@
 
 import type { AppConfig } from '@mimir-wallet/config';
 
-import { Card, CardBody, Link } from '@nextui-org/react';
+import { Card, CardBody } from '@nextui-org/react';
 import React, { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
 
 import IconStar from '@mimir-wallet/assets/svg/icon-star.svg?react';
@@ -22,6 +23,7 @@ interface Props {
 function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
   const [detailsOpen, toggleOpen] = useToggle(false);
   const _isFavorite = useMemo(() => isFavorite(app.id), [app.id, isFavorite]);
+  const navigate = useNavigate();
   const toggleFavorite = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -39,7 +41,7 @@ function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
     <>
       <AppDetails app={app} onClose={toggleOpen} open={detailsOpen} />
       <Card className='cursor-pointer'>
-        <CardBody onClick={toggleOpen} className='flex flex-col gap-5 p-5'>
+        <CardBody onClick={() => navigate(`/apps/${encodeURIComponent(app.url)}`)} className='flex flex-col gap-5 p-5'>
           <div>
             <h4 className='font-bold text-xl mb-1'>{app.name}</h4>
             <p className='text-tiny text-ellipsis overflow-hidden h-[36px] leading-[18px] text-foreground/50 line-clamp-2'>
@@ -50,15 +52,8 @@ function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
             <div className='flex-1'>
               <img alt={app.name} src={app.icon} style={{ width: 32, height: 32 }} />
             </div>
-            <Button
-              as={Link}
-              onClick={(e) => e.stopPropagation()}
-              href={`/apps/${encodeURIComponent(app.url)}`}
-              variant='bordered'
-              color='primary'
-              radius='full'
-            >
-              Enter
+            <Button onClick={toggleOpen} variant='bordered' color='primary' radius='full'>
+              Details
             </Button>
             <Button radius='full' onClick={toggleFavorite} color='secondary' isIconOnly>
               <IconStar

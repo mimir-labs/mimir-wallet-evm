@@ -1,12 +1,11 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import store from 'store';
-
 import AppRecovery from '@mimir-wallet/assets/images/app-recovery.svg';
 import Failed from '@mimir-wallet/assets/images/failed.svg';
 import LogoCircle from '@mimir-wallet/assets/images/logo-circle.png';
 import { FAVORITE_APP_KEY } from '@mimir-wallet/constants';
+import { store } from '@mimir-wallet/utils';
 
 export type AppConfig = {
   id: number;
@@ -82,6 +81,14 @@ export const apps: AppConfig[] = [
     twitter: 'https://twitter.com/Mimir_global/',
     tags: ['Assets'],
     Component: () => import('@mimir-wallet/apps/transfer').then((res) => res.default)
+  },
+  {
+    id: 10001,
+    name: 'Transaction Builder',
+    url: 'https://dev-apps.safe.protofire.io/tx-builder/',
+    icon: '/app-icons/transaction-builder.png',
+    desc: 'Compose custom contract interactions and batch them into a single transaction',
+    tags: ['Infrastructure']
   }
 ];
 

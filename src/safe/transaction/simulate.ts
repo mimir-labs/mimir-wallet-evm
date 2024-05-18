@@ -5,7 +5,7 @@ import { Address, decodeFunctionData, decodeFunctionResult, encodeFunctionData, 
 
 import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
-import { service } from '@mimir-wallet/utils';
+import { addressEq, service } from '@mimir-wallet/utils';
 
 import { decodeMultisend } from '../multisend';
 import { type IPublicClient, type MetaTransaction } from '../types';
@@ -42,14 +42,16 @@ export async function simulate(client: IPublicClient, tx: MetaTransaction, safeA
   const assetChanges: { from: Address; to: Address; amount: bigint; tokenAddress: Address; logo?: string }[] = [];
 
   for (const item of res.simulation || []) {
-    for (const change of item.assetChanges || []) {
-      assetChanges.push({
-        from: change.from,
-        to: change.to,
-        amount: hexToBigInt(change.rawAmount),
-        logo: change.assetInfo?.logo,
-        tokenAddress: change.assetInfo?.contractAddress || zeroAddress
-      });
+    for (const change of (item as any).assetChanges || []) {
+      if ((change.from && addressEq(change.from, safeAddress)) || (change.to && addressEq(change.to, safeAddress))) {
+        assetChanges.push({
+          from: change.from,
+          to: change.to,
+          amount: hexToBigInt(change.rawAmount),
+          logo: change.assetInfo?.logo,
+          tokenAddress: change.assetInfo?.contractAddress || zeroAddress
+        });
+      }
     }
   }
 

@@ -10,13 +10,7 @@ import { useContext, useEffect, useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { SafeTxCard } from '@mimir-wallet/components';
-import {
-  TransactionItem,
-  useHistoryTransactions,
-  useQueryAccount,
-  useQueryParam,
-  useSafeNonce
-} from '@mimir-wallet/hooks';
+import { TransactionItem, useHistoryTransactions, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import Pending from './Pending';
@@ -44,8 +38,7 @@ function Contents({ account, items }: { account: BaseAccount; items: Record<stri
 
 function History({ account }: { account: BaseAccount }) {
   const chainId = useChainId();
-  const [nonce] = useSafeNonce(account.address);
-  const [items] = useHistoryTransactions(chainId, account.address, nonce);
+  const [items] = useHistoryTransactions(chainId, account.address);
 
   return (
     <div className='space-y-5'>

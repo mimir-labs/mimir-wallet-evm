@@ -5575,6 +5575,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@safe-global/safe-apps-sdk@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@safe-global/safe-apps-sdk@npm:9.0.0"
+  dependencies:
+    "@safe-global/safe-gateway-typescript-sdk": "npm:^3.5.3"
+    viem: "npm:^1.6.0"
+  checksum: 10c0/04f50e68fe8f9fff513b8c5dcf0455c8636b54bb5677a7ff7b96c3d718c948fbc4d5da11112e69da83b811fdfae285d25ad07f88d2111d7e55d68085cb59692e
+  languageName: node
+  linkType: hard
+
+"@safe-global/safe-gateway-typescript-sdk@npm:^3.21.1":
+  version: 3.21.1
+  resolution: "@safe-global/safe-gateway-typescript-sdk@npm:3.21.1"
+  checksum: 10c0/7eebf7b07d7c8bfc78e9760b119f6623e0343264ac88a366a63db13c24ae9c8691054d2c2ed5bc1e28b4ce6a43b36ce38ec0f80cead478fcae62c7c85f2f0a3f
+  languageName: node
+  linkType: hard
+
 "@safe-global/safe-gateway-typescript-sdk@npm:^3.5.3":
   version: 3.19.0
   resolution: "@safe-global/safe-gateway-typescript-sdk@npm:3.19.0"
@@ -6663,13 +6680,6 @@ __metadata:
   version: 2.3.8
   resolution: "@types/sizzle@npm:2.3.8"
   checksum: 10c0/ab5460147ae6680cc20c2223a8f17d9f7c97144b70f00a222a1c32d68b5207696d48177ab9784dda88c74d93ed5a78dd31f74d271b15382520b423c81b4aac89
-  languageName: node
-  linkType: hard
-
-"@types/store@npm:^2":
-  version: 2.0.5
-  resolution: "@types/store@npm:2.0.5"
-  checksum: 10c0/5d5f2ba08a4eed97ac5269f672f1a012bf5f7a3c0458357070aa2d0f893e6090d8eec774fe3f4636f5a94df28d0f42f9fcd8873dc2d3110ed8f57cfdac491439
   languageName: node
   linkType: hard
 
@@ -13557,6 +13567,8 @@ __metadata:
     "@nextui-org/framer-utils": "npm:^2.0.18"
     "@nextui-org/react": "npm:^2.3.6"
     "@rainbow-me/rainbowkit": "npm:^2.0.5"
+    "@safe-global/safe-apps-sdk": "npm:^9.0.0"
+    "@safe-global/safe-gateway-typescript-sdk": "npm:^3.21.1"
     "@tailwindcss/forms": "npm:^0.5.7"
     "@tanstack/react-query": "npm:^5.29.2"
     "@testing-library/cypress": "npm:^10.0.1"
@@ -13567,7 +13579,6 @@ __metadata:
     "@types/css-mediaquery": "npm:^0.1.4"
     "@types/react": "npm:^18.2.78"
     "@types/react-dom": "npm:^18.2.25"
-    "@types/store": "npm:^2"
     "@types/testing-library__jest-dom": "npm:^6.0.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.6.0"
     "@typescript-eslint/parser": "npm:^7.6.0"
@@ -13613,7 +13624,6 @@ __metadata:
     reactflow: "npm:^11.11.1"
     search-query-parser: "npm:^1.6.0"
     start-server-and-test: "npm:^2.0.3"
-    store: "npm:^2.0.12"
     stylelint: "npm:^16.3.1"
     stylelint-config-standard: "npm:^36.0.0"
     tailwindcss: "npm:^3.4.3"
@@ -16554,13 +16564,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"store@npm:^2.0.12":
-  version: 2.0.12
-  resolution: "store@npm:2.0.12"
-  checksum: 10c0/a25a1461aab251bc4b620c7da9e876fbad7a233817e271514893a922c512ac1e80a938ae3d764aa4432556ef6f32068d46ecd830fe2bfaa591eb4a9587aa3988
-  languageName: node
-  linkType: hard
-
 "stream-browserify@npm:^3.0.0":
   version: 3.0.0
   resolution: "stream-browserify@npm:3.0.0"
@@ -17924,7 +17927,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"viem@npm:^1.0.0, viem@npm:^1.1.4":
+"viem@npm:^1.0.0, viem@npm:^1.1.4, viem@npm:^1.6.0":
   version: 1.21.4
   resolution: "viem@npm:1.21.4"
   dependencies:

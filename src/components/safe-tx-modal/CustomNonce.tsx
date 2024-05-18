@@ -34,14 +34,10 @@ function CustomNonce({
   setCustomNonce: (value: bigint) => void;
 }) {
   const chainId = useChainId();
-  const [onChainNonce, isFetched, isFetching] = useSafeNonce(address);
+  const [onChainNonce] = useSafeNonce(address);
   const [[nonce], setNonce] = useInputNumber(undefined, true, 0);
   const [isOpen, toggleOpen] = useToggle(false);
-  const [{ current, queue }, isTxFetched, isTxFetching, refetch] = usePendingTransactions(
-    chainId,
-    address,
-    onChainNonce
-  );
+  const [{ current, queue }, isTxFetched, isTxFetching, refetch] = usePendingTransactions(chainId, address);
   const [next, setNext] = useState<bigint>();
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -98,7 +94,7 @@ function CustomNonce({
             key='next'
             startContent={onChainNonce?.toString()}
             description={
-              current ? (
+              current && current[0] === onChainNonce ? (
                 <p className='text-danger'>
                   Replace <FuncionName data={current[1][0].transaction.data} />{' '}
                   {current[1].length - 1 > 0 ? `and other ${current[1].length - 1}` : ''}
@@ -157,7 +153,7 @@ function CustomNonce({
         }}
       >
         <Input
-          disabled={isApprove || isCancel || (isFetching && !isFetched) || (isTxFetching && !isTxFetched)}
+          disabled={isApprove || isCancel || (isTxFetching && !isTxFetched)}
           label='Nonce #'
           classNames={{
             base: 'inline-flex w-auto',
@@ -168,7 +164,7 @@ function CustomNonce({
           onFocus={handleOpen}
           onChange={setNonce}
           endContent={
-            isApprove || isCancel ? null : isFetching || isTxFetching ? (
+            isApprove || isCancel ? null : isTxFetching ? (
               <CircularProgress size='sm' classNames={{ svg: 'w-4 h-4' }} />
             ) : (
               <Button isIconOnly onClick={() => refetch()} color='primary' size='tiny' variant='light'>

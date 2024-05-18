@@ -52,7 +52,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
   }, [tokens]);
 
   const all = useMemo(
-    () => Array.from(new Set(addresses.concat(signers || []).concat(multisigs.map((item) => item.address)))),
+    () => Array.from(new Set((addresses || []).concat(signers || []).concat(multisigs.map((item) => item.address)))),
     [addresses, multisigs, signers]
   );
 

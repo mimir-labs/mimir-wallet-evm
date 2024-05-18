@@ -102,7 +102,6 @@ function RecoveryTxCard({ account, defaultOpen, tx, pendingTxs, refetch }: Props
               defaultOpen={false}
               transaction={item.transaction}
               signatures={item.signatures}
-              refetch={refetch}
             />
           ))}
           <Cell
