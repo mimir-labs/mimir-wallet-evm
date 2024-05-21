@@ -3,8 +3,9 @@
 
 import type { UseSafeTx } from './types';
 
-import { Divider, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import { Divider, ModalBody, ModalContent, ModalFooter, ModalHeader, Switch } from '@nextui-org/react';
 import React from 'react';
+import { useToggle } from 'react-use';
 
 import Alert from '../Alert';
 import Button from '../Button';
@@ -31,6 +32,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     signatures,
     handleSign,
     handleExecute,
+    handleSignAndExecute,
     multisig,
     filterPaths,
     address,
@@ -40,8 +42,11 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     addressChain,
     simulation,
     setAddressChain,
-    isSignatureReady
+    executable,
+    isSignatureReady,
+    isNextSignatureReady
   } = useSafeTx(props);
+  const [signOnly, toggleSignOnly] = useToggle(true);
 
   return (
     <ModalContent>
@@ -88,6 +93,14 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
             setCustomNonce={setCustomNonce}
           />
         </ItemWrapper>
+        {isNextSignatureReady && (
+          <ItemWrapper>
+            <div className='flex justify-between items-center'>
+              <b className='text-small'>Sign Only</b>
+              <Switch size='sm' checked={signOnly} onChange={toggleSignOnly} />
+            </div>
+          </ItemWrapper>
+        )}
       </ModalBody>
       <Divider />
       <ModalFooter className='flex-col gap-2.5 px-3'>
@@ -105,10 +118,22 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
               color='primary'
               fullWidth
               radius='full'
-              disabled={!safeTx}
+              disabled={!safeTx || !executable}
               isLoading={simulation.isPending}
             >
               Execute
+            </ButtonEnable>
+          ) : !signOnly ? (
+            <ButtonEnable
+              isToastError
+              onClick={handleSignAndExecute}
+              color='primary'
+              fullWidth
+              radius='full'
+              disabled={!safeTx || (!isApprove && hasSameTx) || !executable}
+              isLoading={simulation.isPending}
+            >
+              Sign & Execute
             </ButtonEnable>
           ) : (
             <ButtonEnable

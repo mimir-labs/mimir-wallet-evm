@@ -28,9 +28,27 @@ function findNames(account: BaseAccount): Record<string, string> {
   return names;
 }
 
+function findThresholds(account: BaseAccount): Record<string, [number, number]> {
+  let thresholds: Record<string, [number, number]> =
+    account.type === 'safe' && account.members && account.threshold
+      ? {
+          [account.address]: [account.threshold, account.members.length]
+        }
+      : {};
+
+  for (const _account of account.members || []) {
+    thresholds = {
+      ...thresholds,
+      ...findThresholds(_account)
+    };
+  }
+
+  return thresholds;
+}
+
 export function useQueryAccount(address?: Address): BaseAccount | null {
   const chainId = useChainId();
-  const { setAddressNames, isMultisig } = useContext(AddressContext);
+  const { setAddressNames, setAddressThresholds, isMultisig } = useContext(AddressContext);
 
   const { data } = useQuery({
     initialData: null,
@@ -45,6 +63,14 @@ export function useQueryAccount(address?: Address): BaseAccount | null {
       setAddressNames((values) => ({ ...values, ...names }));
     }
   }, [setAddressNames, data]);
+
+  useEffect(() => {
+    if (data) {
+      const thresholds = findThresholds(data);
+
+      setAddressThresholds((values) => ({ ...values, ...thresholds }));
+    }
+  }, [setAddressThresholds, data]);
 
   return useMemo(
     () =>

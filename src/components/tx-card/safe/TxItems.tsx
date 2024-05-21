@@ -124,7 +124,7 @@ function OperateCell({
   ) : (
     <Chip
       color={
-        transaction.status === TransactionStatus.Successed
+        transaction.status === TransactionStatus.Success
           ? 'success'
           : transaction.status === TransactionStatus.Failed
             ? 'danger'
@@ -191,7 +191,7 @@ function TxItems({
           endContent={
             <div
               className={`w-2 h-2 rounded-full bg-current ${
-                transaction.status === TransactionStatus.Successed
+                transaction.status === TransactionStatus.Success
                   ? 'text-success'
                   : transaction.status === TransactionStatus.Failed
                     ? 'text-danger'

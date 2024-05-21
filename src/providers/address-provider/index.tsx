@@ -31,6 +31,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
   const { addresses, addressNames, node, addAddressBook, setAddressNames } = useAddressBook(tokens, multisigs);
   const { customTokens, addCustomToken } = useCustomTokens();
   const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
+  const [addressThresholds, setAddressThresholds] = useState<Record<string, [number, number]>>({});
 
   useEffect(() => {
     if (tokens.length > 0) {
@@ -51,6 +52,17 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     }
   }, [tokens]);
 
+  useEffect(() => {
+    setAddressThresholds((thresholds) => ({
+      ...thresholds,
+      ...multisigs.reduce<Record<string, [number, number]>>((results, item) => {
+        results[item.address] = [item.threshold, item.members.length];
+
+        return results;
+      }, {})
+    }));
+  }, [multisigs]);
+
   const all = useMemo(
     () => Array.from(new Set((addresses || []).concat(signers || []).concat(multisigs.map((item) => item.address)))),
     [addresses, multisigs, signers]
@@ -61,6 +73,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     addresses,
     addressNames,
     addressIcons,
+    addressThresholds,
     customTokens,
     all,
     isReady,
@@ -75,7 +88,8 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     switchAddress,
     addAddressBook,
     addCustomToken,
-    setAddressNames
+    setAddressNames,
+    setAddressThresholds
   };
 
   return (

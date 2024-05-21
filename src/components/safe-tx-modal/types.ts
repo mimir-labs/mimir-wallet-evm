@@ -40,13 +40,16 @@ export interface SafeTxState {
   setCustomNonce: React.Dispatch<React.SetStateAction<bigint | undefined>>;
   addressChain: Address[];
   setAddressChain: React.Dispatch<React.SetStateAction<Address[]>>;
+  executable: boolean;
   isSignatureReady: boolean;
+  isNextSignatureReady: boolean;
 
   simulation: Simulation;
 
   onClose?: () => void;
   handleSign: (wallet: IWalletClient, client: IPublicClient) => Promise<void>;
   handleExecute: (wallet: IWalletClient, client: IPublicClient) => Promise<void>;
+  handleSignAndExecute: (wallet: IWalletClient, client: IPublicClient) => Promise<void>;
 }
 
 export interface UseSafeTx<Approve extends boolean, Cancel extends boolean> {

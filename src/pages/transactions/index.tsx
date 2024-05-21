@@ -20,7 +20,7 @@ function Contents({ account, items }: { account: BaseAccount; items: Record<stri
     () =>
       Object.entries(items)
         .map((item) => [BigInt(item[0]), item[1]] as const)
-        .sort((l, r) => (l > r ? 1 : -1)),
+        .sort((l, r) => (l > r ? -1 : 1)),
     [items]
   );
 

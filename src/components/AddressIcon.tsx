@@ -22,10 +22,12 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
     address ||= zeroAddress;
   }
 
-  const { addressIcons } = useContext(AddressContext);
+  const { addressIcons, addressThresholds } = useContext(AddressContext);
   const icon = useMemo(() => (address ? jazzicon(size, parseInt(address.slice(2, 10), 16)) : null), [size, address]);
   const iconRef = useRef<HTMLDivElement>(null);
   const chainId = useChainId();
+
+  const threshold = address ? addressThresholds?.[address] : undefined;
 
   useLayoutEffect(() => {
     const { current } = iconRef;
@@ -58,17 +60,26 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
   }
 
   return (
-    <Avatar
-      src={iconSrc || undefined}
-      style={{ width: size, height: size }}
-      fallback={
-        <div
-          ref={iconRef}
-          style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }}
-          className='inline-block [&>div]:rounded-full'
-        />
-      }
-    />
+    <span className='relative'>
+      <Avatar
+        src={iconSrc || undefined}
+        style={{ width: size, height: size }}
+        fallback={
+          <div
+            ref={iconRef}
+            style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }}
+            className='inline-block [&>div]:rounded-full'
+          />
+        }
+      />
+      {size >= 20 && threshold && (
+        <span className='absolute left-0 right-0 bottom-0 w-full flex items-center justify-center overflow-visible'>
+          <span className='flex-1 flex items-center justify-center font-bold text-tiny rounded-full bg-primary text-primary-foreground whitespace-nowrap translate-y-[40%]'>
+            <span className='scale-85 origin-center'>{threshold.join('/')}</span>
+          </span>
+        </span>
+      )}
+    </span>
   );
 }
 

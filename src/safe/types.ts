@@ -50,7 +50,7 @@ export interface SafeTransaction extends MetaTransaction {
   nonce: bigint;
 }
 
-export type AccountType = 'unknown' | 'eoa' | 'safe';
+export type AccountType = 'safe';
 export interface BaseAccount {
   isReadOnly: boolean;
 

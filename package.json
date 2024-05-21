@@ -7,7 +7,7 @@
   "homepage": "/",
   "license": "Apache-2.0",
   "name": "mimir-wallet-evm",
-  "packageManager": "yarn@4.1.1",
+  "packageManager": "yarn@4.2.2",
   "private": true,
   "repository": {
     "type": "git",

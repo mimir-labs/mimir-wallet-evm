@@ -6,7 +6,7 @@ import type { Operation } from '@mimir-wallet/safe/types';
 
 export enum TransactionStatus {
   Pending,
-  Successed,
+  Success,
   Failed,
   Replaced
 }

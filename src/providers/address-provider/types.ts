@@ -11,6 +11,7 @@ export interface State {
   all: Address[];
   addresses: Address[];
   addressNames: Record<string, string>;
+  addressThresholds: Record<string, [number, number]>;
   customTokens: CustomToken[];
   addressIcons: Record<number, Record<string, string>>;
   signers: Address[];
@@ -24,6 +25,7 @@ export interface State {
   addAddressBook: (value?: [address: Address, name: string]) => Promise<[address: Address, name: string]>;
   addCustomToken: (token: CustomToken) => void;
   setAddressNames: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setAddressThresholds: React.Dispatch<React.SetStateAction<Record<string, [number, number]>>>;
 }
 
 export interface CustomToken {
