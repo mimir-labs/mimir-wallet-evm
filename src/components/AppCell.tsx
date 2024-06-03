@@ -39,7 +39,6 @@ function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
 
   return (
     <>
-      <AppDetails app={app} onClose={toggleOpen} open={detailsOpen} />
       <Card className='cursor-pointer'>
         <CardBody onClick={() => navigate(`/apps/${encodeURIComponent(app.url)}`)} className='flex flex-col gap-5 p-5'>
           <div>
@@ -64,6 +63,8 @@ function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
           </div>
         </CardBody>
       </Card>
+
+      <AppDetails app={app} onClose={toggleOpen} open={detailsOpen} />
     </>
   );
 }

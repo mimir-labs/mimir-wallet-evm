@@ -25,7 +25,7 @@ function AddressDisplay({
   return (
     <div
       data-reverse={reverse}
-      className='group address-cell inline-flex items-center gap-x-2.5 flex-grow-0 data-[reverse=true]:flex-row-reverse'
+      className='group address-cell inline-flex items-center gap-x-2.5 flex-grow-0 data-[reverse=true]:flex-row-reverse data-[reverse=true]:text-right'
     >
       <AddressIcon size={24} address={address} />
       <div className='flex flex-col'>

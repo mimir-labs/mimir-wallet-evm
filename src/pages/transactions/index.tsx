@@ -44,7 +44,11 @@ function History({ account }: { account: BaseAccount }) {
     <div className='space-y-5'>
       {Object.entries(items).map(([dayStart, values]) => (
         <div key={dayStart} className='space-y-2.5'>
-          <p className='font-bold text-medium'>{dayjs(Number(dayStart)).format('YYYY-MM-DD')}</p>
+          <p className='font-bold text-medium'>
+            {dayjs(Number(dayStart)).startOf('days').valueOf() === dayjs().startOf('days').valueOf()
+              ? 'Today'
+              : dayjs(Number(dayStart)).format('MMM DD, YYYY')}
+          </p>
           <Contents account={account} items={values} />
         </div>
       ))}

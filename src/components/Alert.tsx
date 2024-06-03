@@ -43,15 +43,15 @@ function Alert({
         variant === 'fill' ? ` bg-${color} p-2.5 data-[size=tiny]:py-1.5` : ' p-0'
       )}
     >
-      <div className={`flex gap-x-1 items-center text-${color} text-${size} font-bold`}>
+      <div className={`flex gap-x-1 items-start text-${color} text-${size} font-bold`}>
         {severity === 'success' ? (
-          <IconSuccess />
+          <IconSuccess className='flex-shrink-0' />
         ) : severity === 'error' ? (
-          <IconWarning />
+          <IconWarning className='flex-shrink-0' />
         ) : severity === 'warning' ? (
-          <IconWarning />
+          <IconWarning className='flex-shrink-0' />
         ) : (
-          <IconWarning />
+          <IconWarning className='flex-shrink-0' />
         )}
         <h6>{title}</h6>
       </div>

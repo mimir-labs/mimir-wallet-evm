@@ -9,6 +9,8 @@ import { useChainId } from 'wagmi';
 
 import { AddressContext } from '@mimir-wallet/providers';
 
+import AddressIconJazz from './AddressIconJazz';
+
 interface Props {
   address?: string | null | undefined;
   ensImage?: string | null;
@@ -64,13 +66,7 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
       <Avatar
         src={iconSrc || undefined}
         style={{ width: size, height: size }}
-        fallback={
-          <div
-            ref={iconRef}
-            style={{ width: size, height: size, lineHeight: 1, fontSize: '12px' }}
-            className='inline-block [&>div]:rounded-full'
-          />
-        }
+        fallback={<AddressIconJazz address={address} size={size} ensImage={ensImage} />}
       />
       {size >= 20 && threshold && (
         <span className='absolute left-0 right-0 bottom-0 w-full flex items-center justify-center overflow-visible'>

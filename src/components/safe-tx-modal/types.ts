@@ -60,7 +60,6 @@ export interface UseSafeTx<Approve extends boolean, Cancel extends boolean> {
   safeTx: Approve extends true ? SafeTransaction : undefined;
   cancelNonce: Cancel extends true ? bigint : undefined;
   signatures: Approve extends true ? SignatureResponse[] : undefined;
-  filterPaths?: Array<Address[]>;
   website?: string;
   addressChain?: Address[];
   onSuccess?: (safeTx: SafeTransaction) => void;

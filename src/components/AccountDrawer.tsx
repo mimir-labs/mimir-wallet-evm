@@ -55,41 +55,36 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   const { multisigs, isCurrent, switchAddress, current } = useContext(AddressContext);
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      onClose={onClose}
-      classNames={{
-        base: ['w-[240px]', 'relative', 'pb-5']
-      }}
-    >
-      <div className='p-2.5'>
-        <Input
-          variant='bordered'
-          placeholder='Search'
-          labelPlacement='outside'
-          endContent={<IconSearch className='text-foreground opacity-30' />}
-        />
-      </div>
-      <div className='flex-1 p-2.5 space-y-2.5 text-small max-h-[calc(100%-100px)] overflow-y-auto'>
-        <p>Current Account</p>
-        <Cell isSelect>
-          <AddressCell withCopy iconSize={30} address={current} />
-        </Cell>
-        <Divider />
-        <p>Multisig Accounts</p>
-        {multisigs.map((item) => (
-          <Cell
-            key={item.address}
-            isSelect={isCurrent(item.address)}
-            onSelect={() => {
-              switchAddress(item.address);
-              onClose();
-            }}
-          >
-            <AddressCell withCopy iconSize={30} address={item.address} fallbackName={item.name} />
+    <Drawer isOpen={isOpen} onClose={onClose}>
+      <div className='flex flex-col gap-5 w-[240px] h-full'>
+        <div>
+          <Input
+            variant='bordered'
+            placeholder='Search'
+            labelPlacement='outside'
+            endContent={<IconSearch className='text-foreground opacity-30' />}
+          />
+        </div>
+        <div className='flex-1 space-y-2.5 text-small max-h-[calc(100%-100px)] overflow-y-auto'>
+          <p>Current Account</p>
+          <Cell isSelect>
+            <AddressCell withCopy iconSize={30} address={current} />
           </Cell>
-        ))}
-        {/* <Divider />
+          <Divider />
+          <p>Multisig Accounts</p>
+          {multisigs.map((item) => (
+            <Cell
+              key={item.address}
+              isSelect={isCurrent(item.address)}
+              onSelect={() => {
+                switchAddress(item.address);
+                onClose();
+              }}
+            >
+              <AddressCell withCopy iconSize={30} address={item.address} fallbackName={item.name} />
+            </Cell>
+          ))}
+          {/* <Divider />
         <p>Extension Accounts</p>
         {signers.map((item) => (
           <Cell
@@ -103,17 +98,11 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             <AddressCell withCopy iconSize={30} address={item} />
           </Cell>
         ))} */}
+        </div>
+        <ButtonLinear className='justify-self-end' as={Link} href='/create-multisig' size='lg' fullWidth radius='full'>
+          Create Multisig
+        </ButtonLinear>
       </div>
-      <ButtonLinear
-        className='mx-5 w-auto flex-shrink-0'
-        as={Link}
-        href='/create-multisig'
-        size='lg'
-        fullWidth
-        radius='full'
-      >
-        Create Multisig
-      </ButtonLinear>
     </Drawer>
   );
 }

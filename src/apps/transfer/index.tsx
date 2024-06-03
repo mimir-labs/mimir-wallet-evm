@@ -81,7 +81,7 @@ function Transfer({
   );
 
   return (
-    <div className='max-w-lg mx-auto space-y-5'>
+    <div className='max-w-lg mx-auto space-y-5 pt-5'>
       <Button onClick={() => navigate(-1)} variant='bordered' color='primary' radius='full'>
         Back
       </Button>

@@ -1,46 +1,128 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Modal, ModalBody, ModalContent, ModalProps } from '@nextui-org/react';
+import { TRANSITION_EASINGS } from '@nextui-org/framer-utils';
+import { Overlay } from '@react-aria/overlays';
+import { AnimatePresence, domAnimation, LazyMotion, motion } from 'framer-motion';
 import React from 'react';
 
-function Drawer({ isOpen, className, classNames, children, ...props }: ModalProps): React.ReactElement {
-  return (
-    <Modal
-      {...props}
-      isOpen={isOpen}
-      placement='bottom'
-      size='sm'
-      className={`${className}`}
-      classNames={{
-        wrapper: [...(classNames?.wrapper || []), 'justify-start', 'overflow-x-hidden'],
-        base: [...(classNames?.base || []), 'm-0', 'sm:m-0', 'rounded-l-none', 'h-full']
-      }}
-      motionProps={{
-        variants: {
+interface Props {
+  isOpen: boolean;
+  placement?: 'left' | 'right';
+  className?: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}
+
+function Drawer({ placement = 'left', isOpen, className, onClose, children }: Props): React.ReactElement {
+  const backdrop = (
+    <LazyMotion features={domAnimation}>
+      <motion.div
+        animate='enter'
+        exit='exit'
+        initial='exit'
+        variants={{
           enter: {
-            x: 0,
             opacity: 1,
             transition: {
-              duration: 0.3,
-              ease: 'easeOut'
+              opacity: {
+                duration: 0.4,
+                ease: TRANSITION_EASINGS.ease
+              }
             }
           },
           exit: {
-            x: -200,
             opacity: 0,
             transition: {
-              duration: 0.2,
-              ease: 'easeIn'
+              duration: 0.3,
+              ease: TRANSITION_EASINGS.ease
             }
           }
-        }
-      }}
-    >
-      <ModalContent>
-        <ModalBody className='p-0 pt-10 overflow-y-auto'>{children}</ModalBody>
-      </ModalContent>
-    </Modal>
+        }}
+        className='z-50 fixed left-0 right-0 bottom-0 top-0 bg-foreground/30'
+        onClick={onClose}
+      />
+    </LazyMotion>
+  );
+
+  const overlay = (
+    <Overlay disableFocusManagement portalContainer={document.body}>
+      <div>
+        {backdrop}
+
+        <LazyMotion features={domAnimation}>
+          <motion.div
+            animate='enter'
+            exit='exit'
+            initial='exit'
+            variants={
+              placement === 'left'
+                ? {
+                    enter: {
+                      translateX: '0%',
+                      opacity: 1,
+                      transition: {
+                        opacity: {
+                          duration: 0.4,
+                          ease: TRANSITION_EASINGS.ease
+                        },
+                        translateX: {
+                          type: 'spring',
+                          bounce: 0,
+                          duration: 0.6
+                        }
+                      }
+                    },
+                    exit: {
+                      translateX: '-20%',
+                      opacity: 0,
+                      transition: {
+                        duration: 0.3,
+                        ease: TRANSITION_EASINGS.ease
+                      }
+                    }
+                  }
+                : {
+                    enter: {
+                      translateX: '0%',
+                      opacity: 1,
+                      transition: {
+                        opacity: {
+                          duration: 0.4,
+                          ease: TRANSITION_EASINGS.ease
+                        },
+                        translateX: {
+                          type: 'spring',
+                          bounce: 0,
+                          duration: 0.6
+                        }
+                      }
+                    },
+                    exit: {
+                      translateX: '20%',
+                      opacity: 0,
+                      transition: {
+                        duration: 0.3,
+                        ease: TRANSITION_EASINGS.ease
+                      }
+                    }
+                  }
+            }
+            className={'z-50 fixed top-0 bottom-0 p-5 bg-background shadow-medium'
+              .concat(placement === 'left' ? ' left-0' : ' right-0')
+              .concat(` ${className || ''}`)}
+          >
+            {children}
+          </motion.div>
+        </LazyMotion>
+      </div>
+    </Overlay>
+  );
+
+  return (
+    <div>
+      <AnimatePresence>{isOpen ? overlay : null}</AnimatePresence>
+    </div>
   );
 }
 

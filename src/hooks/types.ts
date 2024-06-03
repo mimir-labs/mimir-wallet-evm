@@ -147,3 +147,12 @@ export interface Nft {
   quantity?: string;
   traits?: Trait[];
 }
+
+export interface BatchTxItem {
+  id: number;
+  to: Address;
+  value: string;
+  data: Hex;
+  operation: Operation;
+  website?: string;
+}

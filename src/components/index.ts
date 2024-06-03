@@ -12,6 +12,7 @@ export { default as AddAddressModal } from './AddAddressModal';
 export { default as Address } from './Address';
 export { default as AddressCell } from './AddressCell';
 export { default as AddressIcon } from './AddressIcon';
+export { default as AddressIconJazz } from './AddressIconJazz';
 export { default as AddressName } from './AddressName';
 export { default as AddressOverview } from './AddressOverview';
 export { default as AddressRow } from './AddressRow';

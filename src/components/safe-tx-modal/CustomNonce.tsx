@@ -80,7 +80,7 @@ function CustomNonce({
   const popoverContent = isOpen ? (
     <div
       ref={menuRef}
-      className='z-50 bg-white shadow-large absolute bottom-full left-0 right-0 rounded-medium overflow-y-scroll'
+      className='z-50 bg-white shadow-large absolute top-full left-0 right-0 rounded-medium overflow-y-scroll'
     >
       <Listbox>
         <ListboxSection title='Recommended nonce'>
@@ -104,7 +104,7 @@ function CustomNonce({
           >
             Next Execute
           </ListboxItem>
-          {onChainNonce && onChainNonce > 0n ? (
+          {current ? (
             <ListboxItem
               key='order'
               startContent={next?.toString()}

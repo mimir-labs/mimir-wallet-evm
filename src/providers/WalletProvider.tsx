@@ -7,7 +7,7 @@ import { lightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Config, WagmiProvider } from 'wagmi';
 
-import { AddressIcon } from '@mimir-wallet/components';
+import { AddressIconJazz } from '@mimir-wallet/components';
 import { fetcher } from '@mimir-wallet/utils/fetcher';
 
 const queryClient = new QueryClient({
@@ -64,7 +64,7 @@ function WalletProvider({ children, config }: { config: Config; children: React.
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider locale='en-US' avatar={AddressIcon} theme={theme}>
+        <RainbowKitProvider locale='en-US' avatar={AddressIconJazz} theme={theme}>
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>

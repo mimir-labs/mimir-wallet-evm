@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import AppRecovery from '@mimir-wallet/assets/images/app-recovery.svg';
+import BatchIcon from '@mimir-wallet/assets/images/batch.svg';
 import Failed from '@mimir-wallet/assets/images/failed.svg';
 import LogoCircle from '@mimir-wallet/assets/images/logo-circle.png';
 import { FAVORITE_APP_KEY } from '@mimir-wallet/constants';
@@ -19,6 +20,7 @@ export type AppConfig = {
   twitter?: string;
   discord?: string;
   Component?: () => Promise<React.ComponentType>; // only for mimir://dapp/*
+  isDrawer?: boolean;
 };
 
 export const apps: AppConfig[] = [
@@ -81,6 +83,19 @@ export const apps: AppConfig[] = [
     twitter: 'https://twitter.com/Mimir_global/',
     tags: ['Assets'],
     Component: () => import('@mimir-wallet/apps/transfer').then((res) => res.default)
+  },
+  {
+    id: 1002,
+    name: 'Batch',
+    url: 'mimir://app/batch',
+    icon: BatchIcon,
+    desc: 'Build batch transaction',
+    website: 'https://mimir.global/',
+    github: 'https://github.com/mimir-labs/',
+    twitter: 'https://twitter.com/Mimir_global/',
+    tags: ['Batch'],
+    Component: () => import('@mimir-wallet/apps/batch').then((res) => res.default),
+    isDrawer: true
   },
   {
     id: 10001,

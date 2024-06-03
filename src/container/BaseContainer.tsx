@@ -8,9 +8,10 @@ import { Outlet } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 import Logo from '@mimir-wallet/assets/images/logo.png';
-import { ButtonEnable, ButtonLinear, MimirLoading } from '@mimir-wallet/components';
-import { AddressContext } from '@mimir-wallet/providers';
+import { ButtonEnable, ButtonLinear, MimirLoading, SafeTxModal } from '@mimir-wallet/components';
+import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 
+import BatchButton from './BatchButton';
 import Networks from './Networks';
 import SideBar from './SideBar';
 
@@ -22,6 +23,7 @@ function BaseContainer({
   withPadding: boolean;
 }): React.ReactElement {
   const { isReady } = useContext(AddressContext);
+  const { state } = useContext(SafeTxContext);
   const { isConnected } = useAccount();
 
   return (
@@ -33,6 +35,7 @@ function BaseContainer({
           </Link>
         </NavbarContent>
         <NavbarContent justify='end' className='text-small w-auto'>
+          <BatchButton />
           {isConnected ? (
             <ConnectButton
               showBalance={{ smallScreen: false, largeScreen: true }}
@@ -48,7 +51,10 @@ function BaseContainer({
         <div className='flex'>
           {withSideBar ? <SideBar /> : null}
           <div className={`flex-1 ${withPadding ? 'p-5' : 'p-0'}`}>
-            <Outlet />
+            {state ? <SafeTxModal {...state} /> : null}
+            <div style={{ display: state ? 'none' : undefined }}>
+              <Outlet />
+            </div>
           </div>
         </div>
       ) : (

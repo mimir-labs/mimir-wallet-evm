@@ -3,10 +3,10 @@
 
 import NullImg from '@mimir-wallet/assets/images/empty.webp';
 
-function Empty({ height, label }: { label?: string; height: number | string }) {
+function Empty({ height, label, icon = NullImg }: { label?: string; height: number | string; icon?: string }) {
   return (
     <div style={{ height }} className='flex items-center justify-center flex-col gap-2.5'>
-      <img alt='null' src={NullImg} width={150} />
+      <img alt='null' src={icon} width={150} />
       <h4 className='text-medium text-foreground/50'>{label || 'No data here.'}</h4>
     </div>
   );

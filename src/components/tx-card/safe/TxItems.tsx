@@ -6,7 +6,7 @@ import type { BaseAccount, MetaTransaction } from '@mimir-wallet/safe/types';
 
 import { Chip, CircularProgress } from '@nextui-org/react';
 import React from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChains } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconFail from '@mimir-wallet/assets/svg/icon-failed-outlined.svg?react';
@@ -155,7 +155,7 @@ function TxItems({
   threshold,
   openOverview
 }: Props) {
-  const { chain } = useAccount();
+  const [chain] = useChains();
 
   return (
     <div className='cursor-pointer h-10 px-3 grid grid-cols-6' onClick={toggleOpen}>
@@ -170,9 +170,9 @@ function TxItems({
           <FormatBalance
             prefix='- '
             value={transaction.value}
-            decimals={chain?.nativeCurrency.decimals}
+            decimals={chain.nativeCurrency.decimals}
             showSymbol
-            symbol={chain?.nativeCurrency.symbol}
+            symbol={chain.nativeCurrency.symbol}
           />
         )}
       </div>

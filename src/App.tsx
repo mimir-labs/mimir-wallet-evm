@@ -29,7 +29,7 @@ function App(): React.ReactElement {
       <Route element={<BaseContainer withPadding withSideBar={false} />}>
         <Route path='/create-multisig' element={<PageCreateMultisig />} />
       </Route>
-      <Route element={<BaseContainer withSideBar={false} withPadding={false} />}>
+      <Route element={<BaseContainer withSideBar={false} withPadding />}>
         <Route path='/apps/:url' element={<PageAppExplorer />} />
       </Route>
     </Routes>
