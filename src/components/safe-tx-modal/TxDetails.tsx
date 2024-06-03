@@ -30,7 +30,7 @@ function Item({ label, content }: { label: React.ReactNode; content: React.React
 }
 
 function TxDetails({ tx, safeTx, address }: { tx: MetaTransaction; safeTx?: SafeTransaction; address: Address }) {
-  const [isOpen, toggleOpen] = useToggle(false);
+  const [isOpen, toggleOpen] = useToggle(true);
   const chainId = useChainId();
   const { chain } = useAccount();
   const hash = useMemo(
@@ -39,50 +39,50 @@ function TxDetails({ tx, safeTx, address }: { tx: MetaTransaction; safeTx?: Safe
   );
 
   return (
-    <Accordion defaultSelectedKeys='all' className='px-0'>
-      <AccordionItem
-        indicator={<ArrowLeft />}
-        isCompact
-        classNames={{
-          titleWrapper: ['py-0'],
-          title: ['py-0 text-small font-bold flex justify-between'],
-          content: 'p-0 pb-2 space-y-2'
-        }}
-        key='1'
-        aria-label='Transaction Details'
-        title={
-          <>
-            Transaction Details
+    <div>
+      <h6 className='font-bold text-small'>Transaction Details</h6>
+      <Accordion defaultSelectedKeys='all' className='px-0'>
+        <AccordionItem
+          indicator={<ArrowLeft />}
+          isCompact
+          classNames={{
+            titleWrapper: ['py-0'],
+            title: ['py-0 text-small font-bold flex justify-between'],
+            content: 'p-2.5 space-y-2.5 border-1 border-secondary rounded-medium'
+          }}
+          key='1'
+          aria-label='Transaction Details'
+          title={
             <span className='text-primary'>
               <FunctionName data={tx.data} />
             </span>
-          </>
-        }
-      >
-        <div className='py-2'>
-          <CallDisplay from={address} to={tx.to} data={tx.data} value={tx.value} />
-        </div>
-        <Divider />
-        <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>
-          Details
-        </div>
-        {isOpen && (
-          <div className='bg-secondary rounded-small p-2.5 space-y-1'>
-            <Item label='Hash' content={hash} />
-            <Item label='To' content={<AddressRow iconSize={16} withCopy address={tx.to} />} />
-            <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
-            <Item label='Operation' content={Operation[tx.operation]} />
-            <Item label='safeTxGas' content={<FormatBalance value={safeTx?.safeTxGas} showSymbol={false} />} />
-            <Item label='baseGas' content={<FormatBalance value={safeTx?.baseGas} showSymbol={false} />} />
-            <Item
-              label='refundReceiver'
-              content={<AddressRow iconSize={16} withCopy address={safeTx?.refundReceiver} />}
-            />
-            <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+          }
+        >
+          <div className='py-2.5'>
+            <CallDisplay from={address} to={tx.to} data={tx.data} value={tx.value} />
           </div>
-        )}
-      </AccordionItem>
-    </Accordion>
+          <Divider />
+          <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>
+            Details
+          </div>
+          {isOpen && (
+            <div className='bg-secondary rounded-small p-2.5 space-y-1'>
+              <Item label='Hash' content={hash} />
+              <Item label='To' content={<AddressRow iconSize={16} withCopy address={tx.to} />} />
+              <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
+              <Item label='Operation' content={Operation[tx.operation]} />
+              <Item label='safeTxGas' content={<FormatBalance value={safeTx?.safeTxGas} showSymbol={false} />} />
+              <Item label='baseGas' content={<FormatBalance value={safeTx?.baseGas} showSymbol={false} />} />
+              <Item
+                label='refundReceiver'
+                content={<AddressRow iconSize={16} withCopy address={safeTx?.refundReceiver} />}
+              />
+              <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+            </div>
+          )}
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
 }
 

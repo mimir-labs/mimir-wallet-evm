@@ -6,6 +6,7 @@ export * from './useAccountTokens';
 export * from './useAddressName';
 export * from './useAllowanceDelegates';
 export * from './useApps';
+export * from './useBatchTxs';
 export * from './useCopy';
 export * from './useDelayModules';
 export * from './useInput';

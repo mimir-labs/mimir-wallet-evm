@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { SignatureResponse, TransactionResponse } from './types';
 
 import { QueryFunctionContext, useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 
 import { service } from '@mimir-wallet/utils';
+
+import { type SignatureResponse, type TransactionResponse } from './types';
 
 export type TransactionItem = { transaction: TransactionResponse; signatures: SignatureResponse[] };
 export type PendingData = {
@@ -104,6 +105,7 @@ export function useHistoryTransactions(
         if (result[dayStart]) {
           if (result[dayStart][nonceKey]) {
             result[dayStart][nonceKey].push(value);
+            result[dayStart][nonceKey].sort((l, r) => l.transaction.status - r.transaction.status);
           } else {
             result[dayStart][nonceKey] = [value];
           }

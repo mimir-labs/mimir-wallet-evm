@@ -6,7 +6,7 @@ import type { Address } from 'abitype';
 import { Card, CardBody } from '@nextui-org/react';
 import React, { useEffect, useMemo } from 'react';
 
-import IconAdd from '@mimir-wallet/assets/svg/icon-add.svg?react';
+import IconAdd from '@mimir-wallet/assets/svg/icon-add-colored.svg?react';
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
 
 import AddressRow from './AddressRow';

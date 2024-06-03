@@ -6,15 +6,14 @@ import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 import type { IPublicClient, IWalletClient, MetaTransaction, SafeTransaction } from '@mimir-wallet/safe/types';
 import type { ButtonEnableProps } from './ButtonEnable';
 
-import { Modal, Tooltip } from '@nextui-org/react';
-import React, { useCallback, useState } from 'react';
+import { Tooltip } from '@nextui-org/react';
+import React, { useCallback, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToggle } from 'react-use';
 
 import { useMultisig, useSafeNonce } from '@mimir-wallet/hooks';
+import { SafeTxContext } from '@mimir-wallet/providers';
 
 import ButtonEnable from './ButtonEnable';
-import { SafeTxModal } from './safe-tx-modal';
 
 interface Props extends ButtonEnableProps {
   isApprove: boolean;
@@ -28,6 +27,7 @@ interface Props extends ButtonEnableProps {
   addressChain?: Address[];
   onSuccess?: () => void;
   buildTx?: (wallet: IWalletClient, client: IPublicClient) => Promise<MetaTransaction>;
+  onOpenTx?: () => void;
 }
 
 function SafeTxButton({
@@ -42,83 +42,103 @@ function SafeTxButton({
   addressChain,
   onSuccess,
   buildTx,
+  onOpenTx,
   children,
   ...props
 }: Props) {
   const [nonce] = useSafeNonce(address);
   const navigate = useNavigate();
-  const [isOpen, toggleOpen] = useToggle(false);
-  const [tx, setTx] = useState<MetaTransaction>();
+  const { addTx } = useContext(SafeTxContext);
   const handleClick = useCallback(
     async (wallet: IWalletClient, client: IPublicClient) => {
+      if (!address) return;
+
       if (!isApprove) {
         if (!buildTx) {
           throw new Error('Cant build meta transaction');
         }
 
-        setTx(await buildTx(wallet, client));
+        const tx = await buildTx(wallet, client);
+
+        addTx({
+          isApprove,
+          isCancel,
+          address,
+          tx,
+          safeTx: undefined,
+          cancelNonce: isCancel ? cancelNonce : undefined,
+          signatures: undefined,
+          website,
+          addressChain,
+          onSuccess: () => {
+            (onSuccess || (() => navigate('/transactions')))();
+          }
+        });
       } else {
         if (!safeTx) {
           throw new Error('Cant build SafeTransaction');
         }
 
-        setTx(safeTx);
+        addTx({
+          isApprove,
+          isCancel,
+          address,
+          tx: safeTx,
+          safeTx,
+          cancelNonce: isCancel ? cancelNonce : undefined,
+          signatures,
+          website,
+          addressChain,
+          onSuccess: () => {
+            (onSuccess || (() => navigate('/transactions')))();
+          }
+        });
       }
 
-      toggleOpen(true);
+      onOpenTx?.();
     },
-    [buildTx, isApprove, safeTx, toggleOpen]
+    [
+      addTx,
+      address,
+      addressChain,
+      buildTx,
+      cancelNonce,
+      isApprove,
+      isCancel,
+      navigate,
+      onOpenTx,
+      onSuccess,
+      safeTx,
+      signatures,
+      website
+    ]
   );
   const multisig = useMultisig(address);
 
-  return (
-    <>
-      {multisig ? (
-        isApprove && isSignatureReady ? (
-          nonce === safeTx?.nonce ? (
-            <ButtonEnable {...props} onClick={handleClick}>
-              {children}
-            </ButtonEnable>
-          ) : (
-            <Tooltip showArrow closeDelay={0} content='This transaction is currently in the queue' color='warning'>
-              <ButtonEnable {...props} disabled>
-                {children}
-              </ButtonEnable>
-            </Tooltip>
-          )
-        ) : (
-          <ButtonEnable {...props} onClick={handleClick}>
-            {children}
-          </ButtonEnable>
-        )
+  return multisig ? (
+    isApprove && isSignatureReady ? (
+      nonce === safeTx?.nonce ? (
+        <ButtonEnable {...props} onClick={handleClick}>
+          {children}
+        </ButtonEnable>
       ) : (
-        <Tooltip showArrow closeDelay={0} content='You do not have permission to operate this account' color='warning'>
+        <Tooltip showArrow closeDelay={0} content='This transaction is currently in the queue' color='warning'>
           <ButtonEnable {...props} disabled>
             {children}
           </ButtonEnable>
         </Tooltip>
-      )}
-      <Modal size='lg' scrollBehavior='outside' isOpen={isOpen} onClose={toggleOpen} portalContainer={document.body}>
-        {tx && address && (
-          <SafeTxModal
-            isApprove={isApprove}
-            isCancel={isCancel}
-            cancelNonce={cancelNonce}
-            website={website}
-            addressChain={addressChain}
-            onSuccess={() => {
-              toggleOpen(false);
-              (onSuccess || (() => navigate('/transactions')))();
-            }}
-            onClose={toggleOpen}
-            address={address}
-            tx={tx}
-            safeTx={safeTx}
-            signatures={signatures}
-          />
-        )}
-      </Modal>
-    </>
+      )
+    ) : (
+      <ButtonEnable {...props} onClick={handleClick}>
+        {children}
+      </ButtonEnable>
+    )
+  ) : (
+    <Tooltip showArrow closeDelay={0} content='You do not have permission to operate this account' color='warning'>
+      <ButtonEnable {...props} disabled>
+        {children}
+      </ButtonEnable>
+    </Tooltip>
   );
 }
 

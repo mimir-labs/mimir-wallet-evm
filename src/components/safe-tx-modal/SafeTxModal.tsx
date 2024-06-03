@@ -3,8 +3,13 @@
 
 import type { UseSafeTx } from './types';
 
-import { Divider, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
-import React from 'react';
+import { Divider, Switch } from '@nextui-org/react';
+import React, { useCallback, useEffect } from 'react';
+import { useToggle } from 'react-use';
+
+import IconBatch from '@mimir-wallet/assets/svg/icon-batch.svg?react';
+import IconClose from '@mimir-wallet/assets/svg/icon-close.svg?react';
+import { useBatchTxs } from '@mimir-wallet/hooks';
 
 import Alert from '../Alert';
 import Button from '../Button';
@@ -18,11 +23,8 @@ import Sender from './Sender';
 import TxDetails from './TxDetails';
 import { useSafeTx } from './useSafeTx';
 
-function ItemWrapper({ children }: { children: React.ReactNode }) {
-  return <div className='border-1 border-divider rounded-medium p-2.5'>{children}</div>;
-}
-
 function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: UseSafeTx<Approve, Cancel>) {
+  const { website } = props;
   const {
     isApprove,
     isCancel,
@@ -31,6 +33,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     signatures,
     handleSign,
     handleExecute,
+    handleSignAndExecute,
     multisig,
     filterPaths,
     address,
@@ -40,35 +43,72 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     addressChain,
     simulation,
     setAddressChain,
-    isSignatureReady
+    executable,
+    isSignatureReady,
+    isNextSignatureReady
   } = useSafeTx(props);
+  const [signOnly, toggleSignOnly] = useToggle(true);
+  const [txs, addTx] = useBatchTxs(address);
+
+  const handleAddBatch = useCallback(() => {
+    addTx({
+      ...tx,
+      value: tx.value.toString(),
+      website,
+      id: Math.max(...txs.map((item) => item.id)) + 1
+    });
+    onClose?.();
+  }, [addTx, onClose, tx, txs, website]);
+
+  useEffect(() => {
+    window.onbeforeunload = function onbeforeunload() {
+      return 'Closing this window will discard your current progress';
+    };
+
+    return () => {
+      window.onbeforeunload = null;
+    };
+  }, []);
 
   return (
-    <ModalContent>
-      <ModalHeader className='px-3'>
-        <h6 className='font-bold text-xl'>Submit Transaction</h6>
-      </ModalHeader>
-      <Divider />
-      <ModalBody className='space-y-2.5 px-3'>
-        <ItemWrapper>
-          <Sender address={address} />
-        </ItemWrapper>
-        <ItemWrapper>
-          <Interact address={tx.to} />
-        </ItemWrapper>
-        <ItemWrapper>
-          <TxDetails safeTx={safeTx} tx={tx} address={address} />
-        </ItemWrapper>
-        {simulation.assetChange.length > 0 && (
-          <ItemWrapper>
-            <BalanceChange address={address} assetChange={simulation.assetChange} />
-          </ItemWrapper>
-        )}
-        <ItemWrapper>
+    <div className='w-full'>
+      <div className='flex items-center justify-between mb-5'>
+        <h4 className='font-bold text-xl'>{isCancel ? 'Reject Transaction' : 'Submit Transaction'}</h4>
+        <Button size='sm' isIconOnly variant='light' radius='full' onClick={onClose}>
+          <IconClose />
+        </Button>
+      </div>
+
+      <div className='w-full flex p-5 gap-5 h-safe-tx-modal-height overflow-y-auto bg-background rounded-large shadow-large'>
+        <div className='w-[64%] space-y-5 after:block after:h-5'>
+          {isCancel ? (
+            <>
+              <p className='font-bold text-medium'>
+                To reject the transaction, a separate rejection transaction will be created to replace the original one.
+              </p>
+              <p className='font-bold text-medium'>Transaction nonce: {safeTx?.nonce.toString()}</p>
+              <p className='font-bold text-medium'>
+                {' '}
+                You will need to confirm the rejection transaction with your currently connected wallet.
+              </p>
+              <TxDetails safeTx={safeTx} tx={tx} address={address} />
+            </>
+          ) : (
+            <>
+              <Sender address={address} />
+              <Interact address={tx.to} />
+              <TxDetails safeTx={safeTx} tx={tx} address={address} />
+              {simulation.assetChange.length > 0 && (
+                <BalanceChange address={address} assetChange={simulation.assetChange} />
+              )}
+            </>
+          )}
+
           <SafetyCheck simulation={simulation} />
-        </ItemWrapper>
-        {isSignatureReady ? null : multisig ? (
-          <ItemWrapper>
+        </div>
+
+        <div className='sticky top-0 self-start w-[36%] h-auto p-5 space-y-5 rounded-large shadow-large'>
+          {isSignatureReady ? null : multisig ? (
             <AddressChain
               filterPaths={filterPaths}
               signatures={signatures}
@@ -77,9 +117,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
               deep={0}
               multisig={multisig}
             />
-          </ItemWrapper>
-        ) : null}
-        <ItemWrapper>
+          ) : null}
           <CustomNonce
             safeTx={safeTx}
             address={address}
@@ -87,45 +125,81 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
             isCancel={isCancel}
             setCustomNonce={setCustomNonce}
           />
-        </ItemWrapper>
-      </ModalBody>
-      <Divider />
-      <ModalFooter className='flex-col gap-2.5 px-3'>
-        {!isApprove && hasSameTx && (
-          <Alert severity='warning' title='The nonce determines the order of transactions in the queue.' />
-        )}
-        <div className='flex gap-2.5'>
-          <Button variant='bordered' color='primary' onClick={onClose} radius='full' fullWidth>
-            Cancel
-          </Button>
-          {isSignatureReady ? (
-            <ButtonEnable
-              isToastError
-              onClick={handleExecute}
-              color='primary'
+          <Divider />
+
+          {isNextSignatureReady && (
+            <div className='flex justify-between items-center'>
+              <b className='text-small'>Sign Only</b>
+              <Switch size='sm' isSelected={signOnly} onValueChange={toggleSignOnly} />
+            </div>
+          )}
+
+          {!isApprove && hasSameTx && (
+            <Alert severity='warning' title='The nonce determines the order of transactions in the queue.' />
+          )}
+
+          {isCancel && (
+            <Alert
+              severity='warning'
+              title={`This transaction is to reject transaction with nonce: ${safeTx?.nonce.toString()}`}
+            />
+          )}
+
+          <div className='flex gap-2.5'>
+            {isSignatureReady ? (
+              <ButtonEnable
+                isToastError
+                onClick={handleExecute}
+                color='primary'
+                fullWidth
+                radius='full'
+                disabled={!safeTx || !executable}
+                isLoading={simulation.isPending}
+              >
+                Execute
+              </ButtonEnable>
+            ) : !signOnly ? (
+              <ButtonEnable
+                isToastError
+                onClick={handleSignAndExecute}
+                color='primary'
+                fullWidth
+                radius='full'
+                disabled={!safeTx || (!isApprove && hasSameTx) || !executable}
+                isLoading={simulation.isPending}
+              >
+                Sign & Execute
+              </ButtonEnable>
+            ) : (
+              <ButtonEnable
+                isToastError
+                onClick={handleSign}
+                color='primary'
+                fullWidth
+                radius='full'
+                disabled={!safeTx || (!isApprove && hasSameTx)}
+                isLoading={simulation.isPending}
+              >
+                Sign
+              </ButtonEnable>
+            )}
+          </div>
+
+          {!isApprove && !isCancel && (
+            <Button
               fullWidth
               radius='full'
-              disabled={!safeTx}
-              isLoading={simulation.isPending}
-            >
-              Execute
-            </ButtonEnable>
-          ) : (
-            <ButtonEnable
-              isToastError
-              onClick={handleSign}
+              onClick={handleAddBatch}
               color='primary'
-              fullWidth
-              radius='full'
-              disabled={!safeTx || (!isApprove && hasSameTx)}
-              isLoading={simulation.isPending}
+              variant='bordered'
+              startContent={<IconBatch />}
             >
-              Sign
-            </ButtonEnable>
+              Add To Batch
+            </Button>
           )}
         </div>
-      </ModalFooter>
-    </ModalContent>
+      </div>
+    </div>
   );
 }
 

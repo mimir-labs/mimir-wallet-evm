@@ -25,7 +25,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
           variant='light'
           fullWidth
           color='default'
-          className='flex items-center justify-between px-2.5 py-1.5 border-none text-left max-w-full'
+          className='flex items-center justify-between px-2.5 py-1.5 border-none text-left max-w-full overflow-visible'
           endContent={
             <Button
               as='div'

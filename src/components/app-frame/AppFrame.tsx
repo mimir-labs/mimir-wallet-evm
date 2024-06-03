@@ -3,20 +3,19 @@
 
 import type { TokenType } from '@safe-global/safe-apps-sdk';
 
-import { Modal, Spinner } from '@nextui-org/react';
-import React, { useCallback, useContext, useState } from 'react';
+import { Spinner } from '@nextui-org/react';
+import React, { useCallback, useContext } from 'react';
 import { zeroAddress } from 'viem';
 import { useChains } from 'wagmi';
 
 import { CustomChain } from '@mimir-wallet/config';
 import useAppCommunicator, { CommunicatorMessages } from '@mimir-wallet/features/safe-apps/useAppCommunicator';
 import { useAccountTokens, useMultisig, useQueryAccount } from '@mimir-wallet/hooks';
-import { AddressContext } from '@mimir-wallet/providers';
+import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 import { buildMultiSendSafeTx, hashSafeTransaction } from '@mimir-wallet/safe';
 import { MetaTransaction } from '@mimir-wallet/safe/types';
 import { isSameUrl, service } from '@mimir-wallet/utils';
 
-import { SafeTxModal } from '../safe-tx-modal';
 import Iframe from './Iframe';
 import PendingTx from './PendingTx';
 import useAppIsLoading from './useAppIsLoading';
@@ -30,10 +29,10 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
   const { iframeRef, appIsLoading, setAppIsLoading } = useAppIsLoading();
   const chains = useChains();
   const { current } = useContext(AddressContext);
+  const { addTx } = useContext(SafeTxContext);
   const safeAccount = useQueryAccount(current);
   const multisig = useMultisig(current);
   const [data] = useAccountTokens(current);
-  const [txDetails, setTxDetails] = useState<[MetaTransaction, string]>();
 
   const onIframeLoad = useCallback(() => {
     const iframe = iframeRef.current;
@@ -50,11 +49,35 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
         throw new Error('transactions not valid');
       }
 
-      if (transactions.length > 1) {
-        setTxDetails([buildMultiSendSafeTx(chains[0], transactions), id]);
-      } else {
-        setTxDetails([transactions[0], id]);
+      if (!multisig) {
+        throw new Error('Not permission');
       }
+
+      let tx: MetaTransaction;
+
+      if (transactions.length > 1) {
+        tx = buildMultiSendSafeTx(chains[0], transactions);
+      } else {
+        // eslint-disable-next-line prefer-destructuring
+        tx = transactions[0];
+      }
+
+      addTx({
+        isApprove: false,
+        isCancel: false,
+        website: appUrl,
+        onSuccess: (tx) => {
+          communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, multisig.address, tx) }, id);
+        },
+        onClose: () => {
+          communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, id, true);
+        },
+        address: multisig.address,
+        tx,
+        safeTx: undefined,
+        cancelNonce: undefined,
+        signatures: undefined
+      });
     },
     onSignMessage: () => {
       throw new Error('Not support method');
@@ -139,41 +162,6 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
         <Iframe appUrl={appUrl} allowedFeaturesList={allowedFeaturesList} iframeRef={iframeRef} onLoad={onIframeLoad} />
 
         {current && <PendingTx address={current} />}
-
-        {!!txDetails && multisig && (
-          <Modal
-            size='lg'
-            scrollBehavior='outside'
-            isOpen
-            onClose={() => {
-              setTxDetails(undefined);
-              communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, txDetails[1], true);
-            }}
-            portalContainer={document.body}
-          >
-            <SafeTxModal<false, false>
-              isApprove={false}
-              isCancel={false}
-              website={appUrl}
-              onSuccess={(tx) => {
-                setTxDetails(undefined);
-                communicator?.send(
-                  { safeTxHash: hashSafeTransaction(chains[0].id, multisig.address, tx) },
-                  txDetails[1]
-                );
-              }}
-              onClose={() => {
-                setTxDetails(undefined);
-                communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, txDetails[1], true);
-              }}
-              address={multisig.address}
-              tx={txDetails[0]}
-              safeTx={undefined}
-              cancelNonce={undefined}
-              signatures={undefined}
-            />
-          </Modal>
-        )}
       </div>
     </div>
   );

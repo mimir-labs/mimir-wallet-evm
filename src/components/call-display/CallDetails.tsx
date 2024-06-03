@@ -15,7 +15,7 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
   if (parsed.functionName === 'addOwnerWithThreshold') {
     const { args } = parsed as ParsedCall<'addOwnerWithThreshold'>;
 
-    return <AddressRow iconSize={14} address={args[0]} />;
+    return <AddressRow withCopy iconSize={14} address={args[0]} />;
   }
 
   if (parsed.functionName === 'changeThreshold') {
@@ -29,9 +29,9 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
 
     return (
       <span className='inline-flex gap-1'>
-        <AddressRow iconSize={14} address={args[1]} />
+        <AddressRow withCopy iconSize={14} address={args[1]} />
         <span>{'->'}</span>
-        <AddressRow iconSize={14} address={args[2]} />
+        <AddressRow withCopy iconSize={14} address={args[2]} />
       </span>
     );
   }
@@ -39,7 +39,7 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
   if (parsed.functionName === 'removeOwner') {
     const { args } = parsed as ParsedCall<'removeOwner'>;
 
-    return <AddressRow iconSize={14} address={args[1]} />;
+    return <AddressRow withCopy iconSize={14} address={args[1]} />;
   }
 
   // TODO: token icon and address

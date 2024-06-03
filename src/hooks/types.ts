@@ -6,7 +6,7 @@ import type { Operation } from '@mimir-wallet/safe/types';
 
 export enum TransactionStatus {
   Pending,
-  Successed,
+  Success,
   Failed,
   Replaced
 }
@@ -146,4 +146,13 @@ export interface Nft {
   contractAddress: Address;
   quantity?: string;
   traits?: Trait[];
+}
+
+export interface BatchTxItem {
+  id: number;
+  to: Address;
+  value: string;
+  data: Hex;
+  operation: Operation;
+  website?: string;
 }

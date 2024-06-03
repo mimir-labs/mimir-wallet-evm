@@ -9,6 +9,7 @@ export const ADDRESS_BOOK_KEY = 'address_book';
 export const ADDRESS_NAMES_KEY = 'address_names';
 export const CUSTOM_TOKENS_KEY = 'custom_tokens';
 export const PENDING_SAFE_TX_PREFIX = 'pending_safe_tx:';
+export const BATCH_TX_KEY = 'batch_tx';
 
 // times second
 export const ONE_DAY = 86400;

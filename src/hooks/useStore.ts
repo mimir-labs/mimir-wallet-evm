@@ -22,23 +22,26 @@ export function useStore<T>(
   const [value, setValue] = useState<T | undefined>((ref.current.get(key) as T) || defaultValue);
 
   useEffect(() => {
+    const store = ref.current;
+
     const onChange = (_key: string, _: unknown, newValue: unknown) => {
       if (key === _key) {
-        setValue((value) => {
-          if (JSON.stringify(value) === JSON.stringify(newValue)) {
-            return value;
-          }
+        setTimeout(() => {
+          setValue((value) => {
+            if (JSON.stringify(value) === JSON.stringify(newValue)) {
+              return value;
+            }
 
-          return newValue as T;
+            return newValue as T;
+          });
         });
       }
     };
 
-    ref.current.on('store_changed', onChange);
+    store.on('store_changed', onChange);
 
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      ref.current.off('store_changed', onChange);
+      store.off('store_changed', onChange);
     };
   });
 

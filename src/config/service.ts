@@ -8,7 +8,8 @@ export const services: Record<number, string> = {
     process.env.NODE_ENV === 'production' ? 'https://dev-evm-moonbeam-api.mimir.global/' : 'http://localhost:9000/',
   [scroll.id]:
     process.env.NODE_ENV === 'production' ? 'https://dev-evm-scroll-api.mimir.global/' : 'http://localhost:9000/',
-  [sepolia.id]: process.env.NODE_ENV === 'production' ? 'https://dev-evm-api.mimir.global/' : 'http://localhost:9000/',
+  [sepolia.id]:
+    process.env.NODE_ENV === 'production' ? 'https://dev-evm-sepolia-api.mimir.global/' : 'http://localhost:9000/',
   [scrollSepolia.id]:
     process.env.NODE_ENV === 'production'
       ? 'https://dev-evm-scroll-sepolia-api.mimir.global/'

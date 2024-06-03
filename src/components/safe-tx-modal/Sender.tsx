@@ -11,7 +11,7 @@ function Sender({ address }: { address: Address }) {
   return (
     <div>
       <h6 className='font-bold text-small'>Sending From</h6>
-      <div className='flex bg-secondary rounded-small p-2.5 mt-1'>
+      <div className='flex bg-secondary rounded-small p-2.5 mt-1.5'>
         <AddressCell iconSize={30} address={address} withCopy showFull />
       </div>
     </div>

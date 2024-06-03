@@ -97,6 +97,7 @@ const nodeTypes = {
 function makeNodes(
   account: BaseAccount,
   transaction: TransactionResponse,
+  superSignatures: SignatureResponse[],
   signatures: SignatureResponse[],
   isApprove: boolean,
   parentId: string | null,
@@ -124,7 +125,7 @@ function makeNodes(
       members,
       isApprove,
       transaction,
-      signatures,
+      signatures: superSignatures,
       addressChain: nodeId.split('-').slice(2) as Address[],
       onApprove
     },
@@ -157,6 +158,7 @@ function makeNodes(
     makeNodes(
       _account,
       transaction,
+      superSignatures,
       _signature?.children || [],
       _account.type === 'safe'
         ? approveCounts(_account, _signature?.children || []) >= (_account.threshold || 1)
@@ -197,6 +199,7 @@ function SafeTxOverview({ account, signatures, transaction, onApprove }: Props) 
     makeNodes(
       account,
       transaction,
+      signatures,
       signatures,
       approveCounts(account, signatures) >= (account.threshold || 1),
       null,

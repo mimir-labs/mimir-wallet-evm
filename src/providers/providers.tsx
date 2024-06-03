@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastRoot } from '@mimir-wallet/components';
 
 import AddressProvider from './address-provider';
+import SafeTxProvider from './safe-tx-provider';
 import WalletProvider from './WalletProvider';
 
 function Providers({ config, address, children }: { config: Config; address?: Address; children: React.ReactNode }) {
@@ -19,8 +20,10 @@ function Providers({ config, address, children }: { config: Config; address?: Ad
     <NextUIProvider navigate={navigate}>
       <WalletProvider config={config}>
         <AddressProvider defaultCurrent={address}>
-          {children}
-          <ToastRoot />
+          <SafeTxProvider>
+            {children}
+            <ToastRoot />
+          </SafeTxProvider>
         </AddressProvider>
       </WalletProvider>
     </NextUIProvider>
