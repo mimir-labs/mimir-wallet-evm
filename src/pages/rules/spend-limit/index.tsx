@@ -4,8 +4,6 @@
 import type { Address } from 'abitype';
 
 import {
-  Card,
-  CardBody,
   Divider,
   Dropdown,
   DropdownItem,
@@ -21,14 +19,14 @@ import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useToggle } from 'react-use';
 import { isAddress, parseEther, zeroAddress } from 'viem';
-import { useChainId } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
+import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
 import { Button, Input, SafeTxButton } from '@mimir-wallet/components';
-import { deployments } from '@mimir-wallet/config';
-import { useInputAddress, useInputNumber, useSafeModuleEnabled } from '@mimir-wallet/hooks';
+import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { buildAddAllowance } from '@mimir-wallet/safe';
 
+import TooltipItem from '../TooltipItem';
 import Delegates from './Delegates';
 
 const resetTimes = {
@@ -39,10 +37,8 @@ const resetTimes = {
 } as const;
 
 function SpendLimit({ address }: { address?: Address }) {
-  const chainId = useChainId();
-  const allowanceAddress = deployments[chainId].modules.Allowance;
-  const isModuleEnabled = useSafeModuleEnabled(address, allowanceAddress);
   const [isOpen, toggleOpen] = useToggle(false);
+  const [isAlertOpen, toggleAlertOpen] = useToggle(false);
   const [[delegate], setDelegate] = useInputAddress();
   const [[amount], setAmount] = useInputNumber();
   const [reset, setReset] = useState<number>(0);
@@ -66,33 +62,41 @@ function SpendLimit({ address }: { address?: Address }) {
   ];
 
   return (
-    <>
-      <Card>
-        <CardBody className='p-5 space-y-4'>
-          <div className='space-y-2'>
-            <h6 className='font-bold text-small'>What is Easy Expense?</h6>
+    <div className='space-y-2.5'>
+      <div className='flex items-center gap-2.5'>
+        <h6 className='font-bold'>Easy Expense</h6>
+        <IconQuestion onClick={toggleAlertOpen} className='cursor-pointer text-foreground/20' />
+        <div className='flex-1 text-right'>
+          <Button onClick={toggleOpen} radius='full' color='primary' variant='bordered'>
+            Add New
+          </Button>
+        </div>
+      </div>
+
+      {address && <Delegates safeAccount={address} />}
+
+      <Modal isOpen={isAlertOpen} onClose={toggleAlertOpen}>
+        <ModalContent>
+          <ModalHeader>What is Easy Expense?</ModalHeader>
+          <ModalBody className='pb-5'>
             <p className='text-tiny'>
               You can set rules for specific beneficiaries to access fundsfrom this Safe Account without having to
               collect all signatures.
             </p>
-          </div>
-          <Divider />
-          {items.map((item, index) => (
-            <div key={index} className='flex items-start gap-4'>
-              <img className='w-[30px]' src={item.img} alt={item.title} />
-              <div>
-                <h6 className='font-bold text-small'>{item.title}</h6>
-                <p className='mt-1 text-tiny text-foreground/50'>{item.desc}</p>
+            <Divider />
+            {items.map((item, index) => (
+              <div key={index} className='flex items-start gap-4'>
+                <img className='w-[30px]' src={item.img} alt={item.title} />
+                <div>
+                  <h6 className='font-bold text-small'>{item.title}</h6>
+                  <p className='mt-1 text-tiny text-foreground/50'>{item.desc}</p>
+                </div>
               </div>
-            </div>
-          ))}
-          <Divider />
-          {isModuleEnabled && address && <Delegates safeAccount={address} />}
-          <Button onClick={toggleOpen} fullWidth radius='full' color='primary'>
-            Add Easy Expense
-          </Button>
-        </CardBody>
-      </Card>
+            ))}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
       <Modal isOpen={isOpen} onClose={toggleOpen}>
         <ModalContent>
           <ModalHeader className='font-bold'>Set New Easy Expense</ModalHeader>
@@ -110,11 +114,19 @@ function SpendLimit({ address }: { address?: Address }) {
               labelPlacement='outside'
               onChange={setAmount}
               value={amount}
-              label='Easy Expense Limit'
+              label={
+                <TooltipItem content='Easy Expense users can use these funds without approval within a single Recover Time period.'>
+                  Easy Expense Limit
+                </TooltipItem>
+              }
               placeholder='Enter amount'
             />
             <div>
-              <div className='font-bold text-small mb-1.5'>Reset Time</div>
+              <div className='font-bold text-small mb-1.5'>
+                <TooltipItem content='You can choose to set a one-time allowance or to have it automatically refill after a defined time-period.'>
+                  Reset Time
+                </TooltipItem>
+              </div>
               <Dropdown placement='bottom-start'>
                 <DropdownTrigger>
                   <Button endContent={<ArrowDown />} fullWidth className='justify-between' variant='bordered'>
@@ -153,13 +165,14 @@ function SpendLimit({ address }: { address?: Address }) {
               fullWidth
               radius='full'
               color='primary'
+              onOpenTx={toggleOpen}
             >
               Confirm
             </SafeTxButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }
 

@@ -30,7 +30,6 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     isCancel,
     hasSameTx,
     onClose,
-    signatures,
     handleSign,
     handleExecute,
     handleSignAndExecute,
@@ -111,7 +110,6 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
           {isSignatureReady ? null : multisig ? (
             <AddressChain
               filterPaths={filterPaths}
-              signatures={signatures}
               addressChain={addressChain}
               setAddressChain={setAddressChain}
               deep={0}

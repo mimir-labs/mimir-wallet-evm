@@ -1,66 +1,25 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Card, CardBody, Link, Tab, Tabs } from '@nextui-org/react';
-import { useContext, useMemo } from 'react';
+import { Tab, Tabs } from '@nextui-org/react';
+import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useToggle } from 'react-use';
 import { isAddress } from 'viem';
-import { useAccount } from 'wagmi';
 
-import RecoveryImg from '@mimir-wallet/assets/images/recover.svg';
 import { Button } from '@mimir-wallet/components';
-import Recovery from '@mimir-wallet/features/recovery';
-import { useDelayModules, useMultisig, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
+import { useMultisig, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
-import { addressEq } from '@mimir-wallet/utils';
 
 import Setup from './Setup';
-import SpendLimit from './spend-limit';
 
 function AccountSetting() {
   const navigate = useNavigate();
   const [tab, setTab] = useQueryParam('tab', 'setup', { replace: true });
   const { current } = useContext(AddressContext);
-  const [delayModules] = useDelayModules(current);
-  const { address: account } = useAccount();
-  const [recoveryOpen, toggleRecovery] = useToggle(true);
-  const safeAccount = useQueryAccount(current);
-
-  const recoveryInfo = useMemo(
-    () =>
-      account && delayModules.length > 0
-        ? delayModules.find((item) => item.modules.findIndex((item) => addressEq(item, account)) > -1)
-        : null,
-    [account, delayModules]
-  );
 
   const multisig = useMultisig(current);
 
   if (!current || !isAddress(current)) return null;
-
-  if (recoveryOpen && recoveryInfo) {
-    return (
-      <div className='max-w-lg mx-auto space-y-5'>
-        <Button onClick={toggleRecovery} variant='bordered' color='primary' radius='full'>
-          Back
-        </Button>
-        <Card>
-          <CardBody className='py-20 px-10 space-y-4 flex flex-col items-center text-foreground'>
-            <img width={112} src={RecoveryImg} alt='mimir recovery' />
-            <h6 className='font-bold text-small text-center'>Recover this Account</h6>
-            <p className='text-tiny text-foreground text-opacity-50 text-center'>
-              The connected wallet was chosen as a trusted Recoverer. You can help the owners regain access by resetting
-              the Account setup.
-            </p>
-            <Button as={Link} href={`/reset/${recoveryInfo.address}`} color='primary' radius='full'>
-              Recover
-            </Button>
-          </CardBody>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className='max-w-lg mx-auto space-y-5'>
@@ -83,16 +42,6 @@ function AccountSetting() {
         <Tab key='setup' title='Setup'>
           <Setup multisig={multisig} />
         </Tab>
-        {safeAccount?.type === 'safe' && (
-          <Tab key='spend-limit' title='Easy Expense'>
-            <SpendLimit address={current} />
-          </Tab>
-        )}
-        {safeAccount?.type === 'safe' && (
-          <Tab key='recovery' title='Recovery'>
-            <Recovery address={current} />
-          </Tab>
-        )}
       </Tabs>
     </div>
   );

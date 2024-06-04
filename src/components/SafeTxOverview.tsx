@@ -21,6 +21,7 @@ interface Props {
   transaction: TransactionResponse;
   signatures: SignatureResponse[];
   onApprove?: () => void;
+  onClose?: () => void;
 }
 
 type NodeData = {
@@ -33,6 +34,7 @@ type NodeData = {
   transaction: TransactionResponse;
   signatures: SignatureResponse[];
   onApprove?: () => void;
+  onClose?: () => void;
 };
 
 const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) => {
@@ -72,6 +74,7 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
             radius='none'
             className='flex bg-success/10 border-none text-success'
             variant='flat'
+            onOpenTx={data.onClose}
           >
             Approve
           </SafeTxButton>
@@ -108,7 +111,8 @@ function makeNodes(
   onYChange?: (offset: number) => void,
   nodes: Node<NodeData>[] = [],
   edges: Edge[] = [],
-  onApprove?: () => void
+  onApprove?: () => void,
+  onClose?: () => void
 ): void {
   const members = account.members || [];
 
@@ -127,7 +131,8 @@ function makeNodes(
       transaction,
       signatures: superSignatures,
       addressChain: nodeId.split('-').slice(2) as Address[],
-      onApprove
+      onApprove,
+      onClose
     },
     position: { x: xPos, y: yPos },
     connectable: false
@@ -174,7 +179,8 @@ function makeNodes(
       },
       nodes,
       edges,
-      onApprove
+      onApprove,
+      onClose
     );
 
     if (index < childCount - 1) {
@@ -188,7 +194,7 @@ function makeNodes(
   onYChange?.(node.position.y - oldY);
 }
 
-function SafeTxOverview({ account, signatures, transaction, onApprove }: Props) {
+function SafeTxOverview({ account, signatures, transaction, onApprove, onClose }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -210,12 +216,13 @@ function SafeTxOverview({ account, signatures, transaction, onApprove }: Props) 
       undefined,
       nodes,
       edges,
-      onApprove
+      onApprove,
+      onClose
     );
 
     setNodes(nodes);
     setEdges(edges);
-  }, [account, onApprove, setEdges, setNodes, signatures, transaction]);
+  }, [account, onApprove, onClose, setEdges, setNodes, signatures, transaction]);
 
   return (
     <ReactFlow

@@ -30,13 +30,8 @@ import {
   SafeTxButton
 } from '@mimir-wallet/components';
 import { deployments } from '@mimir-wallet/config';
-import {
-  useAccountBalance,
-  useAccountTokens,
-  useDelegateAllowance,
-  useInputAddress,
-  useInputNumber
-} from '@mimir-wallet/hooks';
+import { useDelegateAllowance } from '@mimir-wallet/features/allowance';
+import { useAccountBalance, useAccountTokens, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildSafeTransaction } from '@mimir-wallet/safe';
 

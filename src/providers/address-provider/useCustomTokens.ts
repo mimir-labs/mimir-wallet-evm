@@ -6,7 +6,7 @@ import type { CustomToken } from './types';
 import { useCallback } from 'react';
 import { useChainId } from 'wagmi';
 
-import { CUSTOM_TOKENS_KEY } from '@mimir-wallet/constants';
+import { CUSTOM_TOKENS_KEY, EmptyArray } from '@mimir-wallet/constants';
 import { useLocalStore } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -29,5 +29,5 @@ export function useCustomTokens() {
     [setCustomTokens]
   );
 
-  return { customTokens: customTokens || [], addCustomToken };
+  return { customTokens: customTokens || EmptyArray, addCustomToken };
 }

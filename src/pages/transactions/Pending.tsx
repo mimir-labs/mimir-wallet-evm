@@ -8,7 +8,8 @@ import React, { useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { Empty, RecoveryTxCard, SafeTxCard } from '@mimir-wallet/components';
-import { usePendingTransactions, useRecoveryTxs } from '@mimir-wallet/hooks';
+import { useRecoveryTxs } from '@mimir-wallet/features/delay';
+import { usePendingTransactions } from '@mimir-wallet/hooks';
 
 function Pending({ account }: { account: BaseAccount }) {
   const chainId = useChainId();

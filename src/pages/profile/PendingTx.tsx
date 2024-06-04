@@ -10,6 +10,7 @@ import React, { useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { AppName, Empty } from '@mimir-wallet/components';
+import { EmptyArray } from '@mimir-wallet/constants';
 import { useParseCall, usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
 import { approveCounts } from '@mimir-wallet/safe';
 import { BaseAccount } from '@mimir-wallet/safe/types';
@@ -73,7 +74,7 @@ function PendingTx({ address }: { address: Address }) {
             nonce={current[0]}
             data={current[1][0]?.transaction.data}
             account={account}
-            signatures={current[1]?.[0].signatures || []}
+            signatures={current[1]?.[0].signatures || EmptyArray}
           />
           <Divider />
         </React.Fragment>
@@ -87,7 +88,7 @@ function PendingTx({ address }: { address: Address }) {
             nonce={nonce}
             data={item[0]?.transaction.data}
             account={account}
-            signatures={item[0]?.signatures || []}
+            signatures={item[0]?.signatures || EmptyArray}
           />
           <Divider />
         </React.Fragment>
