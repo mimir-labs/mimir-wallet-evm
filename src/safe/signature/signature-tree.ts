@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Address, type Hex, hexToNumber, padHex, slice, toHex } from 'viem';
+import { Address, type Hex, hexToBigInt, hexToNumber, padHex, slice, toHex } from 'viem';
 
 import { SignatureType } from '../types';
 
@@ -54,7 +54,7 @@ export class SignatureTree {
       let bytes: Hex = '0x';
       let parts: Hex = '0x';
 
-      for (const item of [...this.children].sort((l, r) => (l.signer > r.signer ? 1 : -1))) {
+      for (const item of [...this.children].sort((l, r) => (hexToBigInt(l.signer) > hexToBigInt(r.signer) ? 1 : -1))) {
         if (item.type === SignatureType.contract_signature) {
           bytes += `${item.value.slice(2, 66)}${padHex(toHex(this.children.length * 65 + (parts.length - 2) / 2), { size: 32 }).slice(2)}${item.value.slice(130, 132)}`;
           const dynamicBytes = item.dynamicBytes().slice(2);

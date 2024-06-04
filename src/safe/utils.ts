@@ -9,7 +9,11 @@ import { addressEq } from '@mimir-wallet/utils';
 import { getSignatureType } from './signature';
 import { type BaseAccount, type SafeAccount, SignatureType } from './types';
 
-export function approveCounts(account: BaseAccount, signatures: SignatureResponse[]): number {
+export function approveCounts(account: BaseAccount, signatures: SignatureResponse[], hasSig: boolean): number {
+  if (account.type !== 'safe') {
+    return hasSig ? 1 : 0;
+  }
+
   let approveCount = 0;
 
   for (const signature of signatures) {
@@ -23,7 +27,7 @@ export function approveCounts(account: BaseAccount, signatures: SignatureRespons
       ) as SafeAccount | undefined;
 
       if (subAccount) {
-        const _approveCount = approveCounts(subAccount, signature.children || []);
+        const _approveCount = approveCounts(subAccount, signature.children || [], true);
 
         if (_approveCount >= subAccount.threshold) {
           approveCount++;

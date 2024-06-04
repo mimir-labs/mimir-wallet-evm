@@ -33,7 +33,7 @@ function Item({
   nonce: bigint | string;
 }) {
   const [, parsed] = useParseCall(data || '0x');
-  const approval = useMemo(() => (account ? approveCounts(account, signatures) : 0), [account, signatures]);
+  const approval = useMemo(() => (account ? approveCounts(account, signatures, true) : 0), [account, signatures]);
 
   return (
     <Link

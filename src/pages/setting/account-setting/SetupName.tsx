@@ -35,23 +35,26 @@ function SetupName({ multisig }: { multisig?: Multisig }) {
   );
 
   return (
-    <Card>
-      <CardBody className='p-5 space-y-4'>
-        <Input
-          value={name}
-          type='text'
-          variant='bordered'
-          labelPlacement='outside'
-          onChange={setName}
-          label='New Name'
-          placeholder='Enter name'
-          description='All members will see this name'
-        />
-        <ButtonEnable color='primary' isToastError onClick={save} radius='full'>
-          Save
-        </ButtonEnable>
-      </CardBody>
-    </Card>
+    <div>
+      <h6 className='font-bold mb-1 text-medium text-foreground/50'>Name</h6>
+      <Card>
+        <CardBody className='p-5 space-y-5'>
+          <Input
+            value={name}
+            type='text'
+            variant='bordered'
+            labelPlacement='outside'
+            onChange={setName}
+            label='New Name'
+            placeholder='Enter name'
+            description='All members will see this name'
+          />
+          <ButtonEnable color='primary' isToastError onClick={save} radius='full'>
+            Save
+          </ButtonEnable>
+        </CardBody>
+      </Card>
+    </div>
   );
 }
 

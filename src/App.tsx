@@ -4,7 +4,6 @@
 import { Route, Routes } from 'react-router-dom';
 
 import BaseContainer from './container/BaseContainer';
-import PageAccountSetting from './pages/account-setting';
 import PageAddressBook from './pages/address-book';
 import PageApps from './pages/apps';
 import PageAppExplorer from './pages/apps/app-explorer';
@@ -13,6 +12,7 @@ import PageCreateMultisig from './pages/create-multisig';
 import PageProfile from './pages/profile';
 import PageReset from './pages/reset';
 import PageRules from './pages/rules';
+import PageSetting from './pages/setting';
 import PageTransactions from './pages/transactions';
 
 function App(): React.ReactElement {
@@ -24,7 +24,7 @@ function App(): React.ReactElement {
         <Route path='/apps' element={<PageApps />} />
         <Route path='/transactions' element={<PageTransactions />} />
         <Route path='/address-book' element={<PageAddressBook />} />
-        <Route path='/account-setting' element={<PageAccountSetting />} />
+        <Route path='/setting' element={<PageSetting />} />
         <Route path='/rules' element={<PageRules />} />
         <Route path='/reset/:delayAddress' element={<PageReset />} />
       </Route>
