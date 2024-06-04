@@ -12,6 +12,7 @@ import PageAssets from './pages/assets';
 import PageCreateMultisig from './pages/create-multisig';
 import PageProfile from './pages/profile';
 import PageReset from './pages/reset';
+import PageRules from './pages/rules';
 import PageTransactions from './pages/transactions';
 
 function App(): React.ReactElement {
@@ -24,6 +25,7 @@ function App(): React.ReactElement {
         <Route path='/transactions' element={<PageTransactions />} />
         <Route path='/address-book' element={<PageAddressBook />} />
         <Route path='/account-setting' element={<PageAccountSetting />} />
+        <Route path='/rules' element={<PageRules />} />
         <Route path='/reset/:delayAddress' element={<PageReset />} />
       </Route>
       <Route element={<BaseContainer withPadding withSideBar={false} />}>

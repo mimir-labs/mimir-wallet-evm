@@ -4,29 +4,33 @@
 import type { Address } from 'abitype';
 
 import {
-  Card,
-  CardBody,
-  Divider,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Link,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader
+  ModalHeader,
+  Tooltip
 } from '@nextui-org/react';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
 import { isAddress } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
+import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
 import { Button, Input, SafeTxButton } from '@mimir-wallet/components';
-import { useDelayModules, useInputAddress } from '@mimir-wallet/hooks';
+import { useDelayModules, useRecoveryTxs } from '@mimir-wallet/features/delay';
+import { useInputAddress } from '@mimir-wallet/hooks';
 import { buildAddRecovery } from '@mimir-wallet/safe';
+import { addressEq } from '@mimir-wallet/utils';
 
+import TooltipItem from '../TooltipItem';
 import Recoverer from './Recoverer';
 
 const reviewWindows = {
@@ -49,12 +53,24 @@ const expiryTimes = {
 } as const;
 
 function Recovery({ address }: { address?: Address }) {
+  const chainId = useChainId();
+  const { address: account } = useAccount();
   const [isOpen, toggleOpen] = useToggle(false);
+  const [isAlertOpen, toggleAlertOpen] = useToggle(false);
   const [[recoverer], setRecoverer] = useInputAddress();
   const [cooldown, setCooldown] = useState<number>(60 * 60 * 24 * 28);
   const [expiration, setExpiration] = useState<number>(60 * 60 * 24 * 28);
-  const [data] = useDelayModules(address);
+  const [data, isDataFetched, isDataFetching] = useDelayModules(address);
   const navigate = useNavigate();
+  const [recoverTxs] = useRecoveryTxs(chainId, address);
+
+  const recoveryInfo = useMemo(
+    () =>
+      data.length > 0 && account
+        ? data.find((item) => item.modules.findIndex((item) => addressEq(item, account)) > -1)
+        : null,
+    [account, data]
+  );
 
   const items = [
     {
@@ -80,27 +96,63 @@ function Recovery({ address }: { address?: Address }) {
   ];
 
   return (
-    <>
-      <Card>
-        <CardBody className='p-5 space-y-4'>
-          <h6 className='font-bold text-small'>Account Recovery</h6>
-          <Divider />
-          {items.map((item, index) => (
-            <div key={index} className='flex items-start gap-4'>
-              <img className='w-[30px]' src={item.img} alt={item.title} />
-              <div>
-                <h6 className='font-bold text-small'>{item.title}</h6>
-                <p className='mt-1 text-tiny text-foreground/50'>{item.desc}</p>
+    <div className='space-y-2.5'>
+      <div className='flex items-center gap-2.5'>
+        <h6 className='font-bold'>Account Recovery</h6>
+        <IconQuestion onClick={toggleAlertOpen} className='cursor-pointer text-foreground/20' />
+        <div className='flex-1 text-right'>
+          {recoveryInfo &&
+            (recoverTxs.length > 0 ? (
+              <Tooltip
+                closeDelay={0}
+                content='Please process the ongoing Recovery first'
+                color='warning'
+                placement='bottom'
+              >
+                <Button radius='full' color='primary' variant='bordered' disabled>
+                  Execute Recover
+                </Button>
+              </Tooltip>
+            ) : (
+              <Button
+                as={Link}
+                href={`/reset/${recoveryInfo.address}`}
+                radius='full'
+                color='primary'
+                variant='bordered'
+              >
+                Execute Recover
+              </Button>
+            ))}
+          {isDataFetched && data.length === 0 && (
+            <Button onClick={toggleOpen} radius='full' color='primary' variant='bordered'>
+              Add New
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {address && (
+        <Recoverer safeAccount={address} data={data} isDataFetched={isDataFetched} isDataFetching={isDataFetching} />
+      )}
+
+      <Modal isOpen={isAlertOpen} onClose={toggleAlertOpen}>
+        <ModalContent>
+          <ModalHeader>Account Recovery</ModalHeader>
+          <ModalBody className='pb-5'>
+            {items.map((item, index) => (
+              <div key={index} className='flex items-start gap-4'>
+                <img className='w-[30px]' src={item.img} alt={item.title} />
+                <div>
+                  <h6 className='font-bold text-small'>{item.title}</h6>
+                  <p className='mt-1 text-tiny text-foreground/50'>{item.desc}</p>
+                </div>
               </div>
-            </div>
-          ))}
-          <Divider />
-          {address && data.length > 0 && <Recoverer data={data} safeAccount={address} />}
-          <Button onClick={toggleOpen} fullWidth radius='full' color='primary'>
-            Add Recovery
-          </Button>
-        </CardBody>
-      </Card>
+            ))}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
       <Modal isOpen={isOpen} onClose={toggleOpen}>
         <ModalContent>
           <ModalHeader className='font-bold'>Set New Recoverer</ModalHeader>
@@ -114,7 +166,11 @@ function Recovery({ address }: { address?: Address }) {
               placeholder='Enter ethereum address'
             />
             <div>
-              <div className='font-bold text-small mb-1.5'>Review Window</div>
+              <div className='font-bold text-small mb-1.5'>
+                <TooltipItem content='A period that begins after a recovery submitted on-chain, during which the Safe Account signers can review the proposal and cancel it before it is executable.'>
+                  Review Window
+                </TooltipItem>
+              </div>
               <Dropdown placement='bottom-start'>
                 <DropdownTrigger>
                   <Button endContent={<ArrowDown />} fullWidth className='justify-between' variant='bordered'>
@@ -129,7 +185,11 @@ function Recovery({ address }: { address?: Address }) {
               </Dropdown>
             </div>
             <div>
-              <div className='font-bold text-small mb-1.5'>Proposal Expiry</div>
+              <div className='font-bold text-small mb-1.5'>
+                <TooltipItem content='A period after which the recovery proposal will expire and can no longer be executed.'>
+                  Proposal Expiry
+                </TooltipItem>
+              </div>
               <Dropdown placement='bottom-start'>
                 <DropdownTrigger>
                   <Button endContent={<ArrowDown />} fullWidth className='justify-between' variant='bordered'>
@@ -161,13 +221,14 @@ function Recovery({ address }: { address?: Address }) {
               fullWidth
               radius='full'
               color='primary'
+              onOpenTx={toggleOpen}
             >
               Confirm
             </SafeTxButton>
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </div>
   );
 }
 

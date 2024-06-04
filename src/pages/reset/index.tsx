@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { isAddress } from 'viem';
 
+import { EmptyArray } from '@mimir-wallet/constants';
 import { useQueryAccount } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
@@ -24,7 +25,7 @@ function Reset() {
       <ResetMember
         delayAddress={delayAddress}
         threshold={account.threshold || 1}
-        members={account.members?.map((item) => item.address) || []}
+        members={account.members?.map((item) => item.address) || EmptyArray}
         safeAddress={account.address}
       />
     </div>

@@ -87,31 +87,6 @@ export interface TokenInfo extends TokenMeta {
   icon?: string | null;
 }
 
-export interface DelayModuleResponse {
-  address: Address;
-  avatar: Address;
-  block: string;
-  initiator: Address;
-  owner: Address;
-  target: Address;
-  transaction: Hash;
-}
-
-export interface RecoveryTx {
-  address: Address;
-  block: bigint;
-  createdAt: number;
-  data: Hex;
-  id: number;
-  operation: Operation;
-  queueNonce: bigint;
-  sender: Address;
-  to: Address;
-  transaction: Hash;
-  txHash: Hash;
-  value: bigint;
-}
-
 export type AccountAsset = {
   tokenAddress: Address;
   name: string;

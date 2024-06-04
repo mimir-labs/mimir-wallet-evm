@@ -92,7 +92,12 @@ function Cell({ transaction, allPaths, signatures, account, hasCancelTx, default
         <ModalContent>
           <ModalBody>
             <div className='w-full h-[60vh]'>
-              <SafeTxOverview transaction={transaction} signatures={signatures} account={account} />
+              <SafeTxOverview
+                onClose={toggleOverview}
+                transaction={transaction}
+                signatures={signatures}
+                account={account}
+              />
             </div>
           </ModalBody>
         </ModalContent>

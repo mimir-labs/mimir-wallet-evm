@@ -29,9 +29,9 @@ function AddressDisplay({
     >
       <AddressIcon size={24} address={address} />
       <div className='flex flex-col'>
-        <div className='inline-flex items-center font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px] gap-1 group-data-[reverse=true]:flex-row-reverse'>
+        <div className='inline-flex items-center font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[120px] gap-1 group-data-[reverse=true]:flex-row-reverse'>
           <AddressName address={address} />
-          <CopyButton as='div' size='tiny' value={address} color='default' className='text-foreground/50' />
+          <CopyButton size='tiny' value={address} color='default' className='text-foreground/50' />
         </div>
         <div className='text-tiny text-foreground/50 leading-[12px]'>{children}</div>
       </div>

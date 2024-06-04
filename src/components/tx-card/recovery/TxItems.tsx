@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { RecoveryTx } from '@mimir-wallet/hooks/types';
+import type { RecoveryTx } from '@mimir-wallet/features/delay/types';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import React from 'react';

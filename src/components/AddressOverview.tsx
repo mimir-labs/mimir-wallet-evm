@@ -6,6 +6,8 @@ import type { BaseAccount } from '@mimir-wallet/safe/types';
 import React, { useEffect } from 'react';
 import ReactFlow, { Edge, Handle, Node, NodeProps, Position, useEdgesState, useNodesState } from 'reactflow';
 
+import { EmptyArray } from '@mimir-wallet/constants';
+
 import AddressCell from './AddressCell';
 
 interface Props {
@@ -54,10 +56,10 @@ function makeNodes(
   xOffset: number,
   yOffset: number,
   onYChange?: (offset: number) => void,
-  nodes: Node<NodeData>[] = [],
-  edges: Edge[] = []
+  nodes: Node<NodeData>[] = EmptyArray,
+  edges: Edge[] = EmptyArray
 ): void {
-  const members = account.members || [];
+  const members = account.members || EmptyArray;
 
   const nodeId = `${parentId}-${account.address}`;
 
@@ -106,7 +108,7 @@ function makeNodes(
     );
 
     if (index < childCount - 1) {
-      nextY += yOffset * ((_account.members || []).length || 1);
+      nextY += yOffset * ((_account.members || EmptyArray).length || 1);
     }
   });
 

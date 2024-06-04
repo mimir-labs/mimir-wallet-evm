@@ -9,6 +9,7 @@ import { useAccount } from 'wagmi';
 
 import Logo from '@mimir-wallet/assets/images/logo.png';
 import { ButtonEnable, ButtonLinear, MimirLoading, SafeTxModal } from '@mimir-wallet/components';
+import { RecoverModal } from '@mimir-wallet/features/delay';
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 
 import BatchButton from './BatchButton';
@@ -52,6 +53,9 @@ function BaseContainer({
           {withSideBar ? <SideBar /> : null}
           <div className={`flex-1 ${withPadding ? 'p-5' : 'p-0'}`}>
             {state ? <SafeTxModal {...state} /> : null}
+
+            <RecoverModal />
+
             <div style={{ display: state ? 'none' : undefined }}>
               <Outlet />
             </div>

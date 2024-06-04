@@ -2,34 +2,32 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { DelayModuleResponse } from './types';
+import type { DelayModule, DelayModuleResponse } from './types';
 
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
 import { useChainId, useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import { serviceUrl } from '@mimir-wallet/config';
+import { EmptyArray } from '@mimir-wallet/constants';
 
 const SENTINEL_MODULES: Address = '0x0000000000000000000000000000000000000001' as const;
 
-type Data = {
-  address: Address;
-  modules: Address[];
-  expiration: bigint;
-  cooldown: bigint;
-};
-
-export function useDelayModules(address?: Address): [Data[], boolean] {
+export function useDelayModules(address?: Address): [data: DelayModule[], isFetched: boolean, isFetching: boolean] {
   const chainId = useChainId();
-  const { data } = useQuery<DelayModuleResponse[]>({
-    initialData: [],
+  const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({
+    initialData: EmptyArray,
     refetchInterval: false,
     queryKey: [address ? serviceUrl(chainId, `modules/delay/${address}`) : null]
   });
 
-  const { data: results, isFetching } = useReadContracts({
+  const {
+    data: results,
+    isFetched: isFetched2,
+    isFetching: isFetching2
+  } = useReadContracts({
     allowFailure: false,
+    query: { refetchInterval: false },
     contracts: data
       .map((item) => [
         {
@@ -52,20 +50,16 @@ export function useDelayModules(address?: Address): [Data[], boolean] {
       .flat()
   });
 
-  return useMemo(() => {
-    if (!results || !data) return [[], true];
-
-    const items: Data[] = [];
-
-    for (let i = 0; i < results.length / 3; i++) {
-      items.push({
-        address: data[i].address,
-        modules: (results[i * 3 + 2] as unknown as [Address[]])[0],
-        expiration: results[i * 3] as bigint,
-        cooldown: results[i * 3 + 1] as bigint
-      });
-    }
-
-    return [items, isFetching];
-  }, [data, isFetching, results]);
+  return [
+    data && results
+      ? data.map((item, index) => ({
+          address: item.address,
+          modules: (results[index * 3 + 2] as unknown as [Address[]])[0],
+          expiration: results[index * 3] as bigint,
+          cooldown: results[index * 3 + 1] as bigint
+        }))
+      : EmptyArray,
+    isFetched && isFetched2,
+    isFetching || isFetching2
+  ];
 }
