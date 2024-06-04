@@ -5,7 +5,7 @@ import { Card, CardBody } from '@nextui-org/react';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Address, AddressIcon, AddressName, Button, CopyButton } from '@mimir-wallet/components';
+import { Address, AddressIcon, AddressName, Button, CopyAddressButton } from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
 
 function AddressBook() {
@@ -26,7 +26,7 @@ function AddressBook() {
               <div className='w-[50%] flex-1 flex items-center gap-1 text-foreground/50'>
                 <AddressIcon size={30} address={item} />
                 <Address address={item} showFull />
-                <CopyButton value={item} color='primary' size='tiny' />
+                <CopyAddressButton address={item} color='primary' size='tiny' />
               </div>
               <div className='flex gap-5'>
                 <Button

@@ -5,6 +5,7 @@ import type { Multisig } from '@mimir-wallet/safe/types';
 
 import React from 'react';
 
+import Information from './Information';
 import SetupMember from './SetupMember';
 import SetupName from './SetupName';
 
@@ -13,6 +14,7 @@ function Setup({ multisig }: { multisig?: Multisig }) {
     <div className='space-y-5'>
       <SetupName multisig={multisig} key={`setname-${multisig?.address || 'none'}`} />
       <SetupMember multisig={multisig} key={`setmember-${multisig?.address || 'none'}`} />
+      <Information safeAddress={multisig?.address} />
     </div>
   );
 }

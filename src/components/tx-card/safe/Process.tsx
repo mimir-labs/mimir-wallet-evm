@@ -18,7 +18,7 @@ function ProgressItem({ signature, account }: { account?: BaseAccount; signature
     [account, signature.signature.signer]
   );
   const approveCount = useMemo(
-    () => (_account ? approveCounts(_account, signature.children || []) : 0),
+    () => (_account ? approveCounts(_account, signature.children || [], true) : 0),
     [_account, signature.children]
   );
 

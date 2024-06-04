@@ -11,6 +11,7 @@ import AssetSvg from '@mimir-wallet/assets/svg/asset.svg?react';
 import DappSvg from '@mimir-wallet/assets/svg/dapp.svg?react';
 import HomeSvg from '@mimir-wallet/assets/svg/home.svg?react';
 import RuleSvg from '@mimir-wallet/assets/svg/icon-rule.svg?react';
+import SetSvg from '@mimir-wallet/assets/svg/icon-set.svg?react';
 import TransactionsSvg from '@mimir-wallet/assets/svg/transactions.svg?react';
 import { AccountDrawer } from '@mimir-wallet/components';
 
@@ -52,6 +53,12 @@ const links: { href: string; key: string; icon: React.ReactNode; label: string }
     key: 'rules',
     icon: <RuleSvg />,
     label: 'Rules'
+  },
+  {
+    href: '/setting?tab=general',
+    key: 'setting',
+    icon: <SetSvg style={{ width: 20, height: 20 }} />,
+    label: 'Setting'
   }
 ];
 
@@ -66,7 +73,8 @@ function SideBar(): React.ReactElement {
           { path: '/apps', key: 'apps' },
           { path: '/transactions', key: 'transactions' },
           { path: '/address-book', key: 'address-book' },
-          { path: '/rules', key: 'rules' }
+          { path: '/rules', key: 'rules' },
+          { path: '/setting', key: 'setting' }
         ],
         location
       )?.map((item) => item.route.key),

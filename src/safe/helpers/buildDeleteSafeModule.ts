@@ -1,0 +1,62 @@
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import type { IPublicClient, MetaTransaction } from '../types';
+
+import { type Address, encodeFunctionData, isAddressEqual } from 'viem';
+
+import { abis } from '@mimir-wallet/abis';
+
+import { getModulesMap } from '../modules';
+import { buildSafeTransaction } from '../transaction';
+import { Operation } from '../types';
+
+// @internal
+// find the prev module
+function findPrevModule(modules: Map<Address, Address>, module: Address): Address {
+  let prevModule: Address | null = null;
+
+  for (const [prev, current] of modules) {
+    if (current) {
+      if (isAddressEqual(current, module)) {
+        prevModule = prev;
+      }
+    }
+  }
+
+  if (!prevModule) {
+    throw new Error(`Cant find prevModule for module(${module})`);
+  }
+
+  return prevModule;
+}
+
+export async function buildDeleteSafeModule(
+  client: IPublicClient,
+  safeAccount: Address,
+  moduleAddress: Address
+): Promise<MetaTransaction> {
+  const isModuleEnabled = await client.readContract({
+    address: safeAccount,
+    abi: abis.SafeL2,
+    functionName: 'isModuleEnabled',
+    args: [moduleAddress]
+  });
+
+  if (!isModuleEnabled) {
+    throw new Error('Module is not enabled');
+  }
+
+  const modulesMap = await getModulesMap(client, safeAccount);
+
+  const prevModule = findPrevModule(modulesMap, moduleAddress);
+
+  return buildSafeTransaction(safeAccount, {
+    data: encodeFunctionData({
+      abi: abis.Delay,
+      functionName: 'disableModule',
+      args: [prevModule, moduleAddress]
+    }),
+    operation: Operation.Call
+  });
+}

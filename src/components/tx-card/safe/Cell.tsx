@@ -34,7 +34,7 @@ function Cell({ transaction, allPaths, signatures, account, hasCancelTx, default
   const { address } = useAccount();
   const [isOpen, toggleOpen] = useToggle(defaultOpen || false);
   const [isOverviewOpen, toggleOverview] = useToggle(false);
-  const approval = useMemo(() => approveCounts(account, signatures), [account, signatures]);
+  const approval = useMemo(() => approveCounts(account, signatures, true), [account, signatures]);
   const [dataSize, parsed] = useParseCall(transaction.data);
   const multisend = useParseMultisend(parsed);
   const isIndexing = useTxIsIndexing(transaction.address, transaction.status, transaction.nonce);

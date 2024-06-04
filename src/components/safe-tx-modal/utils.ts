@@ -20,13 +20,29 @@ function _createSigTree(sigResponse: SignatureResponse): SignatureTree {
   );
 }
 
-export function buildSigTree(signatures: SignatureResponse[], tree: SignatureTree[] = []): SignatureTree[] {
-  signatures.forEach((item, index) => {
-    tree.push(_createSigTree(item));
+export function buildSigTree(
+  account: BaseAccount,
+  signatures: SignatureResponse[],
+  tree: SignatureTree[] = []
+): SignatureTree[] {
+  signatures.forEach((item) => {
+    if (tree.length === (account.threshold || 1)) {
+      return;
+    }
 
-    if (item.children) {
-      tree[index].children = [];
-      buildSigTree(item.children, (tree[index].children ||= []));
+    const subAccount = account.members?.find((member) => addressEq(member.address, item.signature.signer));
+
+    if (subAccount) {
+      let index: number | null = null;
+
+      if (approveCounts(subAccount, item.children || [], true) >= (subAccount?.threshold || 1)) {
+        index = tree.push(_createSigTree(item)) - 1;
+      }
+
+      if (item.children && index !== null) {
+        tree[index].children = [];
+        buildSigTree(subAccount, item.children, (tree[index].children ||= []));
+      }
     }
   });
 
@@ -36,14 +52,15 @@ export function buildSigTree(signatures: SignatureResponse[], tree: SignatureTre
 export function findValidSignature(account: BaseAccount, signatures: SignatureResponse[]): SignatureResponse[] {
   assert(account.type === 'safe' && account.threshold && account.members, 'Not safe account');
 
+  const copyed: SignatureResponse[] = JSON.parse(JSON.stringify(signatures));
   const validSignatures: SignatureResponse[] = [];
 
-  for (const sig of signatures) {
+  for (const sig of copyed) {
     const member = account.members.find((item) => addressEq(item.address, sig.signature.signer));
 
     if (member) {
       if (member.type === 'safe') {
-        if (member.threshold && sig.children && approveCounts(member, sig.children) >= member.threshold) {
+        if (member.threshold && sig.children && approveCounts(member, sig.children, true) >= member.threshold) {
           validSignatures.push(sig);
         }
       } else {
@@ -93,5 +110,5 @@ export function nextApproveCounts(
     mapSigs = sub.children;
   }
 
-  return approveCounts(account, _signatures);
+  return approveCounts(account, _signatures, true);
 }

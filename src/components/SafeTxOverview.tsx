@@ -165,9 +165,7 @@ function makeNodes(
       transaction,
       superSignatures,
       _signature?.children || [],
-      _account.type === 'safe'
-        ? approveCounts(_account, _signature?.children || []) >= (_account.threshold || 1)
-        : !!_signature,
+      approveCounts(_account, _signature?.children || [], !!_signature) >= (_account.threshold || 1),
       nodeId,
       nextX,
       nextY,
@@ -207,7 +205,7 @@ function SafeTxOverview({ account, signatures, transaction, onApprove, onClose }
       transaction,
       signatures,
       signatures,
-      approveCounts(account, signatures) >= (account.threshold || 1),
+      approveCounts(account, signatures, true) >= (account.threshold || 1),
       null,
       0,
       0,

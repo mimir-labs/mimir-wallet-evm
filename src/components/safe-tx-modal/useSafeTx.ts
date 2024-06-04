@@ -108,7 +108,7 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
         client,
         address,
         safeTx,
-        buildBytesSignatures(buildSigTree(findValidSignature(account, signatures)))
+        buildBytesSignatures(buildSigTree(account, findValidSignature(account, signatures)))
       );
 
       await client.waitForTransactionReceipt({ hash });
@@ -168,7 +168,7 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
         client,
         address,
         safeTx,
-        buildBytesSignatures(buildSigTree(findValidSignature(account, _signatures)))
+        buildBytesSignatures(buildSigTree(account, findValidSignature(account, _signatures)))
       );
 
       await client.waitForTransactionReceipt({ hash });
@@ -213,7 +213,9 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
       simulation,
       setAddressChain,
       executable: onChainNonce === safeTx?.nonce,
-      isSignatureReady: account ? approveCounts(account, signatures) >= (account as SafeAccount).threshold : false,
+      isSignatureReady: account
+        ? approveCounts(account, signatures, true) >= (account as SafeAccount).threshold
+        : false,
       isNextSignatureReady:
         account && addressChain.length > 0
           ? nextApproveCounts(account, signatures, addressChain) >= (account as SafeAccount).threshold

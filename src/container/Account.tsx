@@ -9,7 +9,14 @@ import ArrowRight from '@mimir-wallet/assets/svg/ArrowRight.svg?react';
 import IconLink from '@mimir-wallet/assets/svg/icon-link-colored.svg?react';
 import IconQrcode from '@mimir-wallet/assets/svg/icon-qrcode-colored.svg?react';
 import IconTransfer from '@mimir-wallet/assets/svg/icon-transfer-colored.svg?react';
-import { AddressCell, AddressIcon, Button, ButtonEnable, CopyButton, FormatBalance } from '@mimir-wallet/components';
+import {
+  AddressCell,
+  AddressIcon,
+  Button,
+  ButtonEnable,
+  CopyAddressButton,
+  FormatBalance
+} from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
 
 function Account({ handleClick }: { handleClick: () => void }) {
@@ -53,7 +60,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
           <Button color='primary' isIconOnly size='tiny' variant='light'>
             <IconQrcode width={14} />
           </Button>
-          <CopyButton size='tiny' colored color='primary' value={current} />
+          <CopyAddressButton size='tiny' colored color='primary' address={current} />
           <Button color='primary' isIconOnly size='tiny' variant='light'>
             <IconLink width={14} />
           </Button>

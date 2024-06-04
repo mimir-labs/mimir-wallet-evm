@@ -2,34 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Tab, Tabs } from '@nextui-org/react';
-import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { isAddress } from 'viem';
 
 import { Button } from '@mimir-wallet/components';
-import { useMultisig, useQueryParam } from '@mimir-wallet/hooks';
-import { AddressContext } from '@mimir-wallet/providers';
+import { useQueryParam } from '@mimir-wallet/hooks';
 
-import Setup from './Setup';
+import AccountSetting from './account-setting';
+import GeneralSetting from './general-setting';
 
-function AccountSetting() {
+function Setting() {
   const navigate = useNavigate();
-  const [tab, setTab] = useQueryParam('tab', 'setup', { replace: true });
-  const { current } = useContext(AddressContext);
-
-  const multisig = useMultisig(current);
-
-  if (!current || !isAddress(current)) return null;
+  const [tab, setTab] = useQueryParam<string>('tab', 'account', { replace: true });
 
   return (
-    <div className='max-w-lg mx-auto space-y-5'>
+    <div className='max-w-lg mx-auto flex flex-col gap-y-5 items-start'>
       <Button onClick={() => navigate(-1)} variant='bordered' color='primary' radius='full'>
-        Back
+        {'<'} Back
       </Button>
-      <h6 className='font-bold text-xl'>Wallet Setting</h6>
       <Tabs
         color='primary'
-        variant='underlined'
+        variant='solid'
         aria-label='Tabs'
         selectedKey={tab}
         onSelectionChange={(key) => setTab(key.toString())}
@@ -39,12 +31,15 @@ function AccountSetting() {
           cursor: ['rounded-medium']
         }}
       >
-        <Tab key='setup' title='Setup'>
-          <Setup multisig={multisig} />
+        <Tab key='account' title='Wallet Setting'>
+          <AccountSetting />
+        </Tab>
+        <Tab key='general' title='General Setting'>
+          <GeneralSetting />
         </Tab>
       </Tabs>
     </div>
   );
 }
 
-export default AccountSetting;
+export default Setting;

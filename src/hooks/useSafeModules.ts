@@ -3,10 +3,10 @@
 
 import type { Address } from 'abitype';
 
-import { useMemo } from 'react';
 import { useChainId, useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
+import { EmptyArray } from '@mimir-wallet/constants';
 
 const SENTINEL_MODULES: Address = '0x0000000000000000000000000000000000000001' as const;
 
@@ -23,10 +23,14 @@ export function useSafeModuleEnabled(safeAddress?: Address, moduleAddress?: Addr
   return !!isModuleEnabled;
 }
 
-export function useSafeModules(address?: Address): Address[] {
+export function useSafeModules(address?: Address): [modules: Address[], isFetched: boolean, isFetching: boolean] {
   const chainId = useChainId();
 
-  const { data: modules } = useReadContract({
+  const {
+    data: modules,
+    isFetched,
+    isFetching
+  } = useReadContract({
     chainId,
     address,
     abi: abis.SafeL2,
@@ -34,9 +38,5 @@ export function useSafeModules(address?: Address): Address[] {
     args: [SENTINEL_MODULES, 100n]
   });
 
-  return useMemo(() => {
-    const _modules: Address[] = (modules?.[0] as Address[]) || [];
-
-    return _modules || [];
-  }, [modules]);
+  return [(modules?.[0] as Address[]) || EmptyArray, isFetched, isFetching];
 }

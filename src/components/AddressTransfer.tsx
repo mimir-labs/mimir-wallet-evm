@@ -30,16 +30,16 @@ function Content({
   addresses: Address[];
 }) {
   return (
-    <div className='flex flex-1 flex-col'>
+    <div className='flex flex-1 flex-col gap-1'>
       <div className='font-bold'>{title}</div>
       <Card className='mt-1 border-default-300 border-1 min-h-20 flex-1'>
         <CardBody className='space-y-2 overflow-y-auto max-h-[186px] p-2 flex-1 scroll-smooth focus:scroll-auto snap-y scroll-pt-2'>
           {addresses.map((address) => (
             <div
               key={address}
-              className='flex items-center gap-x-1 justify-between rounded-small p-1 bg-secondary text-tiny snap-start'
+              className='flex items-center gap-1 justify-between rounded-small p-1.5 bg-secondary text-tiny snap-start'
             >
-              <AddressRow iconSize={20} address={address} showFull={false} />
+              <AddressRow iconSize={20} address={address} showFull />
               <Button
                 color={isSelected ? 'danger' : 'primary'}
                 onClick={() => onSelect(address)}
@@ -66,7 +66,7 @@ function AddressTransfer({ onChange, addresses, selected }: Props) {
   }, [onChange, selected]);
 
   return (
-    <div className='flex justify-between gap-x-2 flex-col items-stretch sm:flex-row'>
+    <div className='flex justify-between gap-2.5 flex-col items-stretch bg-secondary p-2.5 rounded-medium'>
       <Content
         onSelect={(value) => onChange((_selected) => [..._selected, value])}
         addresses={available}

@@ -49,7 +49,7 @@ function Operate({
             Reject
           </SafeTxButton>
         )}
-        {!account.isReadOnly && (filterPaths.length > 0 || isSignatureReady) && (
+        {(isSignatureReady || (!account.isReadOnly && filterPaths.length > 0)) && (
           <SafeTxButton
             isApprove
             isCancel={false}

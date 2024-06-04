@@ -29,7 +29,7 @@ function Info({
       <div className='flex items-center gap-x-2 justify-between'>
         <h1 className='font-bold text-[40px] leading-[1]'>$ {formatDisplay(totalUsd)}</h1>
         {isSafe && (
-          <Button as={Link} href='/account-setting' size='sm' color='primary' variant='bordered' radius='full'>
+          <Button as={Link} href='/setting?tab=account' size='sm' color='primary' variant='bordered' radius='full'>
             <IconSet />
           </Button>
         )}

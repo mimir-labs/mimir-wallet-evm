@@ -115,8 +115,8 @@ function SafeTxButton({
   );
   const multisig = useMultisig(address);
 
-  return multisig ? (
-    isApprove && isSignatureReady ? (
+  return multisig || isSignatureReady ? (
+    isApprove ? (
       nonce === safeTx?.nonce ? (
         <ButtonEnable {...props} onClick={handleClick}>
           {children}

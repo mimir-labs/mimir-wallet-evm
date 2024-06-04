@@ -1,6 +1,8 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { ButtonProps } from './types';
+
 import React from 'react';
 import { useChains } from 'wagmi';
 
@@ -8,19 +10,19 @@ import { CustomChain } from '@mimir-wallet/config';
 import { ENABLE_EIP_3770_KEY } from '@mimir-wallet/constants';
 import { useLocalStore } from '@mimir-wallet/hooks';
 
-interface Props {
-  address?: string | null | undefined;
-  showFull?: boolean;
+import CopyButton from './CopyButton';
+
+interface Props extends Omit<ButtonProps, 'value'> {
+  address?: string | null;
+  colored?: boolean;
 }
 
-function Address({ showFull, address }: Props) {
+function CopyAddressButton({ address, ...props }: Props) {
   const [enableEip3770] = useLocalStore(ENABLE_EIP_3770_KEY, false);
   const [chain] = useChains();
   const shortName = (chain as CustomChain | undefined)?.shortName || '';
 
-  return address
-    ? `${enableEip3770 ? `${shortName}:` : ''}${showFull ? address : `${address.slice(0, 6)}…${address.slice(-4)}`}`
-    : '0x';
+  return <CopyButton {...props} value={address ? `${enableEip3770 ? `${shortName}:` : ''}${address}` : '0x'} />;
 }
 
-export default React.memo(Address);
+export default React.memo(CopyAddressButton);

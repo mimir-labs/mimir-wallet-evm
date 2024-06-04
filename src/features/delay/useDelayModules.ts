@@ -59,7 +59,7 @@ export function useDelayModules(address?: Address): [data: DelayModule[], isFetc
           cooldown: results[index * 3 + 1] as bigint
         }))
       : EmptyArray,
-    isFetched && isFetched2,
+    isFetched ? (data.length === 0 ? true : isFetched2) : false,
     isFetching || isFetching2
   ];
 }
