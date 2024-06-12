@@ -15,6 +15,7 @@ import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?reac
 import { Button, CallDetails, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
+import { useIsReadOnly } from '@mimir-wallet/hooks';
 import {
   CallFunctions,
   ParsedCall,
@@ -70,6 +71,7 @@ function OperateCell({
   signatures
 }: OperateCellProps) {
   const { isConnected } = useAccount();
+  const isReadOnly = useIsReadOnly(account);
 
   return transaction.status === TransactionStatus.Pending ? (
     isIndexing ? (
@@ -84,7 +86,7 @@ function OperateCell({
     ) : (
       isConnected && (
         <>
-          {(isSignatureReady || (!account.isReadOnly && filterPaths.length > 0)) && (
+          {(isSignatureReady || (!isReadOnly && filterPaths.length > 0)) && (
             <SafeTxButton
               isApprove
               isCancel={false}
@@ -92,6 +94,7 @@ function OperateCell({
               safeTx={transaction}
               signatures={signatures}
               address={account.address}
+              metadata={{ website: transaction.website, iconUrl: transaction.iconUrl, appName: transaction.appName }}
               size='tiny'
               radius='full'
               variant='light'
@@ -101,11 +104,11 @@ function OperateCell({
               <IconSuccess />
             </SafeTxButton>
           )}
-          {!account.isReadOnly && !hasCancelTx && (
+          {!isReadOnly && !hasCancelTx && (
             <SafeTxButton
               isApprove={false}
               isCancel
-              website={`mimir://internal/cancel-tx?nonce=${transaction.nonce.toString()}`}
+              metadata={{ website: `mimir://internal/cancel-tx?nonce=${transaction.nonce.toString()}` }}
               address={account.address}
               buildTx={async () => buildSafeTransaction(account.address, { value: 0n })}
               cancelNonce={transaction.nonce}
@@ -158,9 +161,9 @@ function TxItems({
   const [chain] = useChains();
 
   return (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-6' onClick={toggleOpen}>
+    <div className='cursor-pointer h-10 px-3 grid grid-cols-6 gap-2.5' onClick={toggleOpen}>
       <div className='col-span-1 flex items-center'>
-        <AppName website={transaction.website} />
+        <AppName website={transaction.website} iconUrl={transaction.iconUrl} appName={transaction.appName} />
       </div>
       <div className='col-span-1 flex items-center'>{parsed.functionName}</div>
       <div className='col-span-1 flex items-center text-small'>
@@ -208,7 +211,7 @@ function TxItems({
         </Button>
       </div>
       <div className='col-span-1 flex items-center justify-between'>
-        <div className='space-x-2'>
+        <div className='space-x-2 flex items-center'>
           <OperateCell
             isSignatureReady={isSignatureReady}
             hasCancelTx={hasCancelTx}

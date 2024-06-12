@@ -6,7 +6,7 @@ import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import React from 'react';
 import { encodeFunctionData } from 'viem';
-import { useAccount } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
@@ -48,6 +48,11 @@ function TxItems({ isOpen, cooldown, expiration, tx, handleExecute, toggleOpen, 
 
   const now = Date.now();
 
+  const { data } = useReadContract({
+    abi: abis.Delay,
+    address: tx.address,
+    functionName: 'avatar'
+  });
   const isExpiration = cooldown && expiration ? tx.createdAt + cooldown + expiration < now : false;
 
   return (
@@ -60,7 +65,7 @@ function TxItems({ isOpen, cooldown, expiration, tx, handleExecute, toggleOpen, 
       </div>
       <div className='col-span-1 flex items-center' />
       <div className='col-span-1 flex items-center justify-between'>
-        <div className='space-x-2'>
+        <div className='space-x-2 flex items-center'>
           {isConnected ? (
             isExpiration ? (
               <span className='font-bold text-tiny text-danger'>Expired</span>
@@ -80,10 +85,10 @@ function TxItems({ isOpen, cooldown, expiration, tx, handleExecute, toggleOpen, 
                   </ButtonEnable>
                 )}
                 <SafeTxButton
-                  website='mimir://internal/cancel-recovery'
+                  metadata={{ website: 'mimir://internal/cancel-recovery' }}
                   isApprove={false}
                   isCancel={false}
-                  address={tx.to}
+                  address={data}
                   buildTx={async () =>
                     buildSafeTransaction(tx.address, {
                       value: 0n,

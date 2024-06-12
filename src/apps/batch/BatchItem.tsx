@@ -33,7 +33,7 @@ interface Props {
 }
 
 function BatchItem({
-  item: { from, to, value, data, website, id, selected, onSelected, onDelete },
+  item: { from, to, value, data, website, iconUrl, appName, id, index, selected, onSelected, onDelete },
   dragHandleProps
 }: Props) {
   const [isOpen, toggleOpen] = useToggle(false);
@@ -49,11 +49,11 @@ function BatchItem({
             <img src={Drag} alt='drag' />
           </div>
           <Checkbox size='sm' isSelected={selected.includes(id)} onValueChange={onSelected}>
-            {id + 1}
+            {index + 1}
           </Checkbox>
         </div>
         <div className='col-span-2 flex items-center'>
-          <AppName website={website} />
+          <AppName website={website} iconUrl={iconUrl} appName={appName} />
         </div>
         <div className='col-span-2 flex items-center'>
           {dataSize ? (

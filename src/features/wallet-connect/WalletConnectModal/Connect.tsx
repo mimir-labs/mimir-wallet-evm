@@ -1,0 +1,85 @@
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import type { SessionTypes } from '@walletconnect/types';
+
+import { Avatar, Divider, Spinner } from '@nextui-org/react';
+import { useCallback, useState } from 'react';
+import { useAsyncFn } from 'react-use';
+
+import { Alert, Button, Input } from '@mimir-wallet/components';
+import { useInput } from '@mimir-wallet/hooks';
+import { asError } from '@mimir-wallet/utils';
+
+import { isPairingUri } from '../utils';
+import { connect, disconnectSession } from '../wallet-connect';
+
+function Connect({ sessions }: { sessions: SessionTypes.Struct[] }) {
+  const [uri, setUri] = useInput('');
+  const [error, setError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const onInput = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      setUri(e);
+      const val = e.target.value;
+
+      if (val && !isPairingUri(val)) {
+        setError(new Error('Invalid pairing code'));
+
+        return;
+      }
+
+      setError(undefined);
+
+      if (!val) return;
+
+      setIsLoading(true);
+
+      try {
+        await connect(val);
+      } catch (e) {
+        setError(asError(e));
+      }
+    },
+    [setUri]
+  );
+
+  const [state, disconnect] = useAsyncFn((session: SessionTypes.Struct) => {
+    return disconnectSession(session);
+  }, []);
+
+  return (
+    <div className='flex flex-col gap-5 items-center'>
+      <Avatar src='/images/wallet-connect.webp' alt='wallet connect' style={{ width: 150, height: 150 }} />
+      <h4 className='font-bold text-xl'>Wallet Connect</h4>
+      <Input
+        value={uri}
+        onChange={onInput}
+        label='Pairing Key'
+        placeholder='wc:'
+        variant='bordered'
+        labelPlacement='outside'
+        description='In the application you wish to connect to, select the option to log in using WalletConnect and copy the Pairing Key.'
+        color={error ? 'danger' : undefined}
+        endContent={isLoading ? <Spinner size='sm' /> : null}
+      />
+      {error && <Alert severity='error' title={error?.message} />}
+      {sessions.length > 0 && <Divider />}
+      {sessions.map((session) => (
+        <div
+          key={session.topic}
+          className='w-full flex items-center gap-2.5 p-2.5 border-1 border-[#d9d9d9]/50 rounded-medium'
+        >
+          <Avatar style={{ width: 30, height: 30 }} src={session.peer.metadata.icons[0]} />
+          <p className='flex-1 text-small'>{session.peer.metadata.name}</p>
+          <Button radius='full' color='warning' size='sm' onClick={() => disconnect(session)} isLoading={state.loading}>
+            Disconnect
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default Connect;

@@ -10,7 +10,7 @@ import { useToggle } from 'react-use';
 import { useAccount } from 'wagmi';
 
 import { SafeTxOverview } from '@mimir-wallet/components';
-import { useParseCall, useParseMultisend, useTxIsIndexing } from '@mimir-wallet/hooks';
+import { useIsReadOnly, useParseCall, useParseMultisend, useTxIsIndexing } from '@mimir-wallet/hooks';
 import { type SignatureResponse, type TransactionResponse, TransactionStatus } from '@mimir-wallet/hooks/types';
 import { approveCounts } from '@mimir-wallet/safe';
 
@@ -38,6 +38,7 @@ function Cell({ transaction, allPaths, signatures, account, hasCancelTx, default
   const [dataSize, parsed] = useParseCall(transaction.data);
   const multisend = useParseMultisend(parsed);
   const isIndexing = useTxIsIndexing(transaction.address, transaction.status, transaction.nonce);
+  const isReadOnly = useIsReadOnly(account);
 
   const filterPaths = useMemo(
     () => (address ? findWaitApproveFilter(allPaths, signatures, address) : []),
@@ -73,7 +74,7 @@ function Cell({ transaction, allPaths, signatures, account, hasCancelTx, default
         }
         details={<Details defaultOpen={defaultOpen} address={account.address} transaction={transaction} />}
       >
-        {(!account.isReadOnly || signatures.length > 0) && (
+        {(!isReadOnly || signatures.length > 0) && (
           <Process signatures={signatures} account={account}>
             {transaction.status > TransactionStatus.Pending || isIndexing ? null : (
               <Operate

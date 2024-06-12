@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMultisig, useSafeNonce } from '@mimir-wallet/hooks';
 import { SafeTxContext } from '@mimir-wallet/providers';
 
+import Button from './Button';
 import ButtonEnable from './ButtonEnable';
 
 interface Props extends ButtonEnableProps {
@@ -23,7 +24,7 @@ interface Props extends ButtonEnableProps {
   safeTx?: SafeTransaction;
   cancelNonce?: bigint;
   signatures?: SignatureResponse[];
-  website?: string;
+  metadata?: { website?: string; iconUrl?: string; appName?: string };
   addressChain?: Address[];
   onSuccess?: () => void;
   buildTx?: (wallet: IWalletClient, client: IPublicClient) => Promise<MetaTransaction>;
@@ -38,7 +39,7 @@ function SafeTxButton({
   safeTx,
   cancelNonce,
   signatures,
-  website,
+  metadata,
   addressChain,
   onSuccess,
   buildTx,
@@ -68,7 +69,7 @@ function SafeTxButton({
           safeTx: undefined,
           cancelNonce: isCancel ? cancelNonce : undefined,
           signatures: undefined,
-          website,
+          metadata,
           addressChain,
           onSuccess: () => {
             (onSuccess || (() => navigate('/transactions')))();
@@ -87,7 +88,7 @@ function SafeTxButton({
           safeTx,
           cancelNonce: isCancel ? cancelNonce : undefined,
           signatures,
-          website,
+          metadata,
           addressChain,
           onSuccess: () => {
             (onSuccess || (() => navigate('/transactions')))();
@@ -105,40 +106,46 @@ function SafeTxButton({
       cancelNonce,
       isApprove,
       isCancel,
+      metadata,
       navigate,
       onOpenTx,
       onSuccess,
       safeTx,
-      signatures,
-      website
+      signatures
     ]
   );
   const multisig = useMultisig(address);
 
-  return multisig || isSignatureReady ? (
-    isApprove ? (
-      nonce === safeTx?.nonce ? (
-        <ButtonEnable {...props} onClick={handleClick}>
-          {children}
-        </ButtonEnable>
-      ) : (
-        <Tooltip showArrow closeDelay={0} content='This transaction is currently in the queue' color='warning'>
-          <ButtonEnable {...props} disabled>
-            {children}
-          </ButtonEnable>
-        </Tooltip>
-      )
-    ) : (
+  if (isSignatureReady) {
+    // transaction can execute
+    return nonce === safeTx?.nonce ? (
       <ButtonEnable {...props} onClick={handleClick}>
         {children}
       </ButtonEnable>
-    )
-  ) : (
-    <Tooltip showArrow closeDelay={0} content='You do not have permission to operate this account' color='warning'>
-      <ButtonEnable {...props} disabled>
-        {children}
-      </ButtonEnable>
-    </Tooltip>
+    ) : (
+      <Tooltip showArrow closeDelay={0} content='This transaction is currently in the queue' color='warning'>
+        <Button {...props} onClick={undefined} disabled>
+          {children}
+        </Button>
+      </Tooltip>
+    );
+  }
+
+  if (!multisig) {
+    // not member
+    return (
+      <Tooltip showArrow closeDelay={0} content='You are not one of the multisig members' color='warning'>
+        <Button {...props} onClick={undefined} disabled>
+          {children}
+        </Button>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <ButtonEnable {...props} onClick={handleClick}>
+      {children}
+    </ButtonEnable>
   );
 }
 

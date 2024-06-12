@@ -16,7 +16,7 @@ export type PendingData = {
   current: [bigint, Array<TransactionItem>] | null;
   queue: Record<string, Array<TransactionItem>>;
 };
-export type HistoryData = Record<string, Record<string, Array<TransactionItem>>>; // day => nonce => item[]
+export type HistoryData = Record<string, Array<TransactionItem>>; // day => item[]
 
 const queryFn = async ({
   queryKey: [chainId, address, isHistory]
@@ -100,19 +100,11 @@ export function useHistoryTransactions(
     () => [
       data.reduce<HistoryData>((result, value) => {
         const dayStart = dayjs(value.transaction.updatedAt).startOf('days').valueOf();
-        const nonceKey = value.transaction.nonce.toString();
 
         if (result[dayStart]) {
-          if (result[dayStart][nonceKey]) {
-            result[dayStart][nonceKey].push(value);
-            result[dayStart][nonceKey].sort((l, r) => l.transaction.status - r.transaction.status);
-          } else {
-            result[dayStart][nonceKey] = [value];
-          }
+          result[dayStart].push(value);
         } else {
-          result[dayStart] = {
-            [nonceKey]: [value]
-          };
+          result[dayStart] = [value];
         }
 
         return result;

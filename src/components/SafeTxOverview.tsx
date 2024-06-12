@@ -52,7 +52,7 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
         />
       )}
       <div className='overflow-hidden w-[220px] h-auto rounded-medium border-1 border-secondary transition-all hover:bg-secondary shadow-medium hover:border-primary/5'>
-        <div className='flex justify-between items-center text-left bg-white pt-2.5 pl-2.5 pr-2.5'>
+        <div className='flex justify-between items-center text-left bg-white p-2.5'>
           <div>
             <AddressCell fallbackName={data.name} withCopy address={data.address} iconSize={30} />
           </div>
@@ -62,10 +62,16 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
           <SafeTxButton
             isApprove
             isCancel={false}
+            isSignatureReady={false}
             safeTx={data.transaction}
             signatures={data.signatures}
             address={data.transaction.address as Address}
             addressChain={data.addressChain}
+            metadata={{
+              website: data.transaction.website,
+              iconUrl: data.transaction.iconUrl,
+              appName: data.transaction.appName
+            }}
             onSuccess={data.onApprove}
             startContent={<IconSuccess />}
             fullWidth

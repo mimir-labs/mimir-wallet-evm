@@ -4,16 +4,20 @@
 import type { UseSafeTx } from './types';
 
 import { Divider, Switch } from '@nextui-org/react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { useToggle } from 'react-use';
 
 import IconBatch from '@mimir-wallet/assets/svg/icon-batch.svg?react';
 import IconClose from '@mimir-wallet/assets/svg/icon-close.svg?react';
-import { useBatchTxs } from '@mimir-wallet/hooks';
+import { useBatchTxs, useParseCall } from '@mimir-wallet/hooks';
 
 import Alert from '../Alert';
 import Button from '../Button';
 import ButtonEnable from '../ButtonEnable';
+import SignAndExecute from './buttons/SignAndExecute';
+import { useCloseWhenPathChange } from './hooks/useCloseWhenPathChange';
+import { useHighlightTab } from './hooks/useHighlightTab';
+import { useSafeTx } from './hooks/useSafeTx';
 import AddressChain from './AddressChain';
 import BalanceChange from './BalanceChange';
 import CustomNonce from './CustomNonce';
@@ -21,22 +25,17 @@ import Interact from './Interact';
 import SafetyCheck from './SafetyCheck';
 import Sender from './Sender';
 import TxDetails from './TxDetails';
-import { useSafeTx } from './useSafeTx';
 
 function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: UseSafeTx<Approve, Cancel>) {
-  const { website } = props;
+  const { isApprove, isCancel, metadata, signatures, onSuccess, onClose, address, tx } = props;
   const {
-    isApprove,
-    isCancel,
     hasSameTx,
-    onClose,
+    safeAccount,
     handleSign,
     handleExecute,
-    handleSignAndExecute,
     multisig,
+    onChainNonce,
     filterPaths,
-    address,
-    tx,
     safeTx,
     setCustomNonce,
     addressChain,
@@ -44,30 +43,27 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     setAddressChain,
     executable,
     isSignatureReady,
-    isNextSignatureReady
+    isNextSignatureReady,
+    refetch
   } = useSafeTx(props);
   const [signOnly, toggleSignOnly] = useToggle(true);
   const [txs, addTx] = useBatchTxs(address);
+  const [dataSize] = useParseCall(tx.data);
+
+  useHighlightTab();
+  useCloseWhenPathChange(onClose);
 
   const handleAddBatch = useCallback(() => {
     addTx({
       ...tx,
       value: tx.value.toString(),
-      website,
+      website: metadata?.website,
+      iconUrl: metadata?.iconUrl,
+      appName: metadata?.appName,
       id: Math.max(...txs.map((item) => item.id)) + 1
     });
     onClose?.();
-  }, [addTx, onClose, tx, txs, website]);
-
-  useEffect(() => {
-    window.onbeforeunload = function onbeforeunload() {
-      return 'Closing this window will discard your current progress';
-    };
-
-    return () => {
-      window.onbeforeunload = null;
-    };
-  }, []);
+  }, [addTx, metadata?.appName, metadata?.iconUrl, metadata?.website, onClose, tx, txs]);
 
   return (
     <div className='w-full'>
@@ -80,27 +76,31 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
 
       <div className='w-full flex p-5 gap-5 h-safe-tx-modal-height overflow-y-auto bg-background rounded-large shadow-large'>
         <div className='w-[64%] space-y-5 after:block after:h-5'>
-          {isCancel ? (
-            <>
-              <p className='font-bold text-medium'>
-                To reject the transaction, a separate rejection transaction will be created to replace the original one.
-              </p>
-              <p className='font-bold text-medium'>Transaction nonce: {safeTx?.nonce.toString()}</p>
-              <p className='font-bold text-medium'>
-                {' '}
-                You will need to confirm the rejection transaction with your currently connected wallet.
-              </p>
-              <TxDetails safeTx={safeTx} tx={tx} address={address} />
-            </>
-          ) : (
-            <>
-              <Sender address={address} />
-              <Interact address={tx.to} />
-              <TxDetails safeTx={safeTx} tx={tx} address={address} />
-              {simulation.assetChange.length > 0 && (
-                <BalanceChange address={address} assetChange={simulation.assetChange} />
-              )}
-            </>
+          {isCancel && (
+            <Alert
+              size='sm'
+              severity='warning'
+              title={
+                <div className='space-y-1.5'>
+                  <p>
+                    To reject the transaction, a separate rejection transaction will be created to replace the original
+                    one.
+                  </p>
+                  <p>Transaction nonce: {safeTx?.nonce.toString()}</p>
+                  <p> You will need to confirm the rejection transaction with your currently connected wallet.</p>
+                </div>
+              }
+            />
+          )}
+
+          <Sender address={address} />
+
+          {dataSize > 0n && <Interact address={tx.to} />}
+
+          <TxDetails isCancel={isCancel} safeTx={safeTx} tx={tx} address={address} />
+
+          {simulation.assetChange.length > 0 && (
+            <BalanceChange address={address} assetChange={simulation.assetChange} />
           )}
 
           <SafetyCheck simulation={simulation} />
@@ -116,6 +116,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
               multisig={multisig}
             />
           ) : null}
+
           <CustomNonce
             safeTx={safeTx}
             address={address}
@@ -133,7 +134,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
           )}
 
           {!isApprove && hasSameTx && (
-            <Alert severity='warning' title='The nonce determines the order of transactions in the queue.' />
+            <Alert severity='warning' title='You already have a pending transaction with the same action.' />
           )}
 
           {isCancel && (
@@ -143,31 +144,40 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
             />
           )}
 
+          {onChainNonce !== undefined && safeTx && safeTx.nonce < onChainNonce && (
+            <Alert severity='error' title={`The nonce should be greater or equal than ${onChainNonce}.`} />
+          )}
+
           <div className='flex gap-2.5'>
             {isSignatureReady ? (
               <ButtonEnable
                 isToastError
                 onClick={handleExecute}
-                color='primary'
+                color={simulation.isSuccess ? 'primary' : 'warning'}
                 fullWidth
                 radius='full'
                 disabled={!safeTx || !executable}
                 isLoading={simulation.isPending}
+                withConnect
               >
-                Execute
+                {simulation.isSuccess ? 'Execute' : 'Execute Anyway'}
               </ButtonEnable>
             ) : !signOnly ? (
-              <ButtonEnable
-                isToastError
-                onClick={handleSignAndExecute}
-                color='primary'
-                fullWidth
-                radius='full'
-                disabled={!safeTx || (!isApprove && hasSameTx) || !executable}
-                isLoading={simulation.isPending}
-              >
-                Sign & Execute
-              </ButtonEnable>
+              <SignAndExecute
+                safeAddress={address}
+                safeAccount={safeAccount}
+                simulation={simulation}
+                safeTx={safeTx}
+                addressChain={addressChain}
+                signatures={signatures || []}
+                isApprove={isApprove}
+                hasSameTx={hasSameTx}
+                executable={executable}
+                onChainNonce={onChainNonce}
+                metadata={metadata}
+                onSuccess={onSuccess}
+                refetch={refetch}
+              />
             ) : (
               <ButtonEnable
                 isToastError
@@ -175,8 +185,11 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
                 color='primary'
                 fullWidth
                 radius='full'
-                disabled={!safeTx || (!isApprove && hasSameTx)}
+                disabled={
+                  !safeTx || (!isApprove && hasSameTx) || (onChainNonce !== undefined && safeTx.nonce < onChainNonce)
+                }
                 isLoading={simulation.isPending}
+                withConnect
               >
                 Sign
               </ButtonEnable>

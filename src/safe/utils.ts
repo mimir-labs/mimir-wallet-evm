@@ -86,3 +86,21 @@ export function signaturePaths(signature: SignatureResponse, member: Address): A
 
   return paths;
 }
+
+export function isReadOnly(account: BaseAccount, address: Address): boolean {
+  let _readOnly = true;
+
+  if (addressEq(account.address, address)) {
+    return false;
+  }
+
+  for (const child of account.members || []) {
+    _readOnly = isReadOnly(child, address);
+
+    if (!_readOnly) {
+      return false;
+    }
+  }
+
+  return _readOnly;
+}

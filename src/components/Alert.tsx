@@ -10,9 +10,10 @@ interface Props {
   variant?: 'fill' | 'text';
   severity?: 'default' | 'success' | 'error' | 'warning';
   color?: 'primary' | 'success' | 'danger' | 'warning' | 'default';
-  title: React.ReactNode;
+  title?: React.ReactNode;
   content?: React.ReactNode;
   size?: 'sm' | 'tiny' | 'medium';
+  className?: string;
 }
 
 function Alert({
@@ -21,7 +22,8 @@ function Alert({
   size = 'sm',
   title,
   content,
-  color: propsColor
+  color: propsColor,
+  className
 }: Props): React.ReactElement {
   const color =
     propsColor ||
@@ -39,11 +41,11 @@ function Alert({
     <div
       data-size={size}
       data-variant={variant}
-      className={`flex flex-col gap-y-2.5 bg-opacity-10 rounded-medium`.concat(
-        variant === 'fill' ? ` bg-${color} p-2.5 data-[size=tiny]:py-1.5` : ' p-0'
-      )}
+      className={`flex gap-2.5 bg-opacity-10 rounded-medium`
+        .concat(variant === 'fill' ? ` bg-${color} p-2.5 data-[size=tiny]:py-1.5` : ' p-0')
+        .concat(className ? ` ${className}` : '')}
     >
-      <div className={`flex gap-x-1 items-start text-${color} text-${size} font-bold`}>
+      <div className={`text-${color}`}>
         {severity === 'success' ? (
           <IconSuccess className='flex-shrink-0' />
         ) : severity === 'error' ? (
@@ -53,9 +55,11 @@ function Alert({
         ) : (
           <IconWarning className='flex-shrink-0' />
         )}
-        <h6>{title}</h6>
       </div>
-      {content ? <div className={`text-tiny text-${color} text-opacity-65`}>{content}</div> : null}
+      <div className={`text-${size} text-${color} leading-[16px]`}>
+        {title && <h6 className='font-bold'>{title}</h6>}
+        {content ? <div className='mt-2.5 text-opacity-65'>{content}</div> : null}
+      </div>
     </div>
   );
 }

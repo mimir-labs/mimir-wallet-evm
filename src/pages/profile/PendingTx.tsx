@@ -21,6 +21,8 @@ function Item({
   data,
   nonce,
   website,
+  iconUrl,
+  appName,
   account,
   signatures
 }: {
@@ -30,6 +32,8 @@ function Item({
   signatures: SignatureResponse[];
   data?: Hex;
   website?: string;
+  iconUrl?: string;
+  appName?: string;
   nonce: bigint | string;
 }) {
   const [, parsed] = useParseCall(data || '0x');
@@ -41,7 +45,7 @@ function Item({
       className='grid grid-cols-6 items-center rounded-small text-small text-foreground hover:bg-secondary p-2 [&>div]:flex [&>div]:items-center'
     >
       <div className='col-span-2'>
-        <AppName website={website} />
+        <AppName website={website} iconUrl={iconUrl} appName={appName} />
       </div>
       <div className='col-span-1'>#{nonce.toString()}</div>
       <div className='col-span-2'>{parsed.functionName}</div>
@@ -71,6 +75,8 @@ function PendingTx({ address }: { address: Address }) {
             address={address}
             hash={current[1][0]?.transaction.hash}
             website={current[1][0]?.transaction.website}
+            iconUrl={current[1][0]?.transaction.iconUrl}
+            appName={current[1][0]?.transaction.appName}
             nonce={current[0]}
             data={current[1][0]?.transaction.data}
             account={account}
@@ -85,6 +91,8 @@ function PendingTx({ address }: { address: Address }) {
             address={address}
             hash={item[0]?.transaction.hash}
             website={item[0]?.transaction.website}
+            iconUrl={item[0]?.transaction.iconUrl}
+            appName={item[0]?.transaction.appName}
             nonce={nonce}
             data={item[0]?.transaction.data}
             account={account}

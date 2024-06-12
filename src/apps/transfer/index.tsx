@@ -7,16 +7,7 @@ import { Divider, Switch } from '@nextui-org/react';
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAsyncFn, useToggle } from 'react-use';
-import {
-  Address,
-  encodeFunctionData,
-  erc20Abi,
-  formatUnits,
-  isAddress,
-  parseEther,
-  parseUnits,
-  zeroAddress
-} from 'viem';
+import { Address, encodeFunctionData, erc20Abi, formatUnits, isAddress, parseUnits, zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
@@ -52,13 +43,18 @@ function Transfer({
   const [useSpendLimit, toggleSpendLimit] = useToggle(false);
   const [tokens] = useAccountTokens(current);
   const [token, setToken] = useState<Address>(propsToken || zeroAddress);
-  const balance = useAccountBalance(current, token);
-
+  const [balance, , isFetchingBalance] = useAccountBalance(current, token);
   const allowance = useDelegateAllowance(current, address, token);
+
+  const isInsufficientBalance = balance && amount ? parseUnits(amount, balance.decimals) > balance.value : false;
+  const isInsufficientAllowance =
+    balance && amount && allowance !== undefined
+      ? parseUnits(amount, balance.decimals) > allowance[0] - allowance[1]
+      : false;
 
   const [{ loading: transferLoading }, handleTransfer] = useAsyncFn(
     async (wallet: IWalletClient, client: IPublicClient) => {
-      if (!to || !current || !amount || !isAddress(to) || !allowance || !address) {
+      if (!to || !current || !amount || !isAddress(to) || !allowance || !address || !balance) {
         return;
       }
 
@@ -67,23 +63,25 @@ function Transfer({
         address: deployments[wallet.chain.id].modules.Allowance,
         abi: abis.Allowance,
         functionName: 'executeAllowanceTransfer',
-        args: [current, token, to, parseEther(amount), zeroAddress, 0n, address, '0x']
+        args: [current, token, to, parseUnits(amount, balance.decimals), zeroAddress, 0n, address, '0x']
       });
 
       await wallet.writeContract(request);
+
+      await navigate(callbackPath ? decodeURIComponent(callbackPath) : '/transactions');
     },
-    [address, allowance, token, amount, current, to]
+    [to, current, amount, allowance, address, balance, token, navigate, callbackPath]
   );
 
   return (
     <div className='max-w-lg mx-auto space-y-5 pt-5'>
       <Button onClick={() => navigate(-1)} variant='bordered' color='primary' radius='full'>
-        Back
+        {'<'} Back
       </Button>
       <div className='p-5 bg-white rounded-medium space-y-5'>
         <h3 className='text-xl font-bold'>Transfer</h3>
         <Divider />
-        <div className='space-y-4'>
+        <div className='space-y-5'>
           <div>
             <div className='font-bold mb-1'>Sending From</div>
             <div className='rounded-medium bg-secondary p-2.5'>
@@ -101,6 +99,7 @@ function Transfer({
               value={to}
             />
           </div>
+          <InputToken account={current} tokens={tokens.assets} label='Token' value={token} onChange={setToken} />
           <div className='flex'>
             <Input
               labelPlacement='outside'
@@ -129,7 +128,6 @@ function Transfer({
               value={amount}
             />
           </div>
-          <InputToken account={current} tokens={tokens.assets} label='Token' value={token} onChange={setToken} />
           {allowance && allowance[0] - allowance[1] > 0n && (
             <div className='flex justify-between'>
               <Switch
@@ -150,24 +148,39 @@ function Transfer({
               isToastError
               isLoading={transferLoading}
               onClick={handleTransfer}
-              disabled={!to || !current || !amount || !isAddress(to) || !allowance || !address}
+              disabled={
+                !to ||
+                !current ||
+                !amount ||
+                !isAddress(to) ||
+                !allowance ||
+                !address ||
+                isFetchingBalance ||
+                isInsufficientAllowance ||
+                isInsufficientBalance
+              }
               fullWidth
               radius='full'
-              color='primary'
+              color={isInsufficientAllowance || isInsufficientAllowance ? 'danger' : 'primary'}
+              withConnect
             >
-              Submit
+              {isInsufficientBalance
+                ? `Insufficient ${balance?.symbol || ''} balance`
+                : isInsufficientAllowance
+                  ? 'Exceed Limit'
+                  : 'Submit'}
             </ButtonEnable>
           ) : (
             <SafeTxButton
               isApprove={false}
               isCancel={false}
               address={current}
-              website='mimir://app/transfer'
+              metadata={{ website: 'mimir://app/transfer' }}
               buildTx={
                 isAddress(to) && balance
                   ? async () =>
                       token === zeroAddress
-                        ? buildSafeTransaction(to, { value: parseEther(amount) })
+                        ? buildSafeTransaction(to, { value: parseUnits(amount, balance.decimals) })
                         : buildSafeTransaction(token, {
                             data: encodeFunctionData({
                               abi: erc20Abi,
@@ -178,12 +191,15 @@ function Transfer({
                   : undefined
               }
               onSuccess={() => navigate(callbackPath ? decodeURIComponent(callbackPath) : '/transactions')}
-              disabled={!to || !current || !balance || !amount || !isAddress(to)}
+              disabled={
+                !to || !current || !balance || !amount || !isAddress(to) || isFetchingBalance || isInsufficientBalance
+              }
               fullWidth
               radius='full'
-              color='primary'
+              color={isInsufficientBalance ? 'danger' : 'primary'}
+              withConnect
             >
-              Submit
+              {isInsufficientBalance ? `Insufficient ${balance?.symbol || ''} balance` : 'Submit'}
             </SafeTxButton>
           )}
         </div>

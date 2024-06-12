@@ -16,6 +16,7 @@ export interface ButtonEnableProps extends Omit<ButtonProps, 'onClick'> {
   onClick?: EnableClickHandler;
   isToastError?: boolean;
   withConnect?: boolean;
+  connectText?: React.ReactNode;
 }
 
 const ButtonEnable = forwardRef(
@@ -25,9 +26,9 @@ const ButtonEnable = forwardRef(
       Component = Button,
       onClick,
       isToastError,
+      connectText = 'Connect Wallet',
       withConnect,
       disabled,
-      isIconOnly,
       ...props
     }: ButtonEnableProps,
     ref: React.Ref<HTMLButtonElement> | undefined
@@ -55,12 +56,11 @@ const ButtonEnable = forwardRef(
 
     const supportedChain = !!chains.find((item) => item.id === chainId);
 
-    if (isConnected && address && client && wallet) {
+    if (isConnected && address) {
       if (supportedChain) {
         return (
           <Component
             {...props}
-            isIconOnly={isIconOnly}
             onClick={handleClick}
             disabled={disabled || props.isLoading || loading}
             isLoading={loading || props.isLoading}
@@ -71,32 +71,23 @@ const ButtonEnable = forwardRef(
         );
       }
 
-      if (!isIconOnly) {
-        return (
-          <Component {...props} isIconOnly={false} disabled ref={ref}>
-            Wrong Network
-          </Component>
-        );
-      }
+      return (
+        <Component {...props} disabled ref={ref}>
+          {props.isIconOnly ? children : 'Wrong Network'}
+        </Component>
+      );
     }
 
-    if (withConnect && !isIconOnly) {
+    if (withConnect) {
       return (
         <Component onClick={openConnectModal} {...props} ref={ref} isIconOnly={false}>
-          Connect Wallet
+          {connectText}
         </Component>
       );
     }
 
     return (
-      <Component
-        {...props}
-        onClick={undefined}
-        isLoading={props.isLoading ?? loading}
-        disabled
-        isIconOnly={isIconOnly}
-        ref={ref}
-      >
+      <Component {...props} onClick={undefined} isLoading={props.isLoading ?? loading} disabled ref={ref}>
         {children}
       </Component>
     );

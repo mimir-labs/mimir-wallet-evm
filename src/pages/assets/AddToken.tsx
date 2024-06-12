@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Skeleton } from '@nextui-org/react';
 import { useContext } from 'react';
 import { isAddress } from 'viem';
 import { useChainId } from 'wagmi';
@@ -20,7 +20,7 @@ function AddToken({ isOpen, onClose }: Props) {
   const chainId = useChainId();
   const { current, addCustomToken } = useContext(AddressContext);
   const [[address], setAddress] = useInputAddress();
-  const detected = useAccountBalance(current, isAddress(address) ? address : undefined);
+  const [balance, isFetched, isFetching] = useAccountBalance(current, isAddress(address) ? address : undefined);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} hideCloseButton>
@@ -36,39 +36,48 @@ function AddToken({ isOpen, onClose }: Props) {
           />
         </ModalHeader>
         <ModalBody>
-          <div>
-            <b>Detected</b>
-          </div>
           {isAddress(address) ? (
-            detected ? (
-              <div
-                className='cursor-pointer flex items-center justify-between gap-2.5'
-                onClick={() => {
-                  addCustomToken({
-                    chainId,
-                    name: detected.name,
-                    symbol: detected.symbol,
-                    decimals: detected.decimals,
-                    address: address as `0x${string}`
-                  });
-                  setAddress('');
-                  onClose();
-                }}
-              >
-                <AddressIcon size={40} isToken address={address} />
-                <div className='flex-1 flex flex-col gap-y-1'>
-                  <div className='inline font-bold text-sm'>{detected.symbol}</div>
-                  <div className='inline-flex items-center gap-1 text-tiny font-normal text-foreground/50'>
-                    <Address address={address} showFull />
+            isFetched ? (
+              balance ? (
+                <div
+                  className='cursor-pointer flex items-center justify-between gap-2.5'
+                  onClick={() => {
+                    addCustomToken({
+                      chainId,
+                      name: balance.name,
+                      symbol: balance.symbol,
+                      decimals: balance.decimals,
+                      address: address as `0x${string}`
+                    });
+                    setAddress('');
+                    onClose();
+                  }}
+                >
+                  <AddressIcon size={40} isToken address={address} />
+                  <div className='flex-1 flex flex-col gap-y-1'>
+                    <div className='inline font-bold text-sm'>{balance.symbol}</div>
+                    <div className='inline-flex items-center gap-1 text-tiny font-normal text-foreground/50'>
+                      <Address address={address} showFull />
+                    </div>
                   </div>
+                  <b>
+                    <FormatBalance {...balance} />
+                  </b>
                 </div>
-                <b>
-                  <FormatBalance {...detected} />
-                </b>
+              ) : (
+                <Empty label='No results found. Please check if the address is correct.' height={200} />
+              )
+            ) : isFetching ? (
+              <div className='w-full flex items-center gap-2.5'>
+                <div>
+                  <Skeleton className='flex rounded-full w-10 h-10' />
+                </div>
+                <div className='w-full flex flex-col gap-1'>
+                  <Skeleton className='h-3 w-3/5 rounded-lg' />
+                  <Skeleton className='h-3 w-4/5 rounded-lg' />
+                </div>
               </div>
-            ) : (
-              <Empty label='No results found. Please check if the address is correct.' height={200} />
-            )
+            ) : null
           ) : null}
         </ModalBody>
         <ModalFooter />

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
+import type { TokenAllowance } from '@mimir-wallet/features/allowance/types';
+import type { TokenMeta } from '@mimir-wallet/hooks/types';
 
 import { Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import dayjs from 'dayjs';
@@ -23,16 +25,28 @@ function Delegates({ safeAccount }: { safeAccount: Address }) {
   const ercTokens = useTokens(tokens);
   const [chain] = useChains();
 
+  const items = useMemo(
+    (): Array<TokenAllowance & { tokenMeta?: TokenMeta }> =>
+      data
+        .filter((item) => !!item.allowance[0])
+        .map((item) => ({
+          ...item,
+          tokenMeta: ercTokens?.[item.token] || {}
+        })),
+    [data, ercTokens]
+  );
+
   return (
     <Table>
       <TableHeader>
-        <TableColumn width='30%'>Beneficiary</TableColumn>
-        <TableColumn width='30%'>
+        <TableColumn width='22%'>Beneficiary</TableColumn>
+        <TableColumn width='23%'>
           <TooltipItem content='Easy Expense users can use these funds without approval within a single Recover Time period.'>
             Token Limit
           </TooltipItem>
         </TableColumn>
-        <TableColumn width='30%'>
+        <TableColumn width='23%'>Spent</TableColumn>
+        <TableColumn width='22%'>
           <TooltipItem content='You can choose to set a one-time allowance or to have it automatically refill after a defined time-period.'>
             Reset Time
           </TooltipItem>
@@ -42,15 +56,16 @@ function Delegates({ safeAccount }: { safeAccount: Address }) {
       <TableBody
         isLoading={isDataFetching && !isDataFetched}
         loadingContent={<Spinner color='primary' />}
-        items={data}
-        emptyContent={<Empty height={300} />}
+        items={items}
+        emptyContent={<Empty height={150} />}
       >
         {(item) => {
           const resetTime = item.allowance[2]
             ? dayjs(Number(item.allowance[3] + item.allowance[2]) * 60 * 1000).format('YYYY-MM-DD HH:mm')
             : 'Once';
 
-          const interval = item.allowance[2] ? ` / ${(Number(item.allowance[2]) * 60) / ONE_DAY} Day` : '';
+          const interval = item.allowance[2] ? ` / ${((Number(item.allowance[2]) * 60) / ONE_DAY).toFixed(0)} Day` : '';
+          const tokenIcon = <AddressIcon isToken address={item.token} size={20} />;
 
           return (
             <TableRow key={`${item.delegate}-${item.token}`}>
@@ -59,24 +74,33 @@ function Delegates({ safeAccount }: { safeAccount: Address }) {
               </TableCell>
               <TableCell>
                 <div className='flex gap-1'>
-                  <span className='min-w-[70px]'>
-                    <FormatBalance
-                      value={item.allowance[0] - item.allowance[1]}
-                      decimals={ercTokens[item.token]?.decimals || chain.nativeCurrency.decimals}
-                      showSymbol={false}
-                    />
-                  </span>
-                  <AddressIcon isToken address={item.token} size={20} />
+                  <FormatBalance
+                    value={item.allowance[0]}
+                    decimals={item.tokenMeta?.decimals || chain.nativeCurrency.decimals}
+                    showSymbol={false}
+                  />
+                  {tokenIcon}
                   <span>
-                    {ercTokens[item.token]?.symbol || chain.nativeCurrency.symbol}
+                    {item.tokenMeta?.symbol}
                     {interval}
                   </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className='flex gap-1'>
+                  <FormatBalance
+                    value={item.allowance[1]}
+                    decimals={ercTokens[item.token]?.decimals || chain.nativeCurrency.decimals}
+                    showSymbol={false}
+                  />
+                  {tokenIcon}
+                  <span>{item.tokenMeta?.symbol}</span>
                 </div>
               </TableCell>
               <TableCell>{resetTime}</TableCell>
               <TableCell>
                 <SafeTxButton
-                  website='mimir://internal/spend-limit'
+                  metadata={{ website: 'mimir://internal/spend-limit' }}
                   isApprove={false}
                   isCancel={false}
                   address={safeAccount}

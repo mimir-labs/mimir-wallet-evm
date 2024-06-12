@@ -71,11 +71,13 @@ export function createTx(
   signer: Address,
   tx: SafeTransaction,
   addressChain?: Address[],
-  website?: string
+  website?: string,
+  iconUrl?: string,
+  appName?: string
 ): Promise<{ success: boolean }> {
   return fetcher(serviceUrl(chainId, 'tx'), {
     method: 'POST',
-    body: JSON.stringify({ address, signature, signer, tx, addressChain, website }, (_, v) =>
+    body: JSON.stringify({ address, signature, signer, tx, addressChain, website, iconUrl, appName }, (_, v) =>
       typeof v === 'bigint' ? v.toString() : v
     ),
     headers: jsonHeader

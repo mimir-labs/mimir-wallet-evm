@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 import type { IPublicClient, IWalletClient, SafeAccount, SafeTransaction } from '@mimir-wallet/safe/types';
-import type { SafeTxState, UseSafeTx } from './types';
+import type { SafeTxState, UseSafeTx } from '../types';
 
 import { useCallback, useContext, useMemo, useState } from 'react';
-import { padHex, zeroAddress } from 'viem';
+import { zeroAddress } from 'viem';
 import { useAccount, useChainId } from 'wagmi';
 
 import { PENDING_SAFE_TX_PREFIX } from '@mimir-wallet/constants';
@@ -21,22 +20,22 @@ import {
   memberPaths,
   signSafeTransaction
 } from '@mimir-wallet/safe';
-import { addressEq, service, session } from '@mimir-wallet/utils';
+import { service, session } from '@mimir-wallet/utils';
 
-import { findWaitApproveFilter } from '../tx-card/safe/utils';
+import { findWaitApproveFilter } from '../../tx-card/safe/utils';
+import { buildSigTree, findValidSignature, nextApproveCounts } from '../utils';
+import { waitTransaction } from '../waitTransaction';
 import { useSimulation } from './useSimulation';
-import { buildSigTree, findValidSignature, nextApproveCounts } from './utils';
 
 export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
   signatures = [],
   isApprove,
   isCancel,
   cancelNonce,
-  onClose,
   tx,
   safeTx: propsSafeTx,
   onSuccess,
-  website,
+  metadata,
   address,
   addressChain: propsAddressChain
 }: UseSafeTx<Approve, Cancel>): SafeTxState {
@@ -93,11 +92,31 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
 
       const signature = await signSafeTransaction(wallet, client, address, safeTx, signer, addressChain);
 
-      await service.createTx(wallet.chain.id, address, signature, signer, safeTx, addressChain, website);
+      await service.createTx(
+        wallet.chain.id,
+        address,
+        signature,
+        signer,
+        safeTx,
+        addressChain,
+        metadata?.website,
+        metadata?.iconUrl,
+        metadata?.appName
+      );
       refetch();
       onSuccess?.(safeTx);
     },
-    [safeTx, addressChain, isSigner, address, website, refetch, onSuccess]
+    [
+      safeTx,
+      addressChain,
+      isSigner,
+      address,
+      metadata?.website,
+      metadata?.iconUrl,
+      metadata?.appName,
+      refetch,
+      onSuccess
+    ]
   );
   const handleExecute = useCallback(
     async (wallet: IWalletClient, client: IPublicClient): Promise<void> => {
@@ -111,73 +130,13 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
         buildBytesSignatures(buildSigTree(account, findValidSignature(account, signatures)))
       );
 
-      await client.waitForTransactionReceipt({ hash });
+      waitTransaction(client, hash);
 
       session.set(`${PENDING_SAFE_TX_PREFIX}${chainId}:${address}:${safeTx.nonce}`, true);
       refetch();
       onSuccess?.(safeTx);
     },
     [account, address, chainId, onSuccess, refetch, safeTx, signatures]
-  );
-  const handleSignAndExecute = useCallback(
-    async (wallet: IWalletClient, client: IPublicClient): Promise<void> => {
-      if (!safeTx || !account) return;
-
-      const signer = addressChain[addressChain.length - 1];
-
-      if (!signer && !isSigner(addressChain[addressChain.length - 1])) return;
-
-      const signature = await signSafeTransaction(wallet, client, address, safeTx, signer, addressChain);
-
-      await service.createTx(wallet.chain.id, address, signature, signer, safeTx, addressChain, website);
-
-      const _signatures = JSON.parse(JSON.stringify(signatures));
-      let mapSigs: SignatureResponse[] = _signatures;
-
-      for (let i = 0; i < addressChain.length; i++) {
-        const address = addressChain[i];
-
-        let sub = mapSigs.find((item) => addressEq(address, item.signature.signer));
-
-        if (!sub) {
-          sub = {
-            uuid: '',
-            isStart: i === addressChain.length - 1,
-            createdAt: Date.now(),
-            signature: {
-              signer: address,
-              signature:
-                i === addressChain.length - 1
-                  ? signature
-                  : padHex(padHex(address, { dir: 'left', size: 32 }), { dir: 'right', size: 65 })
-            },
-            children: []
-          };
-          mapSigs.push(sub);
-        }
-
-        if (!sub.children) {
-          sub.children = [];
-        }
-
-        mapSigs = sub.children;
-      }
-
-      const hash = await execute(
-        wallet,
-        client,
-        address,
-        safeTx,
-        buildBytesSignatures(buildSigTree(account, findValidSignature(account, _signatures)))
-      );
-
-      await client.waitForTransactionReceipt({ hash });
-
-      session.set(`${PENDING_SAFE_TX_PREFIX}${chainId}:${address}:${safeTx.nonce}`, true);
-      refetch();
-      onSuccess?.(safeTx);
-    },
-    [account, address, addressChain, chainId, isSigner, onSuccess, refetch, safeTx, signatures, website]
   );
 
   const hasSameTx = useMemo(() => {
@@ -195,18 +154,14 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
 
   return useMemo(
     () => ({
-      isApprove,
-      isCancel,
       hasSameTx,
-      onClose,
+      safeAccount: account,
       signatures,
       handleSign,
       handleExecute,
-      handleSignAndExecute,
       multisig,
-      address,
+      onChainNonce,
       filterPaths,
-      tx,
       safeTx,
       setCustomNonce,
       addressChain,
@@ -219,26 +174,22 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
       isNextSignatureReady:
         account && addressChain.length > 0
           ? nextApproveCounts(account, signatures, addressChain) >= (account as SafeAccount).threshold
-          : false
+          : false,
+      refetch
     }),
     [
-      isApprove,
-      isCancel,
-      hasSameTx,
-      onClose,
-      signatures,
-      handleSign,
-      handleExecute,
-      handleSignAndExecute,
-      multisig,
-      address,
-      filterPaths,
-      tx,
-      safeTx,
+      account,
       addressChain,
-      simulation,
+      filterPaths,
+      handleExecute,
+      handleSign,
+      hasSameTx,
+      multisig,
       onChainNonce,
-      account
+      refetch,
+      safeTx,
+      signatures,
+      simulation
     ]
   );
 }

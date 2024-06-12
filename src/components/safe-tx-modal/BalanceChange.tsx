@@ -13,7 +13,7 @@ import FormatBalance from '../FormatBalance';
 import { AssetChange } from './types';
 
 function BalanceFormat({ amount, address }: { amount: bigint; address: Address }) {
-  const meta = useToken(address);
+  const [meta] = useToken(address);
 
   return (
     <span>

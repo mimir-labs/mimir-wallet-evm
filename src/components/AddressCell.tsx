@@ -40,7 +40,7 @@ function AddressCell({
   const [chain] = useChains();
 
   return (
-    <div className='address-cell inline-flex items-center gap-x-2.5 flex-grow-0'>
+    <div className='address-cell flex items-center gap-x-2.5 flex-grow-0'>
       <AddressIcon src={icon} isToken={isToken} size={iconSize} address={address} />
       <div className='address-cell-content flex flex-col gap-y-[5px]'>
         <div

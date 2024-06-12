@@ -36,6 +36,7 @@ export { default as Input } from './Input';
 export { default as InputAddress } from './InputAddress';
 export { default as InputToken } from './InputToken';
 export { default as NftCard } from './NftCard';
+export { default as QrcodeAddress } from './QrcodeAddress';
 export { default as SafeTxButton } from './SafeTxButton';
 export { default as SafeTxOverview } from './SafeTxOverview';
 export { default as ToastRoot } from './ToastRoot';

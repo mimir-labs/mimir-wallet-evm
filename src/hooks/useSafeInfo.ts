@@ -11,7 +11,6 @@ export function useSafeInfo(address?: Address) {
   const chainId = useChainId();
 
   const { data, isFetched, isFetching } = useReadContracts({
-    query: { refetchInterval: 14_000 },
     contracts: [
       {
         chainId,
@@ -51,8 +50,7 @@ export function useSafeNonce(address?: Address) {
     chainId,
     address,
     abi: abis.SafeL2,
-    functionName: 'nonce',
-    query: { refetchInterval: 14_000 }
+    functionName: 'nonce'
   });
 
   return [data, isFetched, isFetching, refetch] as const;

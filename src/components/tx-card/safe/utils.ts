@@ -14,7 +14,9 @@ export function findWaitApproveFilter(
   const approvePaths = signatures.map((item) => signaturePaths(item, address)).flat();
 
   const approvePathsStr = approvePaths.map((item) => item.join('-'));
-  const waitPaths = allPaths.filter((item) => !approvePathsStr.includes(item.join('-')));
+  const waitPaths = allPaths.filter(
+    (item) => !approvePathsStr.find((path) => path.toLowerCase() === item.join('-').toLowerCase())
+  );
 
   return waitPaths;
 }

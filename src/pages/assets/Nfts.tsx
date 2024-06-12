@@ -10,7 +10,7 @@ import { encodeFunctionData, erc721Abi, isAddress } from 'viem';
 import { abis } from '@mimir-wallet/abis';
 import { Button, Empty, NftCard, SafeTxButton } from '@mimir-wallet/components';
 import { useAccountNFTs } from '@mimir-wallet/hooks';
-import { buildMultiSendSafeTx } from '@mimir-wallet/safe';
+import { buildMultiSendSafeTx, buildSafeTransaction } from '@mimir-wallet/safe';
 import { IWalletClient, MetaTransaction, Operation } from '@mimir-wallet/safe/types';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -77,7 +77,13 @@ function Nfts({ address }: { address: Address }) {
         });
       }
 
-      return buildMultiSendSafeTx(wallet.chain, txs);
+      return txs.length > 0
+        ? buildMultiSendSafeTx(wallet.chain, txs)
+        : buildSafeTransaction(txs[0].to, {
+            data: txs[0].data,
+            operation: txs[0].operation,
+            value: txs[0].value
+          });
     },
     [address, data.assets, selected]
   );
@@ -139,7 +145,7 @@ function Nfts({ address }: { address: Address }) {
             </Button>
           </span>
           <SafeTxButton
-            website='mimir://internal/transfer-nft'
+            metadata={{ website: 'mimir://internal/transfer-nft' }}
             isApprove={false}
             isCancel={false}
             address={address}

@@ -124,7 +124,7 @@ function Recovery({ address }: { address?: Address }) {
                 Execute Recover
               </Button>
             ))}
-          {isDataFetched && data.length === 0 && (
+          {isDataFetched && data.filter((item) => item.modules.length > 0).length === 0 && (
             <Button onClick={toggleOpen} radius='full' color='primary' variant='bordered'>
               Add New
             </Button>
@@ -206,7 +206,7 @@ function Recovery({ address }: { address?: Address }) {
           </ModalBody>
           <ModalFooter>
             <SafeTxButton
-              website='mimir://internal/recovery'
+              metadata={{ website: 'mimir://internal/recovery' }}
               isApprove={false}
               isCancel={false}
               address={address}

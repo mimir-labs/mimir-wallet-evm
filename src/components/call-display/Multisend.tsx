@@ -11,6 +11,7 @@ import { useAccount } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import { useParseCall, useParseMultisend } from '@mimir-wallet/hooks';
+import { Operation } from '@mimir-wallet/safe/types';
 
 import Button from '../Button';
 import FormatBalance from '../FormatBalance';
@@ -25,6 +26,7 @@ function Item({
   to,
   value,
   data,
+  operation,
   isOpen,
   toggleOpen
 }: {
@@ -33,6 +35,7 @@ function Item({
   to: Address;
   from: Address;
   value: bigint;
+  operation: Operation;
   isOpen: boolean;
   toggleOpen: () => void;
 }) {
@@ -42,7 +45,7 @@ function Item({
   const willChange = useWillChange();
 
   const Top = (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-10 text-tiny' onClick={toggleOpen}>
+    <div className='cursor-pointer h-10 px-3 grid grid-cols-11 text-tiny' onClick={toggleOpen}>
       <div className='col-span-1 flex items-center'>{index}</div>
       <div className='col-span-4 flex items-center'>{parsed.functionName}</div>
       <div className='col-span-4 flex items-center'>
@@ -58,6 +61,7 @@ function Item({
           />
         )}
       </div>
+      <div className='col-span-1 flex items-center'>{Operation[operation]}</div>
       <div className='col-span-1 flex items-center justify-end'>
         <Button
           data-open={isOpen}
@@ -122,7 +126,7 @@ function Multisend({ parsed, from, data }: { parsed: ParsedCall<CallFunctions>; 
               )
             }
           >
-            Expend all
+            Expand all
           </Button>
           <Button
             color='primary'
@@ -151,6 +155,7 @@ function Multisend({ parsed, from, data }: { parsed: ParsedCall<CallFunctions>; 
           index={index + 1}
           key={index}
           isOpen={!!isOpen[index]}
+          operation={tx.operation}
           toggleOpen={() =>
             setOpen((values) => ({
               ...values,

@@ -35,6 +35,8 @@ export interface TransactionResponse {
   replaceHash?: Hash; // replace transaction hash when status === Replaced
   replaceSafeHash?: Hash; // replace safe transaction hash when status === Replaced
   website?: string;
+  iconUrl?: string;
+  appName?: string;
 }
 
 export interface SignatureResponse {
@@ -130,4 +132,6 @@ export interface BatchTxItem {
   data: Hex;
   operation: Operation;
   website?: string;
+  iconUrl?: string;
+  appName?: string;
 }

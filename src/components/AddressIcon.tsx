@@ -5,8 +5,9 @@ import jazzicon from '@metamask/jazzicon';
 import { Avatar } from '@nextui-org/react';
 import React, { useContext, useLayoutEffect, useMemo, useRef } from 'react';
 import { zeroAddress } from 'viem';
-import { useChainId } from 'wagmi';
+import { useChainId, useChains } from 'wagmi';
 
+import { CustomChain } from '@mimir-wallet/config';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import AddressIconJazz from './AddressIconJazz';
@@ -28,6 +29,7 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
   const icon = useMemo(() => (address ? jazzicon(size, parseInt(address.slice(2, 10), 16)) : null), [size, address]);
   const iconRef = useRef<HTMLDivElement>(null);
   const chainId = useChainId();
+  const [chain] = useChains();
 
   const threshold = address ? addressThresholds?.[address] : undefined;
 
@@ -54,7 +56,7 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
   if (address) {
     if (address === zeroAddress) {
       if (isToken) {
-        iconSrc = `/chain-icons/${chainId}.webp`;
+        iconSrc = (chain as CustomChain).nativeCurrencyIcon;
       }
     } else {
       iconSrc = addressIcons?.[chainId]?.[address];

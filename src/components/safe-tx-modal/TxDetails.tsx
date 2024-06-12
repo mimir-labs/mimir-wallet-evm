@@ -29,14 +29,41 @@ function Item({ label, content }: { label: React.ReactNode; content: React.React
   );
 }
 
-function TxDetails({ tx, safeTx, address }: { tx: MetaTransaction; safeTx?: SafeTransaction; address: Address }) {
-  const [isOpen, toggleOpen] = useToggle(true);
+function TxDetails({
+  tx,
+  safeTx,
+  address,
+  isCancel
+}: {
+  tx: MetaTransaction;
+  safeTx?: SafeTransaction;
+  address: Address;
+  isCancel: boolean;
+}) {
+  const [isOpen, toggleOpen] = useToggle(false);
   const chainId = useChainId();
   const { chain } = useAccount();
   const hash = useMemo(
     () => (safeTx ? hashSafeTransaction(chainId, address, safeTx) : null),
     [safeTx, chainId, address]
   );
+
+  const details = (
+    <div className='bg-secondary rounded-small p-2.5 space-y-1'>
+      <Item label='Hash' content={hash} />
+      <Item label='To' content={<AddressRow iconSize={16} withCopy address={tx.to} />} />
+      <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
+      <Item label='Operation' content={Operation[tx.operation]} />
+      <Item label='safeTxGas' content={<FormatBalance value={safeTx?.safeTxGas} showSymbol={false} />} />
+      <Item label='baseGas' content={<FormatBalance value={safeTx?.baseGas} showSymbol={false} />} />
+      <Item label='refundReceiver' content={<AddressRow iconSize={16} withCopy address={safeTx?.refundReceiver} />} />
+      <Item label='Raw Data' content={<Bytes data={tx.data} />} />
+    </div>
+  );
+
+  if (isCancel) {
+    return details;
+  }
 
   return (
     <div>
@@ -61,25 +88,14 @@ function TxDetails({ tx, safeTx, address }: { tx: MetaTransaction; safeTx?: Safe
           <div className='py-2.5'>
             <CallDisplay from={address} to={tx.to} data={tx.data} value={tx.value} />
           </div>
+
           <Divider />
+
           <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>
-            Details
+            {isOpen ? 'Hide Details' : 'View Details'}
           </div>
-          {isOpen && (
-            <div className='bg-secondary rounded-small p-2.5 space-y-1'>
-              <Item label='Hash' content={hash} />
-              <Item label='To' content={<AddressRow iconSize={16} withCopy address={tx.to} />} />
-              <Item label='Value' content={<FormatBalance value={tx.value} showSymbol {...chain?.nativeCurrency} />} />
-              <Item label='Operation' content={Operation[tx.operation]} />
-              <Item label='safeTxGas' content={<FormatBalance value={safeTx?.safeTxGas} showSymbol={false} />} />
-              <Item label='baseGas' content={<FormatBalance value={safeTx?.baseGas} showSymbol={false} />} />
-              <Item
-                label='refundReceiver'
-                content={<AddressRow iconSize={16} withCopy address={safeTx?.refundReceiver} />}
-              />
-              <Item label='Raw Data' content={<Bytes data={tx.data} />} />
-            </div>
-          )}
+
+          {isOpen ? details : null}
         </AccordionItem>
       </Accordion>
     </div>

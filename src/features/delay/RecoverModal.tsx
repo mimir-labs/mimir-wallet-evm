@@ -9,7 +9,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import RecoveryImg from '@mimir-wallet/assets/images/recover.svg';
 import { Button } from '@mimir-wallet/components';
-import { IGNORE_RECOVERY_ACCOUNT_PREFIX } from '@mimir-wallet/constants';
+import { IGNORE_RECOVERY_ACCOUNT_KEY } from '@mimir-wallet/constants';
 import { useLocalStore } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
@@ -21,7 +21,7 @@ function Content({ account, safeAddress }: { account: Address; safeAddress: Addr
   const chainId = useChainId();
   const [recoverTxs] = useRecoveryTxs(chainId, safeAddress);
   const [delayModules] = useDelayModules(safeAddress);
-  const [ignore, setIgnore] = useLocalStore<boolean>(`${IGNORE_RECOVERY_ACCOUNT_PREFIX}${safeAddress}`);
+  const [ignore, setIgnore] = useLocalStore<boolean>(`${IGNORE_RECOVERY_ACCOUNT_KEY}`);
   const [isOpen, toggleOpen] = useToggle(!ignore);
 
   const recoveryInfo = useMemo(

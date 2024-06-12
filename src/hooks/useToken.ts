@@ -57,8 +57,7 @@ export function useTokens(tokens: Address[]): Record<Address, TokenMeta> {
   const { data: results } = useReadContracts({
     allowFailure: true,
     query: {
-      initialData: [],
-      refetchInterval: 14_000
+      initialData: []
     },
     contracts: tokens
       .map((token) => [
@@ -91,14 +90,11 @@ export function useTokens(tokens: Address[]): Record<Address, TokenMeta> {
   return data;
 }
 
-export function useToken(tokenAddr: Address): TokenMeta | undefined {
+export function useToken(tokenAddr?: Address): [meta: TokenMeta | undefined, isFetched: boolean, isFetching: boolean] {
   const chainId = useChainId();
   const client = useClient({ chainId });
-  const { data } = useReadContracts({
+  const { data, isFetched, isFetching } = useReadContracts({
     allowFailure: false,
-    query: {
-      refetchInterval: 14_000
-    },
     contracts:
       tokenAddr !== zeroAddress
         ? [
@@ -127,28 +123,40 @@ export function useToken(tokenAddr: Address): TokenMeta | undefined {
   return useMemo(
     () =>
       tokenAddr === zeroAddress
-        ? {
-            chainId,
-            address: tokenAddr,
-            name: client?.chain.nativeCurrency.name || 'Ether',
-            symbol: client?.chain.nativeCurrency.symbol || 'ETH',
-            decimals: client?.chain.nativeCurrency.decimals || 18
-          }
-        : data
-          ? {
+        ? [
+            {
               chainId,
               address: tokenAddr,
-              name: data[0],
-              symbol: data[1],
-              decimals: data[2]
-            }
-          : undefined,
+              name: client?.chain.nativeCurrency.name || 'Ether',
+              symbol: client?.chain.nativeCurrency.symbol || 'ETH',
+              decimals: client?.chain.nativeCurrency.decimals || 18
+            },
+            true,
+            false
+          ]
+        : tokenAddr
+          ? [
+              data
+                ? {
+                    chainId,
+                    address: tokenAddr,
+                    name: data[0],
+                    symbol: data[1],
+                    decimals: data[2]
+                  }
+                : undefined,
+              isFetched,
+              isFetching
+            ]
+          : [undefined, false, false],
     [
       chainId,
       client?.chain.nativeCurrency.decimals,
       client?.chain.nativeCurrency.name,
       client?.chain.nativeCurrency.symbol,
       data,
+      isFetched,
+      isFetching,
       tokenAddr
     ]
   );

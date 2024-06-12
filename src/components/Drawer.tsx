@@ -119,11 +119,7 @@ function Drawer({ placement = 'left', isOpen, className, onClose, children }: Pr
     </Overlay>
   );
 
-  return (
-    <div>
-      <AnimatePresence>{isOpen ? overlay : null}</AnimatePresence>
-    </div>
-  );
+  return <AnimatePresence>{isOpen ? overlay : null}</AnimatePresence>;
 }
 
 export default React.memo(Drawer);
