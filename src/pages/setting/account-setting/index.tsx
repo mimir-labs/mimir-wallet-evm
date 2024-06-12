@@ -32,7 +32,7 @@ function AccountSetting() {
       }}
     >
       <Tab key='setup' title='Setup'>
-        <Setup multisig={multisig} />
+        <Setup multisig={multisig} safeAddress={current} />
       </Tab>
       <Tab key='module' title='Modules'>
         <Modules safeAddress={current} />

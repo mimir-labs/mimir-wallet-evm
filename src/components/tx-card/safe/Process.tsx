@@ -65,7 +65,7 @@ function Process({
           {signatures.map((sig) => (
             <div key={sig.uuid} className='rounded-medium bg-primary/5 p-[5px]'>
               <AddressCell iconSize={30} withCopy address={sig.signature.signer} />
-              <div className='px-[40px]'>
+              <div className='px-[40px] mt-1.5'>
                 <ProgressItem signature={sig} account={account} />
               </div>
             </div>

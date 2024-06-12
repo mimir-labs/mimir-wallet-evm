@@ -50,12 +50,12 @@ function Transfer({
   token?: Address;
   value?: bigint;
 }) {
-  const tokenMeta = useToken(token);
+  const [tokenMeta] = useToken(token);
 
   return (
     <div className='flex items-center justify-between gap-8'>
       <AddressDisplay reverse={false} address={from}>
-        From
+        Sender
       </AddressDisplay>
       <div className='relative flex-1 flex items-center'>
         <div className='w-1.5 h-1.5 rounded-full bg-foreground/50' />

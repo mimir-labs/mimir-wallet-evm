@@ -3,47 +3,81 @@
 
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import type { InputTokenProps } from './types';
+import type { InputTokenProps, InputTokenType } from './types';
 
-import { Listbox, ListboxItem } from '@nextui-org/react';
-import React, { useEffect, useRef, useState } from 'react';
+import { Listbox, ListboxItem, Skeleton } from '@nextui-org/react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
-import { getAddress, isAddress } from 'viem';
+import { Address as AddressType, getAddress, isAddress } from 'viem';
 
-import { useAccountBalance, useInput } from '@mimir-wallet/hooks';
+import { useAccountBalance, useInput, useToken } from '@mimir-wallet/hooks';
+import { addressEq } from '@mimir-wallet/utils';
 
 import Address from './Address';
 import AddressCell from './AddressCell';
 import AddressIcon from './AddressIcon';
 import FormatBalance from './FormatBalance';
 
-function InputToken({ disabled, value, account, defaultValue, tokens, label, onChange }: InputTokenProps) {
+function InputToken({ disabled, value, account, defaultValue, showBalance, tokens, label, onChange }: InputTokenProps) {
   const isControlled = useRef(value !== undefined);
-  const [inputValue, setInputValue] = useInput(value || defaultValue);
+  const [inputValue, setInputValue] = useInput('');
   const [selectedKey, setSelectedKey] = useState<string | undefined>(value || defaultValue || '');
   const [isOpen, toggleOpen] = useToggle(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const selectedToken = useAccountBalance(account, selectedKey && isAddress(selectedKey) ? selectedKey : undefined);
+  const shouldInputQuery =
+    isAddress(inputValue) && tokens.filter((item) => addressEq(item.tokenAddress, inputValue)).length === 0;
+  const [inputToken, isFetched, isFetching] = useToken(shouldInputQuery ? inputValue : undefined);
+
+  const [selectedToken] = useAccountBalance(account, selectedKey && isAddress(selectedKey) ? selectedKey : undefined);
+
+  const filterTokens = useMemo(
+    () =>
+      (
+        tokens.filter(
+          (item) =>
+            item.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+            item.symbol.toLowerCase().includes(inputValue.toLowerCase()) ||
+            addressEq(item.tokenAddress, inputValue)
+        ) as Array<Partial<InputTokenType> & { tokenAddress: AddressType }>
+      ).concat(
+        shouldInputQuery
+          ? {
+              name: inputToken?.name,
+              symbol: inputToken?.symbol,
+              decimals: inputToken?.decimals,
+              tokenAddress: inputValue,
+              isFetched,
+              isFetching
+            }
+          : []
+      ),
+    [
+      inputToken?.decimals,
+      inputToken?.name,
+      inputToken?.symbol,
+      inputValue,
+      isFetched,
+      isFetching,
+      shouldInputQuery,
+      tokens
+    ]
+  );
+
+  const tokenMeta = useMemo(() => {
+    return selectedKey ? filterTokens.find((item) => addressEq(item.tokenAddress, selectedKey)) : undefined;
+  }, [filterTokens, selectedKey]);
 
   useEffect(() => {
     if (isControlled.current && value) {
-      setInputValue(value);
       setSelectedKey(value);
     }
-  }, [setInputValue, value]);
-
-  useEffect(() => {
-    const key = selectedKey || '';
-
-    if (isAddress(key)) {
-      onChange?.(getAddress(key));
-    }
-  }, [selectedKey, onChange]);
+  }, [value]);
 
   const handleSelect = (item: string) => {
     setSelectedKey(item);
-    setInputValue(item);
+    setInputValue('');
+    if (isAddress(item)) onChange?.(getAddress(item));
     toggleOpen(false);
   };
 
@@ -58,19 +92,17 @@ function InputToken({ disabled, value, account, defaultValue, tokens, label, onC
   const element = (
     <div className='w-full flex items-center justify-between gap-x-2.5 flex-grow-0'>
       <AddressIcon isToken size={30} address={selectedKey} />
-      {selectedKey && selectedToken && !isOpen ? (
+      {selectedKey && !isOpen ? (
         <>
           <div className='flex-1 flex flex-col gap-y-1'>
             <div className='inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'>
-              {selectedToken.symbol}
+              {tokenMeta?.symbol}
             </div>
             <div className='inline-flex items-center gap-1 text-tiny leading-[14px] h-[14px] max-h-[14px] font-normal opacity-50'>
               <Address address={selectedKey} showFull />
             </div>
           </div>
-          <b>
-            <FormatBalance {...selectedToken} />
-          </b>
+          <b>{showBalance && <FormatBalance {...tokenMeta} {...selectedToken} />}</b>
         </>
       ) : null}
     </div>
@@ -81,18 +113,32 @@ function InputToken({ disabled, value, account, defaultValue, tokens, label, onC
       ref={menuRef}
       className='z-50 bg-white shadow-medium absolute top-full left-0 right-0 max-h-[300px] mt-2 rounded-medium overflow-y-scroll'
     >
-      <Listbox>
-        {tokens.map((item) => (
+      <Listbox items={filterTokens}>
+        {(item) => (
           <ListboxItem key={item.tokenAddress} onClick={() => handleSelect(item.tokenAddress)}>
-            <AddressCell
-              isToken
-              icon={item.icon || undefined}
-              fallbackName={item.symbol}
-              address={item.tokenAddress}
-              showFull
-            />
+            {item.isFetching ? (
+              <div className='w-full flex items-center gap-2.5'>
+                <div>
+                  <Skeleton className='flex rounded-full w-10 h-10' />
+                </div>
+                <div className='w-full flex flex-col gap-1'>
+                  <Skeleton className='h-3 w-3/5 rounded-lg' />
+                  <Skeleton className='h-3 w-4/5 rounded-lg' />
+                </div>
+              </div>
+            ) : (
+              <AddressCell
+                isToken
+                icon={item.icon || undefined}
+                fallbackName={item.symbol}
+                address={item.tokenAddress}
+                showFull
+                iconSize={24}
+                withCopy
+              />
+            )}
           </ListboxItem>
-        ))}
+        )}
       </Listbox>
     </div>
   ) : null;

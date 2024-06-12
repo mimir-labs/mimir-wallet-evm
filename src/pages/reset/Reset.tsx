@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
+import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody, CardHeader, Divider, Tooltip } from '@nextui-org/react';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
@@ -15,7 +16,6 @@ import { useRecoveryTxs } from '@mimir-wallet/features/delay';
 import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
-import { type IPublicClient, type IWalletClient, Operation } from '@mimir-wallet/safe/types';
 import { addressEq } from '@mimir-wallet/utils';
 
 function ResetMember({
@@ -67,12 +67,11 @@ function ResetMember({
         address: delayAddress,
         abi: abis.Delay,
         functionName: 'execTransactionFromModule',
-        args: [safeAddress, 0n, safeTx.data, Operation.Call]
+        args: [safeTx.to, 0n, safeTx.data, safeTx.operation]
       });
 
-      const hash = await wallet.writeContract(request);
+      await wallet.writeContract(request);
 
-      await client.waitForTransactionReceipt({ hash, confirmations: 1 });
       navigate('/transactions');
     },
     [delayAddress, navigate, safeAddress, selected, threshold]
@@ -83,7 +82,7 @@ function ResetMember({
   return (
     <div className='space-y-5'>
       <Button onClick={() => navigate(-1)} variant='bordered' color='primary' radius='full'>
-        Back
+        {'<'} Back
       </Button>
 
       <Card>
@@ -210,7 +209,7 @@ function ResetMember({
                 radius='full'
                 color='primary'
               >
-                Save
+                Recover
               </ButtonEnable>
             )}
           </div>

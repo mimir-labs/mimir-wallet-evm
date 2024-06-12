@@ -5,7 +5,7 @@ import type { IPublicClient, IWalletClient, SafeTransaction } from '../types';
 
 import { type Address, type Hex, isAddressEqual } from 'viem';
 
-import { getOwners } from '../account';
+import { getNonce, getOwners } from '../account';
 import { TypedDataTypes } from '../config';
 import { encodeSafeTransaction } from '../transaction';
 
@@ -19,6 +19,12 @@ export async function signSafeTransaction(
 ): Promise<Hex> {
   if (!addressChain || addressChain.length === 0) {
     addressChain = [signer];
+  }
+
+  const nonce = await getNonce(client, safeAddress);
+
+  if (safeTransaction.nonce < nonce) {
+    throw new Error('Nonce too low');
   }
 
   if (addressChain.length < 2) {

@@ -6,39 +6,35 @@ import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { Tab, Tabs } from '@nextui-org/react';
 import dayjs from 'dayjs';
-import { useContext, useEffect, useMemo } from 'react';
+import { useContext, useEffect } from 'react';
 import { useChainId } from 'wagmi';
 
-import { SafeTxCard } from '@mimir-wallet/components';
+import { Empty, SafeTxCard } from '@mimir-wallet/components';
 import { TransactionItem, useHistoryTransactions, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import Pending from './Pending';
 
-function Contents({ account, items }: { account: BaseAccount; items: Record<string, TransactionItem[]> }) {
-  const data = useMemo(
-    () =>
-      Object.entries(items)
-        .map((item) => [BigInt(item[0]), item[1]] as const)
-        .sort((l, r) => (l > r ? -1 : 1)),
-    [items]
-  );
-
-  return data.map(([nonce, value]) => (
+function Contents({ account, items }: { account: BaseAccount; items: TransactionItem[] }) {
+  return items.map((item) => (
     <SafeTxCard
       hiddenConflictWarning
       defaultOpen={false}
       account={account}
-      key={`queue-${nonce}`}
-      data={value}
-      nonce={nonce}
+      key={`queue-${item.transaction.updatedAt}-${item.transaction.nonce}`}
+      data={[item]}
+      nonce={item.transaction.nonce}
     />
   ));
 }
 
 function History({ account }: { account: BaseAccount }) {
   const chainId = useChainId();
-  const [items] = useHistoryTransactions(chainId, account.address);
+  const [items, isFetched] = useHistoryTransactions(chainId, account.address);
+
+  if (isFetched && Object.keys(items).length === 0) {
+    return <Empty height='80dvh' />;
+  }
 
   return (
     <div className='space-y-5'>

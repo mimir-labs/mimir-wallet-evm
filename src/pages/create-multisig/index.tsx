@@ -6,7 +6,7 @@ import type { EnableClickHandler } from '@mimir-wallet/components/types';
 
 import { Card, CardBody, CardFooter, Divider, Tooltip } from '@nextui-org/react';
 import { randomBytes } from 'crypto';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
 import { bytesToBigInt } from 'viem';
@@ -20,7 +20,7 @@ import CreateMultisigModal from './CreateMultisigModal';
 import { useCreateMultisig } from './useCreateMultisig';
 
 function CreateMultisig(): React.ReactElement {
-  const { all, addMultisig } = useContext(AddressContext);
+  const { all, addMultisig, isSigner, isMultisig } = useContext(AddressContext);
   const [name, setName] = useInput();
   const [selected, setSelected] = useState<Address[]>([]);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
@@ -28,15 +28,18 @@ function CreateMultisig(): React.ReactElement {
   const navigate = useNavigate();
   const [isOpen, toggleOpen] = useToggle(false);
   const saltRef = useRef(bytesToBigInt(randomBytes(32)));
-  const [state, start] = useCreateMultisig(selected, BigInt(threshold), name, saltRef.current);
-  const retry = useRef<() => void>(() => {});
+  const [state, start, reset] = useCreateMultisig(selected, BigInt(threshold), name, saltRef.current);
 
   const isValid = selected.length > 0 && Number(threshold) > 0;
+
+  const memberHasSigner = useMemo(
+    () => selected.findIndex((address) => isSigner(address) || isMultisig(address)) > -1,
+    [isMultisig, isSigner, selected]
+  );
 
   const handleCreate = useCallback<EnableClickHandler>(
     (wallet, client) => {
       start(client, wallet);
-      retry.current = () => start(client, wallet);
       toggleOpen(true);
     },
     [start, toggleOpen]
@@ -114,7 +117,7 @@ function CreateMultisig(): React.ReactElement {
             severity='warning'
             title='Notice'
             content={
-              <ul className='list-disc pl-3'>
+              <ul className='list-disc'>
                 <li>Fee is necessary for creation.</li>
                 <li>
                   Use a threshold higher than one to prevent losing access to your Multisig Account in case an owner key
@@ -123,6 +126,9 @@ function CreateMultisig(): React.ReactElement {
               </ul>
             }
           />
+          {isValid && !memberHasSigner && (
+            <Alert severity='warning' title='You are creating multisig for other. It would be a watch-only address.' />
+          )}
           <div className='flex gap-3'>
             <ButtonLinearBorder onClick={() => navigate(-1)} fullWidth radius='full'>
               Cancel
@@ -143,7 +149,10 @@ function CreateMultisig(): React.ReactElement {
         }}
         state={state}
         isOpen={isOpen}
-        onClose={() => toggleOpen(false)}
+        onClose={() => {
+          reset();
+          toggleOpen(false);
+        }}
         onDone={(account) => {
           toggleOpen(false);
           navigate('/');

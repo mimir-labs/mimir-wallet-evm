@@ -78,12 +78,18 @@ function RecoveryTxCard({ account, defaultOpen, tx, pendingTxs, refetch }: Props
 
   return (
     <Card>
-      <CardHeader className='text-tiny'>
-        Cancelling Account recovery. You will need &nbsp;
-        <Link isExternal href='.' className='text-tiny'>
-          Why did this happen?
-        </Link>
-      </CardHeader>
+      {cancelTxs.length > 0 && (
+        <CardHeader className='text-tiny'>
+          Cancelling Account recovery. You will need to execute cancelling transaction.{' '}
+          <Link
+            href='https://help.safe.global/en/articles/110656-account-recovery-with-safe-recoveryhub'
+            isExternal
+            className='text-tiny'
+          >
+            Why did this happen?
+          </Link>
+        </CardHeader>
+      )}
       <Divider className='mx-3 w-auto' />
       {account ? (
         <CardBody className='space-y-3'>

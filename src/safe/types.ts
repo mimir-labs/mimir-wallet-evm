@@ -52,8 +52,6 @@ export interface SafeTransaction extends MetaTransaction {
 
 export type AccountType = 'safe';
 export interface BaseAccount {
-  isReadOnly: boolean;
-
   type?: AccountType;
   name?: string | null;
   address: Address;

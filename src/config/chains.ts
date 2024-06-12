@@ -4,11 +4,11 @@
 import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { Chain, http, isAddress } from 'viem';
+import { Chain, FallbackTransport, http, isAddress, Transport } from 'viem';
 import { moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
-import { CHAIN_RPC_URL_PREFIX, CURRENT_ACCOUNT_KEY } from '@mimir-wallet/constants';
+import { CHAIN_RPC_URL_PREFIX, CURRENT_ACCOUNT_KEY, WALLET_CONNECT_PROJECT_ID } from '@mimir-wallet/constants';
 import { store } from '@mimir-wallet/utils';
 
 export type MimirConfig = {
@@ -29,16 +29,37 @@ export type CustomChain = Chain & {
   };
   shortName: string;
   iconUrl: string;
+  nativeCurrencyIcon: string;
 };
 
 export const supportedChains = [
-  { ...moonbeam, shortName: 'mbeam', iconUrl: '/chain-icons/1284.webp' },
-  { ...scroll, shortName: 'scr', iconUrl: '/chain-icons/534352.webp' },
-  { ...sepolia, shortName: 'sep', iconUrl: '/chain-icons/11155111.webp' },
-  { ...scrollSepolia, shortName: 'scr-sepolia', iconUrl: '/chain-icons/534351.webp' }
-] as CustomChain[];
-
-const projectId = '7d03930c3d8c2558da5d59066df0877a';
+  {
+    ...moonbeam,
+    rpcUrls: {
+      default: {
+        http: ['https://moonbeam-rpc.publicnode.com', ...moonbeam.rpcUrls.default.http],
+        webSocket: ['wss://moonbeam-rpc.publicnode.com', ...moonbeam.rpcUrls.default.webSocket]
+      }
+    },
+    shortName: 'mbeam',
+    iconUrl: '/chain-icons/1284.svg',
+    nativeCurrencyIcon: '/token-icons/GLMR.svg'
+  },
+  { ...scroll, shortName: 'scr', iconUrl: '/chain-icons/534352.webp', nativeCurrencyIcon: '/token-icons/ETH.webp' },
+  {
+    ...sepolia,
+    rpcUrls: { default: { http: ['https://ethereum-sepolia-rpc.publicnode.com', ...sepolia.rpcUrls.default.http] } },
+    shortName: 'sep',
+    iconUrl: '/chain-icons/11155111.webp',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
+  {
+    ...scrollSepolia,
+    shortName: 'scr-sepolia',
+    iconUrl: '/chain-icons/534351.webp',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  }
+] as [CustomChain, ...CustomChain[]];
 
 export function initMimirConfig(): MimirConfig {
   const search = new URLSearchParams(window.location.search);
@@ -60,17 +81,21 @@ export function initMimirConfig(): MimirConfig {
     key: `wallet.${chain.id}`
   });
 
-  const rpc = store.get(`${CHAIN_RPC_URL_PREFIX}${chain.id}`) as string;
-
   const config = getDefaultConfig({
     appName: 'Mimir Wallet',
-    projectId,
+    projectId: WALLET_CONNECT_PROJECT_ID,
     chains: [chain],
     storage,
     syncConnectedChain: false,
-    transports: rpc
-      ? { [chain.id]: fallback([http(rpc), ...chain.rpcUrls.default.http.map((url) => http(url))]) }
-      : undefined
+    transports: supportedChains.reduce<Record<string, FallbackTransport<Transport[]>>>((results, item) => {
+      const rpc = store.get(`${CHAIN_RPC_URL_PREFIX}${item.id}`) as string;
+
+      results[item.id] = rpc
+        ? fallback([http(rpc), ...chain.rpcUrls.default.http.map((url) => http(url))])
+        : fallback([...chain.rpcUrls.default.http.map((url) => http(url))]);
+
+      return results;
+    }, {})
   });
 
   let address: Address | undefined;

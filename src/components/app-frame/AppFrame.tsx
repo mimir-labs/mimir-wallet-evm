@@ -65,7 +65,7 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
       addTx({
         isApprove: false,
         isCancel: false,
-        website: appUrl,
+        metadata: { website: appUrl },
         onSuccess: (tx) => {
           communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, multisig.address, tx) }, id);
         },
@@ -107,8 +107,12 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
       };
     },
     onGetSafeInfo: () => {
+      if (!current) {
+        throw new Error('Not support method');
+      }
+
       return {
-        safeAddress: safeAccount?.address || current || zeroAddress,
+        safeAddress: safeAccount?.address || current,
         chainId: chains[0].id,
         threshold: safeAccount?.threshold || 1,
         owners: safeAccount?.members?.map((item) => item.address) || [],

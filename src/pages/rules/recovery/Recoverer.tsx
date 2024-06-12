@@ -63,7 +63,7 @@ function Recoverer({
         isLoading={isDataFetching && !isDataFetched}
         loadingContent={<Spinner color='primary' />}
         items={list}
-        emptyContent={<Empty height={300} />}
+        emptyContent={<Empty height={150} />}
       >
         {(item) => {
           const colldown = Number(item.cooldown);
@@ -100,7 +100,7 @@ function Recoverer({
               </TableCell>
               <TableCell>
                 <SafeTxButton
-                  website='mimir://internal/recovery'
+                  metadata={{ website: 'mimir://internal/recovery' }}
                   isApprove={false}
                   isCancel={false}
                   address={safeAccount}

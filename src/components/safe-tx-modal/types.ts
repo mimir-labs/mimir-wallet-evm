@@ -4,6 +4,7 @@
 import type { Address } from 'abitype';
 import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 import type {
+  BaseAccount,
   IPublicClient,
   IWalletClient,
   MetaTransaction,
@@ -28,15 +29,12 @@ export interface Simulation {
 }
 
 export interface SafeTxState {
-  isApprove: boolean;
-  isCancel: boolean;
   hasSameTx: boolean;
-  signatures: SignatureResponse[];
   multisig?: Multisig;
-  address: Address;
   filterPaths: Array<Address[]>;
-  tx: MetaTransaction;
+  safeAccount?: BaseAccount | null;
   safeTx?: SafeTransaction;
+  onChainNonce?: bigint;
   setCustomNonce: React.Dispatch<React.SetStateAction<bigint | undefined>>;
   addressChain: Address[];
   setAddressChain: React.Dispatch<React.SetStateAction<Address[]>>;
@@ -46,10 +44,9 @@ export interface SafeTxState {
 
   simulation: Simulation;
 
-  onClose?: () => void;
+  refetch: () => void;
   handleSign: (wallet: IWalletClient, client: IPublicClient) => Promise<void>;
   handleExecute: (wallet: IWalletClient, client: IPublicClient) => Promise<void>;
-  handleSignAndExecute: (wallet: IWalletClient, client: IPublicClient) => Promise<void>;
 }
 
 export interface UseSafeTx<Approve extends boolean, Cancel extends boolean> {
@@ -60,7 +57,7 @@ export interface UseSafeTx<Approve extends boolean, Cancel extends boolean> {
   safeTx: Approve extends true ? SafeTransaction : undefined;
   cancelNonce: Cancel extends true ? bigint : undefined;
   signatures: Approve extends true ? SignatureResponse[] : undefined;
-  website?: string;
+  metadata?: { website?: string; iconUrl?: string; appName?: string };
   addressChain?: Address[];
   onSuccess?: (safeTx: SafeTransaction) => void;
   onClose?: () => void;

@@ -3,7 +3,7 @@
 
 import type { IPublicClient, MetaTransaction } from '../types';
 
-import { type Address, encodeFunctionData, hexToNumber, isAddressEqual, sliceHex, zeroAddress } from 'viem';
+import { type Address, encodeFunctionData, hexToNumber, isAddressEqual, parseUnits, sliceHex, zeroAddress } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
@@ -16,7 +16,7 @@ export async function buildAddAllowance(
   safeAccount: Address,
   delegateAddress: Address,
   tokenAddress: Address,
-  amount: bigint,
+  amountStr: string,
   resetTimeMin: number,
   resetBaseMin: number
 ): Promise<MetaTransaction> {
@@ -69,7 +69,22 @@ export async function buildAddAllowance(
     data: encodeFunctionData({
       abi: abis.Allowance,
       functionName: 'setAllowance',
-      args: [delegateAddress, tokenAddress, amount, resetTimeMin, resetBaseMin]
+      args: [
+        delegateAddress,
+        tokenAddress,
+        parseUnits(
+          amountStr,
+          tokenAddress === zeroAddress
+            ? client.chain.nativeCurrency.decimals
+            : await client.readContract({
+                abi: abis.ERC20,
+                address: tokenAddress,
+                functionName: 'decimals'
+              })
+        ),
+        resetTimeMin,
+        resetBaseMin
+      ]
     }),
     operation: Operation.Call
   });

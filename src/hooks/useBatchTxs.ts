@@ -18,7 +18,7 @@ export function useBatchTxs(
 ): [
   txs: BatchTxItem[],
   addTx: (value: BatchTxItem) => void,
-  deleteTx: (id: number) => void,
+  deleteTx: (ids: number[]) => void,
   setTx: (txs: BatchTxItem[]) => void
 ] {
   const [values, setValues] = useLocalStore<BatchTxs>(BATCH_TX_KEY, {});
@@ -41,14 +41,14 @@ export function useBatchTxs(
     [address, chainId, setValues]
   );
   const deleteTx = useCallback(
-    (id: number) => {
+    (ids: number[]) => {
       if (!address) return;
 
       setValues((_values) => ({
         ...(_values || {}),
         [chainId]: {
           ...(_values?.[chainId] || {}),
-          [address]: (_values?.[chainId]?.[address] || []).filter((item) => item.id !== id)
+          [address]: (_values?.[chainId]?.[address] || []).filter((item) => !ids.includes(item.id))
         }
       }));
     },

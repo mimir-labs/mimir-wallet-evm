@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { AssetChange, Simulation } from './types';
+import type { AssetChange, Simulation } from '../types';
 
 import { useEffect, useMemo, useState } from 'react';
 import { usePublicClient } from 'wagmi';

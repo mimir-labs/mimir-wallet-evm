@@ -56,6 +56,7 @@ module.exports = {
     'no-implicit-coercion': 'error',
     'prefer-regex-literals': 'error',
     'capitalized-comments': 'error',
+    'consistent-return': 'off',
     'no-restricted-syntax': [
       'error',
       {

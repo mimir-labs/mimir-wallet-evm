@@ -11,6 +11,7 @@ import { useChainId } from 'wagmi';
 import { AddressContext } from '@mimir-wallet/providers';
 import { service } from '@mimir-wallet/utils';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function findNames(account: BaseAccount): Record<string, string> {
   let names: Record<string, string> = account.name
     ? {
@@ -58,9 +59,8 @@ export function useQueryAccount(address?: Address): BaseAccount | null {
 
   useEffect(() => {
     if (data) {
-      const names = findNames(data);
-
-      setAddressNames((values) => ({ ...values, ...names }));
+      // const names = findNames(data);
+      // setAddressNames((values) => ({ ...values, ...names }));
     }
   }, [setAddressNames, data]);
 
@@ -82,4 +82,10 @@ export function useQueryAccount(address?: Address): BaseAccount | null {
         : null,
     [data, isMultisig]
   );
+}
+
+export function useIsReadOnly(account?: BaseAccount | null) {
+  const { isMultisig } = useContext(AddressContext);
+
+  return useMemo(() => (account ? !isMultisig(account.address) : true), [account, isMultisig]);
 }

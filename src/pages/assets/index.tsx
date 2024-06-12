@@ -48,6 +48,7 @@ function Assets() {
           </Tab>
         </Tabs>
       </div>
+
       <AddToken isOpen={isOpen} onClose={toggleOpen} />
     </>
   );

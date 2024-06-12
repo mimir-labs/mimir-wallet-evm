@@ -15,6 +15,7 @@ export type AppConfig = {
   icon: string;
   desc: string;
   tags: string[];
+  supportedChains?: number[];
   website?: string;
   github?: string;
   twitter?: string;
@@ -80,7 +81,7 @@ export const apps: AppConfig[] = [
     desc: 'Swiftly complete asset transfers with other users, developed by Mimir.',
     website: 'https://mimir.global/',
     github: 'https://github.com/mimir-labs/',
-    twitter: 'https://twitter.com/Mimir_global/',
+    twitter: 'https://x.com/Mimir_global/',
     tags: ['Assets'],
     Component: () => import('@mimir-wallet/apps/transfer').then((res) => res.default)
   },
@@ -92,7 +93,7 @@ export const apps: AppConfig[] = [
     desc: 'Build batch transaction',
     website: 'https://mimir.global/',
     github: 'https://github.com/mimir-labs/',
-    twitter: 'https://twitter.com/Mimir_global/',
+    twitter: 'https://x.com/Mimir_global/',
     tags: ['Batch'],
     Component: () => import('@mimir-wallet/apps/batch').then((res) => res.default),
     isDrawer: true
@@ -104,6 +105,18 @@ export const apps: AppConfig[] = [
     icon: '/app-icons/transaction-builder.png',
     desc: 'Compose custom contract interactions and batch them into a single transaction',
     tags: ['Infrastructure']
+  },
+  {
+    id: 10002,
+    name: 'Uniswap',
+    url: 'https://app.uniswap.org/',
+    icon: '/app-icons/uniswap.svg',
+    desc: 'Swap or provide liquidity on the Uniswap Protocol',
+    supportedChains: [1, 5, 11155111, 42161, 421613, 10, 420, 137, 80001, 42220, 44787, 56],
+    website: 'https://uniswap.org/',
+    github: 'https://github.com/Uniswap/',
+    twitter: 'https://x.com/Uniswap/',
+    tags: ['Defi', 'Dex', 'Swap']
   }
 ];
 

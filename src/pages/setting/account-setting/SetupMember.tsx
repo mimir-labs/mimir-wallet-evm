@@ -82,10 +82,10 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
             title='Notice'
             content={
               <ul className='list-disc pl-3'>
-                <li>Fee is necessary for creation.</li>
+                <li>A transaction needs to be initiated to execute.</li>
                 <li>
-                  Use a threshold higher than one to prevent losing access to your Multisig Account in case an owner key
-                  is lost or compromised.
+                  The change can only be successfully made after it is approved by the required number of members
+                  meeting the threshold.
                 </li>
               </ul>
             }
@@ -95,7 +95,7 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
               Reset
             </ButtonLinearBorder>
             <SafeTxButton
-              website='mimir://internal/setup'
+              metadata={{ website: 'mimir://internal/setup' }}
               isApprove={false}
               isCancel={false}
               address={multisig?.address}

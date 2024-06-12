@@ -31,7 +31,9 @@ function Dashboard({ address }: { address: Address }) {
   const allowanceInfo = useMemo(
     () =>
       walletAccount && allowanceTokens.length > 0
-        ? allowanceTokens.find((item) => addressEq(item.delegate, walletAccount))
+        ? allowanceTokens.find(
+            (item) => item.allowance[0] - item.allowance[1] > 0n && addressEq(item.delegate, walletAccount)
+          )
         : undefined,
     [allowanceTokens, walletAccount]
   );

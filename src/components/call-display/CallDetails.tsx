@@ -7,15 +7,12 @@ import type { MetaTransaction } from '@mimir-wallet/safe/types';
 
 import React from 'react';
 
-import AddressRow from '@mimir-wallet/components/AddressRow';
 import Bytes from '@mimir-wallet/components/Bytes';
 import FormatBalance from '@mimir-wallet/components/FormatBalance';
 
 function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: MetaTransaction[] | null }) {
   if (parsed.functionName === 'addOwnerWithThreshold') {
-    const { args } = parsed as ParsedCall<'addOwnerWithThreshold'>;
-
-    return <AddressRow withCopy iconSize={14} address={args[0]} />;
+    return <span className='inline-flex gap-1' />;
   }
 
   if (parsed.functionName === 'changeThreshold') {
@@ -25,21 +22,11 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
   }
 
   if (parsed.functionName === 'swapOwner') {
-    const { args } = parsed as ParsedCall<'swapOwner'>;
-
-    return (
-      <span className='inline-flex gap-1'>
-        <AddressRow withCopy iconSize={14} address={args[1]} />
-        <span>{'->'}</span>
-        <AddressRow withCopy iconSize={14} address={args[2]} />
-      </span>
-    );
+    return <span className='inline-flex gap-1' />;
   }
 
   if (parsed.functionName === 'removeOwner') {
-    const { args } = parsed as ParsedCall<'removeOwner'>;
-
-    return <AddressRow withCopy iconSize={14} address={args[1]} />;
+    return <span className='inline-flex gap-1' />;
   }
 
   // TODO: token icon and address

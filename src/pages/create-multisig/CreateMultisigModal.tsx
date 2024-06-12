@@ -9,7 +9,7 @@ import { Divider, Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-or
 import React from 'react';
 
 import LogoCircle from '@mimir-wallet/assets/images/logo-circle.png';
-import { Alert, Button, ButtonEnable, TxError } from '@mimir-wallet/components';
+import { Alert, Button, ButtonEnable, CongratsAnimation, TxError } from '@mimir-wallet/components';
 
 interface Props {
   state: CreateMultisigState;
@@ -32,7 +32,7 @@ function CreateMultisigModal({ isOpen, onDone, state, onClose, onRetry }: Props)
     >
       <ModalContent>
         <ModalBody className='flex flex-col items-center gap-5 py-10'>
-          <img src={LogoCircle} className='w-[70px]' alt='mimir' />
+          {result ? <CongratsAnimation /> : <img src={LogoCircle} className='w-[70px]' alt='mimir' />}
           <h4 className='font-extrabold text-xl'>{title}</h4>
           {error ? <Alert severity='error' title={<TxError error={error} />} /> : null}
           {steps.map(([key, element]) => (

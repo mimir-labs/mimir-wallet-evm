@@ -90,8 +90,9 @@ function SideBar(): React.ReactElement {
         color='secondary'
         selectionMode='single'
         selectedKeys={keys}
+        className='max-h-[calc(100%-150px)] overflow-y-auto'
         classNames={{
-          list: 'space-y-4'
+          list: ['space-y-4']
         }}
         itemClasses={{
           selectedIcon: 'hidden',

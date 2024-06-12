@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useMemo } from 'react';
+import { useChainId } from 'wagmi';
 
 import { type AppConfig, apps } from '@mimir-wallet/config';
 import { FAVORITE_APP_KEY } from '@mimir-wallet/constants';
@@ -42,9 +43,17 @@ export function useApp(website?: string): AppConfig | undefined {
 const visibleApps = apps.filter((item) => !item.url.startsWith('mimir://internal'));
 
 export function useVisibleApps(): UseApps {
+  const chainId = useChainId();
   const [favoriteIds, setFavoriteIds] = useLocalStore<number[]>(FAVORITE_APP_KEY, []);
 
-  const favorites = useMemo(() => visibleApps.filter((item) => favoriteIds?.includes(item.id)), [favoriteIds]);
+  const supportedApps = useMemo(
+    () => visibleApps.filter((item) => (item.supportedChains ? item.supportedChains.includes(chainId) : true)),
+    [chainId]
+  );
+  const favorites = useMemo(
+    () => supportedApps.filter((item) => favoriteIds?.includes(item.id)),
+    [favoriteIds, supportedApps]
+  );
 
   const addFavorite = useCallback(
     (id: number) => {
@@ -72,12 +81,12 @@ export function useVisibleApps(): UseApps {
 
   return useMemo(
     () => ({
-      apps: visibleApps,
+      apps: supportedApps,
       favorites,
       addFavorite,
       removeFavorite,
       isFavorite
     }),
-    [addFavorite, favorites, isFavorite, removeFavorite]
+    [addFavorite, favorites, isFavorite, removeFavorite, supportedApps]
   );
 }

@@ -55,7 +55,11 @@ export function useCreateMultisig(
   threshold: bigint,
   name: string,
   salt?: bigint
-): [state: CreateMultisigState, start: (client: IPublicClient, wallet: IWalletClient) => Promise<void>] {
+): [
+  state: CreateMultisigState,
+  start: (client: IPublicClient, wallet: IWalletClient) => Promise<void>,
+  reset: () => void
+] {
   const [state, setState] = useSetState<CreateMultisigState>(initialState);
   const requestRef = useRef<CreateSafeRequest | null>(null);
   const addressRef = useRef<Address | null>(null);
@@ -79,6 +83,7 @@ export function useCreateMultisig(
 
       setState((state) => ({
         ...state,
+        error: null,
         currentStep: 0,
         steps: state.steps.map((step, index) =>
           index === 0
@@ -145,6 +150,7 @@ export function useCreateMultisig(
 
       setState((state) => ({
         ...state,
+        error: null,
         currentStep: 1,
         steps: state.steps.map((step, index) =>
           index === 1
@@ -183,7 +189,7 @@ export function useCreateMultisig(
             )
           }));
 
-          return client.waitForTransactionReceipt({ hash });
+          return client.waitForTransactionReceipt({ hash, retryCount: 30 });
         })
         .then((receipt) => {
           setState((state) => ({
@@ -241,6 +247,7 @@ export function useCreateMultisig(
 
       setState((state) => ({
         ...state,
+        error: null,
         currentStep: 2,
         steps: state.steps.map((step, index) =>
           index === 2
@@ -315,5 +322,9 @@ export function useCreateMultisig(
     }
   };
 
-  return [state, start];
+  const reset = () => {
+    setState(initialState);
+  };
+
+  return [state, start, reset];
 }

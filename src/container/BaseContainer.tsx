@@ -15,6 +15,7 @@ import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 import BatchButton from './BatchButton';
 import Networks from './Networks';
 import SideBar from './SideBar';
+import WalletConnect from './WalletConnect';
 
 function BaseContainer({
   withSideBar,
@@ -35,12 +36,13 @@ function BaseContainer({
             <img src={Logo} alt='mimir' className='w-[87px]' />
           </Link>
         </NavbarContent>
-        <NavbarContent justify='end' className='text-small w-auto'>
+        <NavbarContent justify='end' className='text-small w-auto gap-2.5'>
           <BatchButton />
+          <WalletConnect />
           {isConnected ? (
             <ConnectButton
               showBalance={{ smallScreen: false, largeScreen: true }}
-              chainStatus={{ smallScreen: 'icon', largeScreen: 'full' }}
+              chainStatus={{ smallScreen: 'icon', largeScreen: 'icon' }}
             />
           ) : (
             <ButtonEnable Component={ButtonLinear} color='primary' radius='full' withConnect />
@@ -52,11 +54,11 @@ function BaseContainer({
         <div className='flex'>
           {withSideBar ? <SideBar /> : null}
           <div className={`flex-1 ${withPadding ? 'p-5' : 'p-0'}`}>
-            {state ? <SafeTxModal {...state} /> : null}
+            {state.length > 0 ? <SafeTxModal key={state[0].id} {...state[0]} /> : null}
 
             <RecoverModal />
 
-            <div style={{ display: state ? 'none' : undefined }}>
+            <div style={{ display: state.length > 0 ? 'none' : undefined }}>
               <Outlet />
             </div>
           </div>

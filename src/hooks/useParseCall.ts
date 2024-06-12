@@ -47,6 +47,8 @@ export function useParseCall(data: Hex): [size: number, parsed: ParsedCall<CallF
 
             cache.set(data, _state as [size: number, parsed: ParsedCall<CallFunctions>]);
             setState(_state as [size: number, parsed: ParsedCall<CallFunctions>]);
+          } else {
+            setState((state) => [dataSize, state[1]]);
           }
         }
       } catch {

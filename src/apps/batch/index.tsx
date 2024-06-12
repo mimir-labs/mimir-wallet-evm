@@ -36,15 +36,16 @@ function Batch({ onClose }: { onClose?: () => void }) {
               <div ref={containerRef} style={{ touchAction: 'pan-y' }}>
                 <DraggableList
                   itemKey='id'
-                  list={txs.map((item) => ({
+                  list={txs.map((item, index) => ({
                     ...item,
+                    index,
                     selected,
                     from: current,
                     onSelected: (state: boolean) =>
                       setSelected((values) => (state ? [...values, item.id] : values.filter((v) => item.id !== v))),
                     onDelete: () => {
                       setSelected((values) => values.filter((v) => v !== item.id));
-                      deleteTx(item.id);
+                      deleteTx([item.id]);
                     }
                   }))}
                   template={BatchItem as any}
@@ -67,7 +68,7 @@ function Batch({ onClose }: { onClose?: () => void }) {
           </div>
           <Divider />
           <SafeTxButton
-            website='mimir://app/batch'
+            metadata={{ website: 'mimir://app/batch' }}
             isApprove={false}
             isCancel={false}
             address={current}
@@ -90,6 +91,19 @@ function Batch({ onClose }: { onClose?: () => void }) {
           >
             Confirm Batch
           </SafeTxButton>
+          <Button
+            fullWidth
+            radius='full'
+            disabled={selected.length === 0}
+            color='danger'
+            variant='bordered'
+            onClick={() => {
+              setSelected((values) => values.filter((v) => !selected.includes(v)));
+              deleteTx(selected);
+            }}
+          >
+            Delete
+          </Button>
         </>
       )}
     </div>

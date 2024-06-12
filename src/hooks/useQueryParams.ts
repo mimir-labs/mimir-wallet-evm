@@ -38,7 +38,10 @@ export function useQueryParam<T>(
         const newSearchParams = new URLSearchParams(searchParams);
 
         newSearchParams.delete(key);
-        setSearchParams(newSearchParams);
+        setSearchParams(newSearchParams, {
+          ...optionsRef.current,
+          ..._options
+        });
       } else {
         const newSearchParams = new URLSearchParams(searchParams);
 

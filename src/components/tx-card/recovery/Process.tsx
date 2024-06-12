@@ -4,9 +4,10 @@
 import type { RecoveryTx } from '@mimir-wallet/features/delay/types';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
-import { Accordion, AccordionItem, Progress } from '@nextui-org/react';
+import { Accordion, AccordionItem } from '@nextui-org/react';
 import React from 'react';
 import { encodeFunctionData } from 'viem';
+import { useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import ArrowLeft from '@mimir-wallet/assets/svg/ArrowLeft.svg?react';
@@ -31,6 +32,12 @@ function Process({
 }) {
   const now = Date.now();
 
+  const { data } = useReadContract({
+    abi: abis.Delay,
+    address: tx.address,
+    functionName: 'avatar'
+  });
+
   return (
     <div className='w-[24%] rounded-medium bg-primary/[0.04] p-3 space-y-2'>
       <h6 className='text-primary font-bold text-medium'>Process</h6>
@@ -49,16 +56,6 @@ function Process({
         >
           <div className='rounded-medium bg-primary/5 p-[5px]'>
             <AddressCell iconSize={30} withCopy address={tx.sender} />
-            <div className='px-[40px]'>
-              <Progress
-                className='h-[3px]'
-                size='sm'
-                value={cooldown === undefined ? tx.createdAt : now}
-                maxValue={tx.createdAt + (cooldown || 0)}
-                minValue={tx.createdAt}
-                color='primary'
-              />
-            </div>
           </div>
         </AccordionItem>
       </Accordion>
@@ -67,10 +64,10 @@ function Process({
       )}
       <div className='flex items-center gap-x-4'>
         <SafeTxButton
-          website='mimir://internal/cancel-recovery'
+          metadata={{ website: 'mimir://internal/cancel-recovery' }}
           isApprove={false}
           isCancel={false}
-          address={tx.to}
+          address={data}
           buildTx={async () =>
             buildSafeTransaction(tx.address, {
               value: 0n,
@@ -86,6 +83,7 @@ function Process({
           radius='full'
           color='danger'
           variant='bordered'
+          withConnect
         >
           Cancel
         </SafeTxButton>
@@ -97,6 +95,7 @@ function Process({
             radius='full'
             color='primary'
             disabled={!!cooldown && !!expiration && now > tx.createdAt + cooldown + expiration}
+            withConnect
           >
             Execute
           </ButtonEnable>

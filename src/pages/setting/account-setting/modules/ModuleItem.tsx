@@ -17,7 +17,7 @@ function ModuleItem({ safeAddress, moduleAddress }: { safeAddress: Address; modu
         isApprove={false}
         isCancel={false}
         address={safeAddress}
-        website='mimir://internal/setup'
+        metadata={{ website: 'mimir://internal/setup' }}
         buildTx={(_, client) => buildDeleteSafeModule(client, safeAddress, moduleAddress)}
         color='danger'
         size='tiny'

@@ -18,12 +18,12 @@ import {
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import { useToggle } from 'react-use';
-import { isAddress, parseEther, zeroAddress } from 'viem';
+import { isAddress, zeroAddress } from 'viem';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
-import { Button, Input, SafeTxButton } from '@mimir-wallet/components';
-import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
+import { Button, Input, InputToken, SafeTxButton } from '@mimir-wallet/components';
+import { useAccountTokens, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { buildAddAllowance } from '@mimir-wallet/safe';
 
 import TooltipItem from '../TooltipItem';
@@ -32,14 +32,16 @@ import Delegates from './Delegates';
 const resetTimes = {
   0: 'Once',
   [60 * 24]: '1 Day',
-  [60 * 24 * 7]: '1 Week',
-  [60 * 24 * 7 * 30]: '1 Month'
+  [60 * 24 * 7]: '7 Days',
+  [60 * 24 * 28]: '28 Days'
 } as const;
 
 function SpendLimit({ address }: { address?: Address }) {
   const [isOpen, toggleOpen] = useToggle(false);
   const [isAlertOpen, toggleAlertOpen] = useToggle(false);
   const [[delegate], setDelegate] = useInputAddress();
+  const [tokens] = useAccountTokens(address);
+  const [token, setToken] = useState<Address>(zeroAddress);
   const [[amount], setAmount] = useInputNumber();
   const [reset, setReset] = useState<number>(0);
 
@@ -109,6 +111,14 @@ function SpendLimit({ address }: { address?: Address }) {
               label='Address'
               placeholder='Enter ethereum address'
             />
+            <InputToken
+              account={address}
+              tokens={tokens.assets}
+              value={token}
+              showBalance
+              label='Token'
+              onChange={setToken}
+            />
             <Input
               variant='bordered'
               labelPlacement='outside'
@@ -143,7 +153,7 @@ function SpendLimit({ address }: { address?: Address }) {
           </ModalBody>
           <ModalFooter>
             <SafeTxButton
-              website='mimir://internal/spend-limit'
+              metadata={{ website: 'mimir://internal/spend-limit' }}
               isApprove={false}
               isCancel={false}
               address={address}
@@ -154,8 +164,8 @@ function SpendLimit({ address }: { address?: Address }) {
                         client,
                         address,
                         delegate,
-                        zeroAddress,
-                        parseEther(amount),
+                        token,
+                        amount,
                         reset,
                         reset === 0 ? 0 : Math.ceil(dayjs().startOf('hours').valueOf() / 1000 / 60)
                       )
