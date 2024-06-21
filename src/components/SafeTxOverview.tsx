@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { SignatureResponse, TransactionResponse } from '@mimir-wallet/hooks/types';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import React, { useEffect } from 'react';
@@ -10,6 +9,7 @@ import ReactFlow, { Edge, Handle, Node, NodeProps, Position, useEdgesState, useN
 import { useAccount } from 'wagmi';
 
 import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?react';
+import { type SignatureResponse, type TransactionResponse, TransactionStatus } from '@mimir-wallet/hooks/types';
 import { approveCounts } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -58,33 +58,36 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
           </div>
           {data.isApprove && <div className='w-2.5 h-2.5 rounded-full bg-success' />}
         </div>
-        {address && !data.isApprove && addressEq(address, data.address) && (
-          <SafeTxButton
-            isApprove
-            isCancel={false}
-            isSignatureReady={false}
-            safeTx={data.transaction}
-            signatures={data.signatures}
-            address={data.transaction.address as Address}
-            addressChain={data.addressChain}
-            metadata={{
-              website: data.transaction.website,
-              iconUrl: data.transaction.iconUrl,
-              appName: data.transaction.appName
-            }}
-            onSuccess={data.onApprove}
-            startContent={<IconSuccess />}
-            fullWidth
-            size='sm'
-            color='success'
-            radius='none'
-            className='flex bg-success/10 border-none text-success'
-            variant='flat'
-            onOpenTx={data.onClose}
-          >
-            Approve
-          </SafeTxButton>
-        )}
+        {data.transaction.status === TransactionStatus.Pending &&
+          address &&
+          !data.isApprove &&
+          addressEq(address, data.address) && (
+            <SafeTxButton
+              isApprove
+              isCancel={false}
+              isSignatureReady={false}
+              safeTx={data.transaction}
+              signatures={data.signatures}
+              address={data.transaction.address as Address}
+              addressChain={data.addressChain}
+              metadata={{
+                website: data.transaction.website,
+                iconUrl: data.transaction.iconUrl,
+                appName: data.transaction.appName
+              }}
+              onSuccess={data.onApprove}
+              startContent={<IconSuccess />}
+              fullWidth
+              size='sm'
+              color='success'
+              radius='none'
+              className='flex bg-success/10 border-none text-success'
+              variant='flat'
+              onOpenTx={data.onClose}
+            >
+              Approve
+            </SafeTxButton>
+          )}
       </div>
       {data.parentId ? (
         <Handle

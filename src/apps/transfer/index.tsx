@@ -20,7 +20,7 @@ import {
   InputToken,
   SafeTxButton
 } from '@mimir-wallet/components';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 import { useDelegateAllowance } from '@mimir-wallet/features/allowance';
 import { useAccountBalance, useAccountTokens, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
@@ -60,7 +60,7 @@ function Transfer({
 
       const { request } = await client.simulateContract({
         account: address,
-        address: deployments[wallet.chain.id].modules.Allowance,
+        address: moduleDeployments[wallet.chain.id].Allowance[0],
         abi: abis.Allowance,
         functionName: 'executeAllowanceTransfer',
         args: [current, token, to, parseUnits(amount, balance.decimals), zeroAddress, 0n, address, '0x']

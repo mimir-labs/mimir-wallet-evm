@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { RecoveryTx } from '@mimir-wallet/features/delay/types';
-import type { SignatureResponse, TransactionResponse } from '@mimir-wallet/hooks/types';
+import type { TransactionSignature } from '@mimir-wallet/hooks';
 import type { BaseAccount, IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody, CardHeader, Divider, Link } from '@nextui-org/react';
@@ -21,7 +21,7 @@ interface Props {
   account?: BaseAccount | null;
   defaultOpen?: boolean;
   tx: RecoveryTx;
-  pendingTxs: { transaction: TransactionResponse; signatures: SignatureResponse[] }[];
+  pendingTxs: TransactionSignature[];
   refetch?: () => void;
 }
 

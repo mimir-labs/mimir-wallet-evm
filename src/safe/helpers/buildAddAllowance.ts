@@ -6,7 +6,7 @@ import type { IPublicClient, MetaTransaction } from '../types';
 import { type Address, encodeFunctionData, hexToNumber, isAddressEqual, parseUnits, sliceHex, zeroAddress } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 
 import { buildMultiSendSafeTx, buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
@@ -20,7 +20,7 @@ export async function buildAddAllowance(
   resetTimeMin: number,
   resetBaseMin: number
 ): Promise<MetaTransaction> {
-  const allowanceAddress = deployments[client.chain.id].modules.Allowance;
+  const allowanceAddress = moduleDeployments[client.chain.id].Allowance[0];
 
   const txs: MetaTransaction[] = [];
   const isModuleEnabled = await client.readContract({

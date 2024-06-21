@@ -39,7 +39,7 @@ export async function init(): Promise<Web3WalletType> {
     metadata: MIMIR_WALLET_METADATA
   });
 
-  web3Wallet = web3Wallet ? instance : web3Wallet;
+  web3Wallet ||= instance;
 
   return web3Wallet;
 }

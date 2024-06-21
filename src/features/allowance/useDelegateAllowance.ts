@@ -8,7 +8,7 @@ import { zeroAddress } from 'viem';
 import { useChainId, useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 
 export function useDelegateAllowance(
   safeAddress?: Address,
@@ -19,7 +19,7 @@ export function useDelegateAllowance(
 
   const { data: tokenAllowance } = useReadContract({
     chainId,
-    address: deployments[chainId].modules.Allowance,
+    address: moduleDeployments[chainId].Allowance[0],
     abi: abis.Allowance,
     functionName: 'getTokenAllowance',
     args: safeAddress && delegate ? [safeAddress, delegate, token] : undefined

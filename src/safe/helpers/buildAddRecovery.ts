@@ -7,7 +7,7 @@ import { randomBytes } from 'crypto';
 import { type Address, bytesToBigInt, encodeAbiParameters, encodeFunctionData, Hex } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 
 import { buildMultiSendSafeTx, buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
@@ -33,8 +33,8 @@ export async function buildAddRecovery(
   expiration: number,
   delayAddress?: Address
 ): Promise<MetaTransaction> {
-  const moduleProxyFactory = deployments[client.chain.id].ModuleProxyFactory;
-  const delaySingleton = deployments[client.chain.id].modules.Delay;
+  const moduleProxyFactory = moduleDeployments[client.chain.id].ModuleProxyFactory[0];
+  const delaySingleton = moduleDeployments[client.chain.id].Delay[0];
 
   const txs: MetaTransaction[] = [];
 

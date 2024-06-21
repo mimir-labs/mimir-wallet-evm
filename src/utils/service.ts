@@ -13,20 +13,6 @@ export const jsonHeader = { 'Content-Type': 'application/json' };
 
 export const getAuthorizationHeader = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
 
-export function pendingTx(chainId: number, address: Address) {
-  return fetcher(serviceUrl(chainId, `tx/pending/${address}`), {
-    method: 'GET',
-    headers: jsonHeader
-  });
-}
-
-export function historyTx(chainId: number, address: Address) {
-  return fetcher(serviceUrl(chainId, `tx/history/${address}`), {
-    method: 'GET',
-    headers: jsonHeader
-  });
-}
-
 export function getAccountFull(chainId: number, address: Address): Promise<BaseAccount> {
   return fetcher(serviceUrl(chainId, `accounts/${address}/full`), {
     method: 'GET',
