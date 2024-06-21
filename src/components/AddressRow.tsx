@@ -22,14 +22,15 @@ interface Props {
   fallbackName?: React.ReactNode;
   withCopy?: boolean;
   withExplorer?: boolean;
+  isToken?: boolean;
 }
 
-function AddressRow({ iconSize, fallbackName, address, disableEns, showFull, withCopy, withExplorer }: Props) {
+function AddressRow({ iconSize, fallbackName, address, disableEns, showFull, withCopy, withExplorer, isToken }: Props) {
   const [chain] = useChains();
 
   return (
     <div className='inline-flex items-center gap-x-[5px]'>
-      <AddressIcon size={iconSize} address={address} />
+      <AddressIcon isToken={isToken} size={iconSize} address={address} />
       <AddressName
         address={address}
         disableEns={disableEns}

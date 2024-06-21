@@ -6,7 +6,7 @@ import type { Address } from 'abitype';
 import { useChainId, useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
 
 export function useAllowanceDelegates(
@@ -19,7 +19,7 @@ export function useAllowanceDelegates(
     isFetching
   } = useReadContract({
     chainId,
-    address: deployments[chainId].modules.Allowance,
+    address: moduleDeployments[chainId].Allowance[0],
     abi: abis.Allowance,
     functionName: 'delegatesStart',
     args: [safeAddress]
@@ -31,7 +31,7 @@ export function useAllowanceDelegates(
     isFetching: isFetching2
   } = useReadContract({
     chainId,
-    address: deployments[chainId].modules.Allowance,
+    address: moduleDeployments[chainId].Allowance[0],
     abi: abis.Allowance,
     functionName: 'getDelegates',
     args: startAccount ? [safeAddress, startAccount, 100] : undefined

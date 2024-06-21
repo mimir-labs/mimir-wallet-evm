@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useChainId, usePublicClient } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
 import { IPublicClient } from '@mimir-wallet/safe/types';
 
@@ -24,7 +24,7 @@ async function queryTokenAllowance(
   const tokens = (await client.multicall({
     allowFailure: false,
     contracts: delegates.map((delegate) => ({
-      address: deployments[chainId].modules.Allowance,
+      address: moduleDeployments[chainId].Allowance[0],
       abi: abis.Allowance,
       functionName: 'getTokens',
       args: [safeAddress, delegate]
@@ -42,7 +42,7 @@ async function queryTokenAllowance(
   const data = (await client.multicall({
     allowFailure: false,
     contracts: query.map(([delegate, token]) => ({
-      address: deployments[chainId].modules.Allowance,
+      address: moduleDeployments[chainId].Allowance[0],
       abi: abis.Allowance,
       functionName: 'getTokenAllowance',
       args: [safeAddress, delegate, token]

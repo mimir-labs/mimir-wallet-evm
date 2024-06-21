@@ -13,6 +13,19 @@ import { EmptyArray } from '@mimir-wallet/constants';
 
 const SENTINEL_MODULES: Address = '0x0000000000000000000000000000000000000001' as const;
 
+export function useDelayAddress(
+  address?: Address
+): [data: DelayModuleResponse[], isFetched: boolean, isFetching: boolean] {
+  const chainId = useChainId();
+  const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({
+    initialData: EmptyArray,
+    refetchInterval: false,
+    queryKey: [address ? serviceUrl(chainId, `modules/delay/${address}`) : null]
+  });
+
+  return [data, isFetched, isFetching];
+}
+
 export function useDelayModules(address?: Address): [data: DelayModule[], isFetched: boolean, isFetching: boolean] {
   const chainId = useChainId();
   const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({

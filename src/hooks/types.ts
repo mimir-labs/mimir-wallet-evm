@@ -31,6 +31,8 @@ export interface TransactionResponse {
   executeThreshold?: number;
   executeBlock?: bigint;
   executeTransaction?: Hash;
+  executor?: Address;
+  sender?: Address;
   replaceBlock?: bigint; // replace block when status === Replaced
   replaceHash?: Hash; // replace transaction hash when status === Replaced
   replaceSafeHash?: Hash; // replace safe transaction hash when status === Replaced
@@ -134,4 +136,61 @@ export interface BatchTxItem {
   website?: string;
   iconUrl?: string;
   appName?: string;
+}
+
+export interface ModuleTransactionResponse {
+  address: Address;
+  block: bigint;
+  blockHash: Hash;
+  createdAt: string;
+  data: Hex;
+  id: number;
+  module: Address;
+  operation: Operation;
+  status: 'success' | 'failed' | null;
+  to: Address;
+  transaction: Hash;
+  updatedAt: string;
+  value: bigint;
+}
+
+export interface AllowanceTransactionResponse {
+  id: number;
+  transaction: Hash;
+  block: bigint;
+  blockHash: Hash;
+  type:
+    | 'AddDelegate'
+    | 'RemoveDelegate'
+    | 'ExecuteAllowanceTransfer'
+    | 'PayAllowanceTransfer'
+    | 'SetAllowance'
+    | 'ResetAllowance'
+    | 'DeleteAllowance';
+  safe: Address;
+  delegate: Address;
+  token: Address | null;
+  to: Address | null;
+  value: bigint | null;
+  nonce: number | null;
+  paymentToken: Address | null;
+  paymentReceiver: Address | null;
+  payment: bigint | null;
+  allowanceAmount: bigint | null;
+  resetTime: number | null;
+  createdAt: number;
+}
+
+export interface ReceivedResponse {
+  address: Address;
+  block: bigint;
+  blockHash: Hash;
+  createdAt: string;
+  id: number;
+  sender: Address;
+  token: Address;
+  tokenMeta: { name: string; symbol: string; decimals: number } | null;
+  transaction: Hash;
+  updatedAt: string;
+  value: bigint;
 }

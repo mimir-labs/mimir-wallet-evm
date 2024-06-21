@@ -274,14 +274,14 @@ function SignAndExecute({
           <Divider />
           <ModalFooter className='flex-col items-center gap-5'>
             <div className='flex flex-col gap-5'>
-              <p className='font-light text-xl'>
+              <p className='font-light text-medium'>
                 {hasFinalSignature ? (
                   <span>
-                    Please Click <b className='font-extrabold'>Sign</b> in {connector?.name || 'Wallet'}.
+                    Please Click <b className='font-extrabold'>Approve</b> in {connector?.name || 'Wallet'}.
                   </span>
                 ) : (
                   <span>
-                    Please Click <b className='font-extrabold'>Approve</b> in {connector?.name || 'Wallet'}
+                    Please Click <b className='font-extrabold'>Sign</b> in {connector?.name || 'Wallet'}
                   </span>
                 )}
               </p>

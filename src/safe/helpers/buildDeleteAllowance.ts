@@ -6,7 +6,7 @@ import type { IPublicClient, MetaTransaction } from '../types';
 import { type Address, encodeFunctionData } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
-import { deployments } from '@mimir-wallet/config';
+import { moduleDeployments } from '@mimir-wallet/config';
 
 import { buildSafeTransaction } from '../transaction';
 import { Operation } from '../types';
@@ -17,7 +17,7 @@ export async function buildDeleteAllowance(
   delegateAddress: Address,
   tokenAddress: Address
 ): Promise<MetaTransaction> {
-  const allowanceAddress = deployments[client.chain.id].modules.Allowance;
+  const allowanceAddress = moduleDeployments[client.chain.id].Allowance[0];
 
   const txs: MetaTransaction[] = [];
   const isModuleEnabled = await client.readContract({
