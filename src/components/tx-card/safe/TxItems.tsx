@@ -207,7 +207,9 @@ function TxItems({
             />
           }
         >
-          {approval}/{threshold}
+          {transaction.status === TransactionStatus.Success || transaction.status === TransactionStatus.Failed
+            ? `${transaction.executeThreshold || 0}/${transaction.executeThreshold || threshold}`
+            : `${approval}/${threshold}`}
         </Button>
       </div>
       <div className='col-span-1 flex items-center justify-between'>

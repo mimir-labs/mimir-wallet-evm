@@ -134,12 +134,7 @@ module.exports = {
     'jsx-a11y/no-static-element-interactions': 'off',
     'import/no-deprecated': 'error',
     'import/order': 'off',
-    'import/no-extraneous-dependencies': [
-      'error',
-      {
-        devDependencies: ['cypress.config.ts', 'vite.config.ts', 'src/setupTests.ts', 'src/testUtils.tsx', 'src/mocks/**', '**/__tests__/*.{ts,tsx}']
-      }
-    ],
+    'import/no-extraneous-dependencies': 'off',
     'import/prefer-default-export': 'off',
     'padding-line-between-statements': [
       'error',

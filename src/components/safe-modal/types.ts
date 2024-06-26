@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
+import type { Hash, Hex } from 'viem';
 import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 import type {
   BaseAccount,
@@ -9,8 +10,11 @@ import type {
   IWalletClient,
   MetaTransaction,
   Multisig,
+  SafeMessage,
   SafeTransaction
 } from '@mimir-wallet/safe/types';
+
+import { MessageSignature } from '@mimir-wallet/hooks';
 
 export interface AssetChange {
   from: Address;
@@ -60,5 +64,33 @@ export interface UseSafeTx<Approve extends boolean, Cancel extends boolean> {
   metadata?: { website?: string; iconUrl?: string; appName?: string };
   addressChain?: Address[];
   onSuccess?: (safeTx: SafeTransaction) => void;
+  onClose?: () => void;
+}
+
+export interface SafeMessageState {
+  hash: Hash;
+  safeMessage: Hash;
+  messageSignature?: MessageSignature | null;
+  multisig?: Multisig;
+  filterPaths: Array<Address[]>;
+  safeAccount?: BaseAccount | null;
+  addressChain: Address[];
+  setAddressChain: React.Dispatch<React.SetStateAction<Address[]>>;
+  isSignatureReady: boolean;
+  isNextSignatureReady: boolean;
+  isFetched: boolean;
+  isFetching: boolean;
+  finalSignature?: Hex;
+
+  refetch: () => void;
+}
+
+export interface UseSafeMessage {
+  address: Address;
+  message: SafeMessage;
+  metadata?: { website?: string; iconUrl?: string; appName?: string };
+  addressChain?: Address[];
+  onSuccess?: (signature: Hex) => void;
+  onFinal?: (signature: Hex, messageHash: Hash) => void;
   onClose?: () => void;
 }

@@ -1,0 +1,77 @@
+// Copyright 2023-2024 dev.mimir authors & contributors
+// SPDX-License-Identifier: Apache-2.0
+
+import type { Address } from 'abitype';
+import type { Hex } from 'viem';
+import type { BaseAccount, IPublicClient, IWalletClient, SafeMessage } from '@mimir-wallet/safe/types';
+
+import React from 'react';
+import { useAsyncFn } from 'react-use';
+
+import ButtonEnable from '@mimir-wallet/components/ButtonEnable';
+import { useIsReadOnly } from '@mimir-wallet/hooks';
+import { signSafeMessage } from '@mimir-wallet/safe';
+import { service } from '@mimir-wallet/utils';
+
+function SignMessageButton({
+  safeAccount,
+  safeAddress,
+  message,
+  addressChain,
+  website,
+  iconUrl,
+  appName,
+  onSuccess
+}: {
+  safeAccount?: BaseAccount | null;
+  safeAddress: Address;
+  message: SafeMessage;
+  addressChain: Address[];
+  website?: string | undefined;
+  iconUrl?: string | undefined;
+  appName?: string | undefined;
+  onSuccess?: (signature: Hex) => void;
+}) {
+  const isReadOnly = useIsReadOnly(safeAccount);
+  const [state, handleSign] = useAsyncFn(
+    async (wallet: IWalletClient, client: IPublicClient) => {
+      return signSafeMessage(wallet, client, safeAddress, message, wallet.account.address, addressChain)
+        .then(async (signature) => {
+          await service.createMessage(
+            wallet.chain.id,
+            safeAddress,
+            signature,
+            wallet.account.address,
+            message,
+            addressChain,
+            website,
+            iconUrl,
+            appName
+          );
+
+          return signature;
+        })
+        .then((signature) => {
+          onSuccess?.(signature);
+        });
+    },
+    [addressChain, appName, iconUrl, message, onSuccess, safeAddress, website]
+  );
+
+  return (
+    <ButtonEnable
+      isToastError
+      onClick={handleSign}
+      color='primary'
+      fullWidth
+      radius='full'
+      disabled={isReadOnly}
+      isLoading={state.loading}
+      withConnect
+    >
+      Sign
+    </ButtonEnable>
+  );
+}
+
+export default React.memo(SignMessageButton);

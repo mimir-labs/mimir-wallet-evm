@@ -29,6 +29,20 @@ export default defineConfig(({ mode }) => ({
       reportsDirectory: 'coverage'
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          crypto: ['@rainbow-me/rainbowkit', 'viem', 'wagmi'],
+          ui1: ['react-draggable-list', 'react-toastify', 'framer-motion', '@metamask/jazzicon'],
+          ui2: ['@nextui-org/react'],
+          reactflow: ['reactflow'],
+          lottie: ['lottie-web']
+        }
+      }
+    }
+  },
   plugins: [
     tsconfigPaths(),
     react(),

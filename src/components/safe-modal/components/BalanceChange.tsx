@@ -5,12 +5,11 @@ import { Address } from 'abitype';
 
 import IconReceive from '@mimir-wallet/assets/svg/icon-receive.svg?react';
 import IconSend from '@mimir-wallet/assets/svg/icon-send.svg?react';
+import { AddressIcon, FormatBalance } from '@mimir-wallet/components';
 import { useToken } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
-import AddressIcon from '../AddressIcon';
-import FormatBalance from '../FormatBalance';
-import { AssetChange } from './types';
+import { AssetChange } from '../types';
 
 function BalanceFormat({ amount, address }: { amount: bigint; address: Address }) {
   const [meta] = useToken(address);

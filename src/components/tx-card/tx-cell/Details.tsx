@@ -16,10 +16,20 @@ interface Props {
   children: React.ReactNode;
 }
 
-export function Item({ label, content }: { label: React.ReactNode; content: React.ReactNode }) {
+export function Item({
+  label,
+  content,
+  center = true
+}: {
+  label: React.ReactNode;
+  content: React.ReactNode;
+  center?: boolean;
+}) {
   return (
     <div className='grid grid-cols-10 text-tiny'>
-      <div className='col-span-3 font-bold self-center tex-foreground'>{label}</div>
+      <div data-center={center} className='col-span-3 font-bold data-[center=true]:self-center tex-foreground'>
+        {label}
+      </div>
       <div className='col-span-7 self-center text-foreground/50'>{content}</div>
     </div>
   );

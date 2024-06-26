@@ -5,12 +5,12 @@ import type { Address } from 'abitype';
 
 import React from 'react';
 
-import AddressCell from '../AddressCell';
+import { AddressCell } from '@mimir-wallet/components';
 
-function Interact({ address }: { address: Address }) {
+function Sender({ address }: { address: Address }) {
   return (
     <div>
-      <h6 className='font-bold text-small'>Interact With</h6>
+      <h6 className='font-bold text-small'>Sending From</h6>
       <div className='flex bg-secondary rounded-small p-2.5 mt-1.5'>
         <AddressCell iconSize={30} address={address} withCopy showFull />
       </div>
@@ -18,4 +18,4 @@ function Interact({ address }: { address: Address }) {
   );
 }
 
-export default React.memo(Interact);
+export default React.memo(Sender);

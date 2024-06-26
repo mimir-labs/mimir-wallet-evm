@@ -9,14 +9,9 @@ import { useToggle } from 'react-use';
 import { useAccount, useChainId } from 'wagmi';
 
 import ArrowLeft from '@mimir-wallet/assets/svg/ArrowLeft.svg?react';
+import { AddressRow, Bytes, CallDisplay, FormatBalance, FunctionName } from '@mimir-wallet/components';
 import { hashSafeTransaction } from '@mimir-wallet/safe';
 import { MetaTransaction, Operation, SafeTransaction } from '@mimir-wallet/safe/types';
-
-import AddressRow from '../AddressRow';
-import Bytes from '../Bytes';
-import { CallDisplay } from '../call-display';
-import FormatBalance from '../FormatBalance';
-import FunctionName from '../FunctionName';
 
 function Item({ label, content }: { label: React.ReactNode; content: React.ReactNode }) {
   return (

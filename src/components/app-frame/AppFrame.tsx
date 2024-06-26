@@ -13,7 +13,7 @@ import useAppCommunicator, { CommunicatorMessages } from '@mimir-wallet/features
 import { useAccountTokens, useMultisig, useQueryAccount } from '@mimir-wallet/hooks';
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 import { buildMultiSendSafeTx, hashSafeTransaction } from '@mimir-wallet/safe';
-import { MetaTransaction } from '@mimir-wallet/safe/types';
+import { MetaTransaction, SafeMessage } from '@mimir-wallet/safe/types';
 import { isSameUrl, service } from '@mimir-wallet/utils';
 
 import Iframe from './Iframe';
@@ -29,7 +29,7 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
   const { iframeRef, appIsLoading, setAppIsLoading } = useAppIsLoading();
   const chains = useChains();
   const { current } = useContext(AddressContext);
-  const { addTx } = useContext(SafeTxContext);
+  const { addTx, addMessage } = useContext(SafeTxContext);
   const safeAccount = useQueryAccount(current);
   const multisig = useMultisig(current);
   const [data] = useAccountTokens(current);
@@ -65,22 +65,35 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
       addTx({
         isApprove: false,
         isCancel: false,
+        address: multisig.address,
+        tx,
+        safeTx: undefined,
+        cancelNonce: undefined,
+        signatures: undefined,
         metadata: { website: appUrl },
         onSuccess: (tx) => {
           communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, multisig.address, tx) }, id);
         },
         onClose: () => {
           communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, id, true);
-        },
-        address: multisig.address,
-        tx,
-        safeTx: undefined,
-        cancelNonce: undefined,
-        signatures: undefined
+        }
       });
     },
-    onSignMessage: () => {
-      throw new Error('Not support method');
+    onSignMessage: (message, id) => {
+      if (!multisig) {
+        throw new Error('Not permission');
+      }
+
+      addMessage({
+        address: multisig.address,
+        message: message as SafeMessage,
+        onFinal: (signature, messageHash) => {
+          communicator?.send({ messageHash, signature }, id);
+        },
+        onClose: () => {
+          communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, id, true);
+        }
+      });
     },
     onGetTxBySafeTxHash: (hash) => {
       return service.getSafeTx(chains[0].id, hash) as any;

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, Hash, Hex } from 'viem';
-import type { Operation } from '@mimir-wallet/safe/types';
+import type { Operation, SafeMessage } from '@mimir-wallet/safe/types';
 
 export enum TransactionStatus {
   Pending,
@@ -36,6 +36,18 @@ export interface TransactionResponse {
   replaceBlock?: bigint; // replace block when status === Replaced
   replaceHash?: Hash; // replace transaction hash when status === Replaced
   replaceSafeHash?: Hash; // replace safe transaction hash when status === Replaced
+  website?: string;
+  iconUrl?: string;
+  appName?: string;
+}
+
+export interface MessageResponse {
+  hash: Hash;
+  mesasge: SafeMessage;
+  address: Address;
+  creator: Address;
+  createdAt: number;
+  updatedAt: number;
   website?: string;
   iconUrl?: string;
   appName?: string;

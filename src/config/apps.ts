@@ -117,6 +117,19 @@ export const apps: AppConfig[] = [
     github: 'https://github.com/Uniswap/',
     twitter: 'https://x.com/Uniswap/',
     tags: ['Defi', 'Dex', 'Swap']
+  },
+  {
+    id: 10003,
+    name: 'Aave',
+    url: 'https://app.aave.com/',
+    icon: '/app-icons/aave.png',
+    desc: 'Aave is an Open Source Protocol to create Non-Custodial Liquidity Markets to earn interest on supplying and borrowing assets with a variable or stable interest rate. The protocol is designed for easy integration into your products and services.',
+    supportedChains: [1, 534_352],
+    website: 'https://aave.com/',
+    github: 'https://github.com/aave',
+    twitter: 'https://x.com/aave',
+    discord: 'https://discord.com/invite/aave',
+    tags: ['DeFi', 'Lending/Borrowing']
   }
 ];
 

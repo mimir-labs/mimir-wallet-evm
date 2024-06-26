@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { UseSafeTx } from './types';
+import type { UseSafeTx } from '../types';
 
 import { Divider, Switch } from '@nextui-org/react';
 import React, { useCallback } from 'react';
@@ -11,20 +11,20 @@ import IconBatch from '@mimir-wallet/assets/svg/icon-batch.svg?react';
 import IconClose from '@mimir-wallet/assets/svg/icon-close.svg?react';
 import { useBatchTxs, useParseCall } from '@mimir-wallet/hooks';
 
-import Alert from '../Alert';
-import Button from '../Button';
-import ButtonEnable from '../ButtonEnable';
-import SignAndExecute from './buttons/SignAndExecute';
-import { useCloseWhenPathChange } from './hooks/useCloseWhenPathChange';
-import { useHighlightTab } from './hooks/useHighlightTab';
-import { useSafeTx } from './hooks/useSafeTx';
-import AddressChain from './AddressChain';
-import BalanceChange from './BalanceChange';
-import CustomNonce from './CustomNonce';
-import Interact from './Interact';
-import SafetyCheck from './SafetyCheck';
-import Sender from './Sender';
-import TxDetails from './TxDetails';
+import Alert from '../../Alert';
+import Button from '../../Button';
+import ButtonEnable from '../../ButtonEnable';
+import SignAndExecute from '../buttons/SignAndExecute';
+import AddressChain from '../components/AddressChain';
+import BalanceChange from '../components/BalanceChange';
+import CustomNonce from '../components/CustomNonce';
+import Interact from '../components/Interact';
+import SafetyCheck from '../components/SafetyCheck';
+import Sender from '../components/Sender';
+import TxDetails from '../components/TxDetails';
+import { useCloseWhenPathChange } from '../hooks/useCloseWhenPathChange';
+import { useHighlightTab } from '../hooks/useHighlightTab';
+import { useSafeTx } from '../hooks/useSafeTx';
 
 function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: UseSafeTx<Approve, Cancel>) {
   const { isApprove, isCancel, metadata, signatures, onSuccess, onClose, address, tx } = props;
