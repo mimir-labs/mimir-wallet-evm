@@ -6,9 +6,8 @@ import type { Multisig } from '@mimir-wallet/safe/types';
 
 import React, { useCallback, useContext, useLayoutEffect, useMemo } from 'react';
 
+import { InputAddress } from '@mimir-wallet/components';
 import { AddressContext } from '@mimir-wallet/providers';
-
-import InputAddress from '../InputAddress';
 
 interface Props {
   multisig: Multisig;

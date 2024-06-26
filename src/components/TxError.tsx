@@ -2,9 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from 'react';
-import { BaseError, ContractFunctionRevertedError } from 'viem';
+import { BaseError, ContractFunctionExecutionError, ContractFunctionRevertedError } from 'viem';
 
 function TxError({ error }: { error: unknown }) {
+  if (error instanceof ContractFunctionExecutionError) {
+    return error.shortMessage;
+  }
+
   if (error instanceof BaseError) {
     const revertError = error.walk((err) => err instanceof ContractFunctionRevertedError);
 

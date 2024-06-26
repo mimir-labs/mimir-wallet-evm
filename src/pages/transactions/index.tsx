@@ -13,6 +13,7 @@ import { Empty, ModuleTxCard, ReceivedCard, SafeTxCard } from '@mimir-wallet/com
 import { HistoryItem, useHistoryTransactions, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
+import Messages from './Messages';
 import Pending from './Pending';
 
 function Contents({ account, items }: { account: BaseAccount; items: HistoryItem[] }) {
@@ -117,6 +118,9 @@ function Transaction() {
           </Tab>
           <Tab key='history' title='History'>
             <History account={account} />
+          </Tab>
+          <Tab key='message' title='Messages'>
+            <Messages account={account} />
           </Tab>
         </Tabs>
       )}

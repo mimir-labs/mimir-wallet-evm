@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export { default as AllowanceTxCard } from './allowance';
+export { default as SafeMessageCard } from './message';
 export { default as ModuleTxCard } from './module';
 export { default as ReceivedCard } from './received';
 export { default as RecoveryTxCard } from './recovery';

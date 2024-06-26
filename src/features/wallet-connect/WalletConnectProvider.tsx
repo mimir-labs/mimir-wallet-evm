@@ -3,15 +3,16 @@
 
 import type { SessionTypes } from '@walletconnect/types';
 import type { Web3WalletTypes } from '@walletconnect/web3wallet';
-import type { SafeTransaction } from '@mimir-wallet/safe/types';
+import type { SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
 
 import { getSdkError } from '@walletconnect/utils';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { getAddress, hexToBigInt } from 'viem';
+import { Address, getAddress, hexToBigInt, hexToString } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 import { buildSafeTransaction, hashSafeTransaction } from '@mimir-wallet/safe';
+import { addressEq } from '@mimir-wallet/utils';
 
 import { SESSION_ADD_EVENT } from './constants';
 import { WalletConnectState } from './types';
@@ -29,25 +30,16 @@ export const WalletConnectContext = createContext<WalletConnectState>({} as Wall
 function WalletConnectProvider({ children }: { children: React.ReactNode }) {
   const chainId = useChainId();
   const { current } = useContext(AddressContext);
-  const { addTx } = useContext(SafeTxContext);
+  const { addTx, addMessage } = useContext(SafeTxContext);
   const [isReady, setReady] = useState(false);
   const [isError, setError] = useState(false);
   const [sessions, setSessions] = useState<SessionTypes.Struct[]>([]);
   const [sessionProposal, setSessionProposal] = useState<Web3WalletTypes.SessionProposal>();
   const handlerRef = useRef<(event: Web3WalletTypes.SessionRequest) => void>();
 
-  // eslint-disable-next-line consistent-return
   handlerRef.current = async (event) => {
     const { id, topic, params } = event;
     const session = getActiveSessions().find((s) => s.topic === topic);
-
-    if (!current) {
-      return sendSessionError(topic, {
-        jsonrpc: '2.0',
-        id,
-        error: getSdkError('UNSUPPORTED_ACCOUNTS')
-      });
-    }
 
     if (params.request.method === 'eth_accounts') {
       return sendSessionResponse(topic, {
@@ -58,12 +50,20 @@ function WalletConnectProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (params.request.method === 'eth_sendTransaction') {
-      const { data, to, value } = params.request.params[0];
+      const { data, from, to, value } = params.request.params[0];
+
+      if (!addressEq(from, current)) {
+        return sendSessionError(topic, {
+          jsonrpc: '2.0',
+          id,
+          error: getSdkError('UNSUPPORTED_ACCOUNTS')
+        });
+      }
 
       addTx({
         isApprove: false,
         isCancel: false,
-        address: current,
+        address: from,
         tx: buildSafeTransaction(getAddress(to), {
           value: value ? hexToBigInt(value) : 0n,
           data: data || '0x'
@@ -80,7 +80,50 @@ function WalletConnectProvider({ children }: { children: React.ReactNode }) {
           sendSessionResponse(topic, {
             jsonrpc: '2.0',
             id,
-            result: hashSafeTransaction(chainId, current, safeTx)
+            result: hashSafeTransaction(chainId, from, safeTx)
+          });
+        },
+        onClose: () => {
+          sendSessionError(topic, {
+            jsonrpc: '2.0',
+            id,
+            error: getSdkError('USER_REJECTED_METHODS')
+          });
+        }
+      });
+    } else if (params.request.method === 'personal_sign' || params.request.method === 'eth_signTypedData_v4') {
+      let address: Address;
+      let message: SafeMessage;
+
+      if (params.request.method === 'eth_signTypedData_v4') {
+        message = JSON.parse(params.request.params[1]);
+        address = getAddress(params.request.params[0]);
+      } else {
+        message = hexToString(params.request.params[0]);
+        address = getAddress(params.request.params[1]);
+      }
+
+      if (!addressEq(address, current)) {
+        return sendSessionError(topic, {
+          jsonrpc: '2.0',
+          id,
+          error: getSdkError('UNSUPPORTED_ACCOUNTS')
+        });
+      }
+
+      addMessage({
+        address,
+        message,
+        metadata: {
+          website: session?.peer.metadata.url,
+          iconUrl: session?.peer.metadata.icons?.[0],
+          appName: session?.peer.metadata.name
+        },
+        onFinal: (signature) => {
+          sendSessionResponse(topic, {
+            jsonrpc: '2.0',
+            id,
+            result: signature
           });
         },
         onClose: () => {

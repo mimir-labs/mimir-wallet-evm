@@ -9,4 +9,5 @@ export * from './buildDeleteAllowance';
 export * from './buildDeleteDelayModule';
 export * from './buildDeleteSafeModule';
 export * from './signChangeName';
+export * from './signSafeMessage';
 export * from './signSafeTransaction';

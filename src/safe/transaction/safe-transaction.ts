@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { type Address, Chain, encodeFunctionData, Hash, hashTypedData, Hex, keccak256 } from 'viem';
+import { type Address, Chain, encodeFunctionData, Hash, Hex, keccak256 } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
@@ -45,24 +45,6 @@ export function encodeSafeTransaction(chainId: number, address: Address, tx: Saf
 
 export function hashSafeTransaction(chainId: number, address: Address, tx: SafeTransaction): Hash {
   return keccak256(encodeSafeTransaction(chainId, address, tx));
-}
-
-export function hashSafeMessage(chain: Chain, address: Address, bytes: Hex): Hash {
-  const domain = {
-    chainId: chain.id,
-    verifyingContract: address
-  } as const;
-
-  const types = TypedDataTypes.safeMessage;
-
-  return hashTypedData({
-    domain,
-    types,
-    primaryType: 'SafeMessage',
-    message: {
-      message: bytes
-    }
-  });
 }
 
 export function buildMultiSendSafeTx(

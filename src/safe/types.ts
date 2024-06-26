@@ -92,3 +92,12 @@ export enum SignatureType {
   'eoa_signature' = 2,
   'eoa_signature_without_messagehash' = 3
 }
+
+export interface Eip712Message {
+  domain: Record<string, string | number>;
+  message: Record<string, unknown>;
+  primaryType: string;
+  types: Record<string, unknown>;
+}
+
+export type SafeMessage = string | Eip712Message;

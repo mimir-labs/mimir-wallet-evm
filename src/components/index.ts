@@ -3,7 +3,7 @@
 
 export * from './animation';
 export * from './app-frame';
-export * from './safe-tx-modal';
+export * from './safe-modal';
 export * from './tx-card';
 export * from './call-display';
 
@@ -39,5 +39,6 @@ export { default as NftCard } from './NftCard';
 export { default as QrcodeAddress } from './QrcodeAddress';
 export { default as SafeTxButton } from './SafeTxButton';
 export { default as SafeTxOverview } from './SafeTxOverview';
+export { default as SignatureOverview } from './SignatureOverview';
 export { default as ToastRoot } from './ToastRoot';
 export { default as TxError } from './TxError';

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, Hash, Hex } from 'viem';
-import type { BaseAccount, SafeTransaction } from '@mimir-wallet/safe/types';
+import type { BaseAccount, SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from './types';
 
 import { serviceUrl } from '@mimir-wallet/config';
@@ -64,6 +64,26 @@ export function createTx(
   return fetcher(serviceUrl(chainId, 'tx'), {
     method: 'POST',
     body: JSON.stringify({ address, signature, signer, tx, addressChain, website, iconUrl, appName }, (_, v) =>
+      typeof v === 'bigint' ? v.toString() : v
+    ),
+    headers: jsonHeader
+  });
+}
+
+export function createMessage(
+  chainId: number,
+  address: Address,
+  signature: Hex,
+  signer: Address,
+  message: SafeMessage,
+  addressChain?: Address[],
+  website?: string,
+  iconUrl?: string,
+  appName?: string
+): Promise<{ success: boolean }> {
+  return fetcher(serviceUrl(chainId, 'message'), {
+    method: 'POST',
+    body: JSON.stringify({ address, signature, signer, message, addressChain, website, iconUrl, appName }, (_, v) =>
       typeof v === 'bigint' ? v.toString() : v
     ),
     headers: jsonHeader

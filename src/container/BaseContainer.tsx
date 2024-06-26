@@ -8,7 +8,7 @@ import { Outlet } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 import Logo from '@mimir-wallet/assets/images/logo.png';
-import { ButtonEnable, ButtonLinear, MimirLoading, SafeTxModal } from '@mimir-wallet/components';
+import { ButtonEnable, ButtonLinear, MimirLoading, SafeMessageModal, SafeTxModal } from '@mimir-wallet/components';
 import { RecoverModal } from '@mimir-wallet/features/delay';
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 
@@ -54,7 +54,13 @@ function BaseContainer({
         <div className='flex'>
           {withSideBar ? <SideBar /> : null}
           <div className={`flex-1 ${withPadding ? 'p-5' : 'p-0'}`}>
-            {state.length > 0 ? <SafeTxModal key={state[0].id} {...state[0]} /> : null}
+            {state.length > 0 ? (
+              state[0].type === 'tx' ? (
+                <SafeTxModal key={state[0].id} {...state[0].data} />
+              ) : (
+                <SafeMessageModal key={state[0].id} {...state[0].data} />
+              )
+            ) : null}
 
             <RecoverModal />
 

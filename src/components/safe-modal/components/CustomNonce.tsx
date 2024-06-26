@@ -10,9 +10,8 @@ import { useToggle } from 'react-use';
 import { useChainId } from 'wagmi';
 
 import IconRefresh from '@mimir-wallet/assets/svg/icon-refresh.svg?react';
+import { Button } from '@mimir-wallet/components';
 import { useInputNumber, useParseCall, usePendingTransactions, useSafeNonce } from '@mimir-wallet/hooks';
-
-import Button from '../Button';
 
 function FuncionName({ data }: { data: Hex }) {
   const [, parsed] = useParseCall(data);

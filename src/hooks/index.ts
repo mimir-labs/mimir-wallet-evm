@@ -14,6 +14,7 @@ export * from './useMultisig';
 export * from './useMultisigs';
 export * from './useParseCall';
 export * from './useQueryAccount';
+export * from './useQueryMessages';
 export * from './useQueryParams';
 export * from './useQueryTokens';
 export * from './useQueryTransactions';

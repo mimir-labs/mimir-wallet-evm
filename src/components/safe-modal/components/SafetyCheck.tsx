@@ -1,14 +1,13 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Simulation } from './types';
+import type { Simulation } from '../types';
 
 import React from 'react';
 
 import IconSuccess from '@mimir-wallet/assets/svg/icon-success.svg?react';
 import IconWarning from '@mimir-wallet/assets/svg/icon-warning-fill.svg?react';
-
-import Button from '../Button';
+import { Button } from '@mimir-wallet/components';
 
 function SafetyCheck({ simulation }: { simulation: Simulation }) {
   return (
