@@ -22,6 +22,7 @@ export type AppConfig = {
   discord?: string;
   Component?: () => Promise<React.ComponentType>; // only for mimir://dapp/*
   isDrawer?: boolean;
+  isScrollSession?: boolean;
 };
 
 export const apps: AppConfig[] = [
@@ -87,14 +88,14 @@ export const apps: AppConfig[] = [
   },
   {
     id: 1002,
-    name: 'Batch',
+    name: 'Cache',
     url: 'mimir://app/batch',
     icon: BatchIcon,
-    desc: 'Build batch transaction',
+    desc: 'Build cache transaction',
     website: 'https://mimir.global/',
     github: 'https://github.com/mimir-labs/',
     twitter: 'https://x.com/Mimir_global/',
-    tags: ['Batch'],
+    tags: ['Batch', 'Cache'],
     Component: () => import('@mimir-wallet/apps/batch').then((res) => res.default),
     isDrawer: true
   },
@@ -103,7 +104,7 @@ export const apps: AppConfig[] = [
     name: 'Transaction Builder',
     url: 'https://dev-apps.safe.protofire.io/tx-builder/',
     icon: '/app-icons/transaction-builder.png',
-    desc: 'Compose custom contract interactions and batch them into a single transaction',
+    desc: 'Compose custom contract interactions and cache them into a single transaction',
     tags: ['Infrastructure']
   },
   {
@@ -129,7 +130,8 @@ export const apps: AppConfig[] = [
     github: 'https://github.com/aave',
     twitter: 'https://x.com/aave',
     discord: 'https://discord.com/invite/aave',
-    tags: ['DeFi', 'Lending/Borrowing']
+    tags: ['DeFi', 'Lending/Borrowing'],
+    isScrollSession: true
   }
 ];
 

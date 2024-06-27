@@ -8,13 +8,16 @@ import type { BaseAccount } from '@mimir-wallet/safe/types';
 import { TRANSITION_VARIANTS } from '@nextui-org/framer-utils';
 import { Modal, ModalBody, ModalContent } from '@nextui-org/react';
 import { AnimatePresence, domAnimation, LazyMotion, motion, useWillChange } from 'framer-motion';
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { useToggle } from 'react-use';
 import { useAccount } from 'wagmi';
 
-import { SignatureOverview } from '@mimir-wallet/components';
+import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?react';
+import { ButtonEnable, SignatureOverview } from '@mimir-wallet/components';
 import { useIsReadOnly } from '@mimir-wallet/hooks';
+import { SafeTxContext } from '@mimir-wallet/providers';
 import { approveCounts } from '@mimir-wallet/safe';
+import { addressEq } from '@mimir-wallet/utils';
 
 import Details from './Details';
 import MessageItems from './MessageItems';
@@ -31,7 +34,8 @@ interface Props {
 }
 
 function Cell({ message, allPaths, signatures, account, defaultOpen }: Props) {
-  const { address } = useAccount();
+  const { addMessage } = useContext(SafeTxContext);
+  const { address: walletAddress } = useAccount();
   const [isOpen, toggleOpen] = useToggle(defaultOpen || false);
   const [isOverviewOpen, toggleOverview] = useToggle(false);
   const approval = useMemo(() => approveCounts(account, signatures, true), [account, signatures]);
@@ -39,9 +43,39 @@ function Cell({ message, allPaths, signatures, account, defaultOpen }: Props) {
   const willChange = useWillChange();
 
   const filterPaths = useMemo(
-    () => (address ? findWaitApproveFilter(allPaths, signatures, address) : []),
-    [address, allPaths, signatures]
+    () => (walletAddress ? findWaitApproveFilter(allPaths, signatures, walletAddress) : []),
+    [walletAddress, allPaths, signatures]
   );
+
+  const operate = (address: Address, addressChain: Address[], isApprove: boolean) => {
+    if (addressEq(address, walletAddress) && !isApprove) {
+      return (
+        <ButtonEnable
+          startContent={<IconSuccess />}
+          fullWidth
+          size='sm'
+          color='success'
+          radius='none'
+          className='flex bg-success/10 border-none text-success'
+          variant='flat'
+          withConnect
+          onClick={() => {
+            toggleOverview(false);
+            addMessage({
+              address: message.address,
+              message: message.mesasge,
+              addressChain,
+              metadata: { website: message.website, iconUrl: message.iconUrl, appName: message.appName }
+            });
+          }}
+        >
+          Approve
+        </ButtonEnable>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <>
@@ -92,7 +126,7 @@ function Cell({ message, allPaths, signatures, account, defaultOpen }: Props) {
         <ModalContent>
           <ModalBody>
             <div className='w-full h-[60vh]'>
-              <SignatureOverview onClose={toggleOverview} signatures={signatures} account={account} />
+              <SignatureOverview signatures={signatures} account={account} operate={operate} />
             </div>
           </ModalBody>
         </ModalContent>

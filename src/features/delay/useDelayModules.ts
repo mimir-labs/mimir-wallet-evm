@@ -20,6 +20,7 @@ export function useDelayAddress(
   const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({
     initialData: EmptyArray,
     refetchInterval: false,
+    queryHash: serviceUrl(chainId, `modules/delay/${address}`),
     queryKey: [address ? serviceUrl(chainId, `modules/delay/${address}`) : null]
   });
 
@@ -31,6 +32,7 @@ export function useDelayModules(address?: Address): [data: DelayModule[], isFetc
   const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({
     initialData: EmptyArray,
     refetchInterval: false,
+    queryHash: serviceUrl(chainId, `modules/delay/${address}`),
     queryKey: [address ? serviceUrl(chainId, `modules/delay/${address}`) : null]
   });
 

@@ -7,11 +7,13 @@ import type { BaseAccount, IPublicClient, IWalletClient, SafeMessage } from '@mi
 
 import React from 'react';
 import { useAsyncFn } from 'react-use';
+import { useAccount } from 'wagmi';
 
 import ButtonEnable from '@mimir-wallet/components/ButtonEnable';
+import { toastSuccess } from '@mimir-wallet/components/ToastRoot';
 import { useIsReadOnly } from '@mimir-wallet/hooks';
 import { signSafeMessage } from '@mimir-wallet/safe';
-import { service } from '@mimir-wallet/utils';
+import { addressEq, service } from '@mimir-wallet/utils';
 
 function SignMessageButton({
   safeAccount,
@@ -32,6 +34,7 @@ function SignMessageButton({
   appName?: string | undefined;
   onSuccess?: (signature: Hex) => void;
 }) {
+  const { address: walletAddress } = useAccount();
   const isReadOnly = useIsReadOnly(safeAccount);
   const [state, handleSign] = useAsyncFn(
     async (wallet: IWalletClient, client: IPublicClient) => {
@@ -53,6 +56,7 @@ function SignMessageButton({
         })
         .then((signature) => {
           onSuccess?.(signature);
+          toastSuccess('Sign Success!');
         });
     },
     [addressChain, appName, iconUrl, message, onSuccess, safeAddress, website]
@@ -65,7 +69,7 @@ function SignMessageButton({
       color='primary'
       fullWidth
       radius='full'
-      disabled={isReadOnly}
+      disabled={isReadOnly || !addressEq(walletAddress, addressChain[addressChain.length - 1])}
       isLoading={state.loading}
       withConnect
     >

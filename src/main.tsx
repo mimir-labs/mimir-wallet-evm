@@ -11,6 +11,7 @@ import { registerSW } from 'virtual:pwa-register';
 import Providers from './providers/providers';
 import App from './App';
 import { initializeFavoriteApps, initMimirConfig } from './config';
+import { initGa } from './initGa';
 
 dayjs.extend((_, dayjsClass) => {
   const oldFormat = dayjsClass.prototype.format;
@@ -19,7 +20,6 @@ dayjs.extend((_, dayjsClass) => {
     return oldFormat.bind(this)(formatString ?? 'YYYY-MM-DD HH:mm:ss');
   };
 });
-registerSW();
 initializeFavoriteApps();
 
 const mimirConfig = initMimirConfig();
@@ -36,4 +36,9 @@ if (container) {
       </Providers>
     </BrowserRouter>
   );
+}
+
+if (process.env.NODE_ENV === 'production') {
+  registerSW();
+  initGa();
 }

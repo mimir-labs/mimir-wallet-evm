@@ -48,7 +48,7 @@ function BatchButton() {
           <Button
             variant='bordered'
             isIconOnly
-            className='border-1 border-secondary'
+            className='border-1 border-secondary rounded-medium'
             color='primary'
             onClick={toggleDrawerOpen}
           >
@@ -66,7 +66,7 @@ function BatchButton() {
         <PopoverContent>
           <div className='flex items-center gap-2.5'>
             <IconBatch className='text-primary w-[32px] h-[32px]' />
-            <span className='text-small'>New transaction has been added to Batch</span>
+            <span className='text-small'>New transaction has been added to Cache</span>
           </div>
         </PopoverContent>
       </Popover>

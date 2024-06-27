@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { serviceUrl } from '@mimir-wallet/config';
+import { EmptyArray } from '@mimir-wallet/constants';
 
 export function useRecoveryTxs(
   chainId: number,
@@ -15,7 +16,8 @@ export function useRecoveryTxs(
 ): [RecoveryTx[], isFetched: boolean, isFetching: boolean] {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data, isFetched, isFetching } = useQuery<any[]>({
-    initialData: [],
+    initialData: EmptyArray,
+    queryHash: serviceUrl(chainId, `tx/recovery/${address}`),
     queryKey: [address ? serviceUrl(chainId, `tx/recovery/${address}`) : null]
   });
 

@@ -43,6 +43,7 @@ export function useAccountTokens(address?: Address) {
       totalBalanceUsd: '0',
       totalCount: 0
     },
+    queryHash: assetsSrviceUrl(`addresses/${address}/tokens?chain_id=${chainId}`),
     queryKey: [address ? assetsSrviceUrl(`addresses/${address}/tokens?chain_id=${chainId}`) : null]
   });
   const { customTokens } = useContext(AddressContext);
@@ -101,7 +102,8 @@ export function useAccountBalance(
           address: token,
           abi: erc20Abi,
           functionName: 'balanceOf',
-          args: [address]
+          args: [address],
+          query: { retry: 1 }
         }
       : {}
   );

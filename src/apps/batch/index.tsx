@@ -23,15 +23,16 @@ function Batch({ onClose }: { onClose?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className='w-[30vw] max-w-[440px] min-w-[320px] space-y-5 h-full'>
+    <div className='w-[30vw] max-w-[440px] min-w-[320px] h-full'>
       {txs.length === 0 ? (
         <EmptyBatch onClose={onClose} />
       ) : (
-        <>
-          <h4 className='font-bold text-xl'>Batch</h4>
+        <div className='flex flex-col gap-y-5 h-full'>
+          <h4 className='font-bold text-xl'>Cache</h4>
           <Divider />
-          <div className='space-y-2.5'>
-            <p>Next Batch</p>
+
+          <div className='flex-1 space-y-2.5 overflow-y-auto'>
+            <p>Next Cache</p>
             {current && (
               <div ref={containerRef} style={{ touchAction: 'pan-y' }}>
                 <DraggableList
@@ -66,45 +67,51 @@ function Batch({ onClose }: { onClose?: () => void }) {
               Add New Transfer
             </Button>
           </div>
+
           <Divider />
-          <SafeTxButton
-            metadata={{ website: 'mimir://app/batch' }}
-            isApprove={false}
-            isCancel={false}
-            address={current}
-            buildTx={async (wallet) =>
-              buildMultiSendSafeTx(
-                wallet.chain,
-                txs.filter((item) => selected.includes(item.id)).map((item) => ({ ...item, value: BigInt(item.value) }))
-              )
-            }
-            onSuccess={() => {
-              setTxs(txs.filter((tx) => !selected.includes(tx.id)));
-              setSelected([]);
-            }}
-            isToastError
-            color='primary'
-            fullWidth
-            radius='full'
-            disabled={selected.length === 0}
-            onOpenTx={onClose}
-          >
-            Confirm Batch
-          </SafeTxButton>
-          <Button
-            fullWidth
-            radius='full'
-            disabled={selected.length === 0}
-            color='danger'
-            variant='bordered'
-            onClick={() => {
-              setSelected((values) => values.filter((v) => !selected.includes(v)));
-              deleteTx(selected);
-            }}
-          >
-            Delete
-          </Button>
-        </>
+
+          <div className='flex gap-5'>
+            <Button
+              fullWidth
+              radius='full'
+              disabled={selected.length === 0}
+              color='danger'
+              variant='bordered'
+              onClick={() => {
+                setSelected((values) => values.filter((v) => !selected.includes(v)));
+                deleteTx(selected);
+              }}
+            >
+              Delete
+            </Button>
+            <SafeTxButton
+              metadata={{ website: 'mimir://app/batch' }}
+              isApprove={false}
+              isCancel={false}
+              address={current}
+              buildTx={async (wallet) =>
+                buildMultiSendSafeTx(
+                  wallet.chain,
+                  txs
+                    .filter((item) => selected.includes(item.id))
+                    .map((item) => ({ ...item, value: BigInt(item.value) }))
+                )
+              }
+              onSuccess={() => {
+                setTxs(txs.filter((tx) => !selected.includes(tx.id)));
+                setSelected([]);
+              }}
+              isToastError
+              color='primary'
+              fullWidth
+              radius='full'
+              disabled={selected.length === 0}
+              onOpenTx={onClose}
+            >
+              Confirm Cache
+            </SafeTxButton>
+          </div>
+        </div>
       )}
     </div>
   );

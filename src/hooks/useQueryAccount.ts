@@ -8,8 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useContext, useEffect, useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
+import { serviceUrl } from '@mimir-wallet/config';
 import { AddressContext } from '@mimir-wallet/providers';
-import { service } from '@mimir-wallet/utils';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function findNames(account: BaseAccount): Record<string, string> {
@@ -51,10 +51,10 @@ export function useQueryAccount(address?: Address): BaseAccount | null {
   const chainId = useChainId();
   const { setAddressNames, setAddressThresholds, isMultisig } = useContext(AddressContext);
 
-  const { data } = useQuery({
+  const { data } = useQuery<BaseAccount | null>({
     initialData: null,
-    queryKey: [chainId, address],
-    queryFn: () => (address ? service.getAccountFull(chainId, address) : null)
+    queryHash: serviceUrl(chainId, `accounts/${address}/full`),
+    queryKey: [address ? serviceUrl(chainId, `accounts/${address}/full`) : null]
   });
 
   useEffect(() => {

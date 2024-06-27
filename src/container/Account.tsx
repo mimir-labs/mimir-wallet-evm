@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Divider, Link } from '@nextui-org/react';
+import { Divider, Link, Skeleton } from '@nextui-org/react';
 import { useContext } from 'react';
 import { useToggle } from 'react-use';
 import { useAccount, useBalance, useChains } from 'wagmi';
@@ -25,14 +25,14 @@ import { explorerUrl } from '@mimir-wallet/utils';
 function Account({ handleClick }: { handleClick: () => void }) {
   const { isConnected } = useAccount();
   const { current, multisigs } = useContext(AddressContext);
-  const { data } = useBalance({ address: current });
+  const { data, isFetching } = useBalance({ address: current });
   const [chain] = useChains();
   const [isQrOpen, toggleQrOpen] = useToggle(false);
 
   return (
     <>
       {isConnected ? (
-        multisigs.length > 0 ? (
+        multisigs.length > 0 || current ? (
           <div className='p-2.5 space-y-2.5 border-secondary border-1 rounded-medium text-small'>
             <Button
               onClick={handleClick}
@@ -56,12 +56,18 @@ function Account({ handleClick }: { handleClick: () => void }) {
               <AddressCell address={current} iconSize={30} />
             </Button>
             <Divider />
+
             <div className='flex items-center gap-1'>
               <AddressIcon isToken size={14} />
               <small className='text-opacity-50 text-foreground'>
-                <FormatBalance decimals={data?.decimals} showSymbol symbol={data?.symbol} value={data?.value} />
+                {isFetching ? (
+                  <Skeleton className='w-20 h-4' />
+                ) : (
+                  <FormatBalance decimals={data?.decimals} showSymbol symbol={data?.symbol} value={data?.value} />
+                )}
               </small>
             </div>
+
             <Divider />
             <div className='flex items-center gap-x-1.5 [&>*]:opacity-50 [&>*:hover]:opacity-100 [&>*]:border-none'>
               <Button color='primary' isIconOnly size='tiny' variant='light' onClick={toggleQrOpen}>

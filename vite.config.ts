@@ -36,9 +36,10 @@ export default defineConfig(({ mode }) => ({
           react: ['react', 'react-dom', 'react-router-dom'],
           crypto: ['@rainbow-me/rainbowkit', 'viem', 'wagmi'],
           ui1: ['react-draggable-list', 'react-toastify', 'framer-motion', '@metamask/jazzicon'],
-          ui2: ['@nextui-org/react'],
+          ui2: ['@nextui-org/react', 'next-themes'],
           reactflow: ['reactflow'],
-          lottie: ['lottie-web']
+          lottie: ['lottie-web'],
+          others: ['react-ga4']
         }
       }
     }

@@ -23,14 +23,25 @@ interface Props {
   withCopy?: boolean;
   withExplorer?: boolean;
   isToken?: boolean;
+  thresholdVisible?: boolean;
 }
 
-function AddressRow({ iconSize, fallbackName, address, disableEns, showFull, withCopy, withExplorer, isToken }: Props) {
+function AddressRow({
+  iconSize,
+  thresholdVisible,
+  fallbackName,
+  address,
+  disableEns,
+  showFull,
+  withCopy,
+  withExplorer,
+  isToken
+}: Props) {
   const [chain] = useChains();
 
   return (
     <div className='inline-flex items-center gap-x-[5px]'>
-      <AddressIcon isToken={isToken} size={iconSize} address={address} />
+      <AddressIcon isToken={isToken} size={iconSize} address={address} thresholdVisible={thresholdVisible} />
       <AddressName
         address={address}
         disableEns={disableEns}

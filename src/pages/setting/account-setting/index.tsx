@@ -13,11 +13,14 @@ import Setup from './Setup';
 
 function AccountSetting() {
   const [tab, setTab] = useQueryParam('accountTab', 'setup', { replace: true });
+  const [addressQuery] = useQueryParam<string>('settingAccount');
   const { current } = useContext(AddressContext);
 
-  const multisig = useMultisig(current);
+  const safeAddress = addressQuery || current;
 
-  if (!current || !isAddress(current)) return null;
+  const multisig = useMultisig(safeAddress);
+
+  if (!safeAddress || !isAddress(safeAddress)) return null;
 
   return (
     <Tabs
@@ -32,10 +35,10 @@ function AccountSetting() {
       }}
     >
       <Tab key='setup' title='Setup'>
-        <Setup multisig={multisig} safeAddress={current} />
+        <Setup multisig={multisig} safeAddress={safeAddress} />
       </Tab>
       <Tab key='module' title='Modules'>
-        <Modules safeAddress={current} />
+        <Modules safeAddress={safeAddress} />
       </Tab>
     </Tabs>
   );

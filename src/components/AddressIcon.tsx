@@ -17,10 +17,18 @@ interface Props {
   ensImage?: string | null;
   size?: number;
   src?: string;
+  thresholdVisible?: boolean;
   isToken?: boolean;
 }
 
-function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): React.ReactElement {
+function AddressIcon({
+  ensImage,
+  size = 24,
+  thresholdVisible = true,
+  src,
+  isToken,
+  address
+}: Props): React.ReactElement {
   if (isToken) {
     address ||= zeroAddress;
   }
@@ -70,7 +78,7 @@ function AddressIcon({ ensImage, size = 24, src, isToken, address }: Props): Rea
         style={{ width: size, height: size }}
         fallback={<AddressIconJazz address={address} size={size} ensImage={ensImage} />}
       />
-      {size >= 20 && threshold && (
+      {thresholdVisible && size >= 20 && threshold && (
         <span className='absolute left-0 right-0 bottom-0 w-full flex items-center justify-center overflow-visible'>
           <span className='flex-1 flex items-center justify-center font-bold text-tiny rounded-full bg-primary text-primary-foreground whitespace-nowrap translate-y-[40%]'>
             <span className='scale-85 origin-center'>{threshold.join('/')}</span>

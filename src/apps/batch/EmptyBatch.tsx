@@ -19,10 +19,10 @@ function EmptyBatch({ onClose }: { onClose?: () => void }) {
         />
         <circle opacity='0.21' cx='18.2568' cy='84.8008' r='18' fill='#5F45FF' />
       </svg>
-      <h6 className='font-bold text-large'>Add an initial transaction to the batch</h6>
+      <h6 className='font-bold text-large'>Add an initial transaction to the cache</h6>
       <p className='text-tiny'>
-        Save gas and signatures by adding multiple Multisig transactions to a single batch transaction. You can reorder
-        and delete individual transactions in a batch.
+        Save gas and signatures by adding multiple Multisig transactions to a single transaction. You can reorder and
+        delete individual transactions in a cache.
       </p>
       <Button
         as={Link}

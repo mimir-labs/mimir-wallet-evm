@@ -9,6 +9,7 @@ import PageApps from './pages/apps';
 import PageAppExplorer from './pages/apps/app-explorer';
 import PageAssets from './pages/assets';
 import PageCreateMultisig from './pages/create-multisig';
+import PageImportMultisig from './pages/import-multisig';
 import PageProfile from './pages/profile';
 import PageReset from './pages/reset';
 import PageRules from './pages/rules';
@@ -30,6 +31,7 @@ function App(): React.ReactElement {
       </Route>
       <Route element={<BaseContainer withPadding withSideBar={false} />}>
         <Route path='/create-multisig' element={<PageCreateMultisig />} />
+        <Route path='/import-multisig' element={<PageImportMultisig />} />
       </Route>
       <Route element={<BaseContainer withSideBar={false} withPadding />}>
         <Route path='/apps/:url' element={<PageAppExplorer />} />

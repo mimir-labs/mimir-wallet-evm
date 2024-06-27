@@ -8,7 +8,7 @@ import React from 'react';
 import { useToggle } from 'react-use';
 import { useAccount } from 'wagmi';
 
-import { AddressRow, Bytes, FormatBalance } from '@mimir-wallet/components';
+import { AddressRow, Bytes, FormatBalance, Hash } from '@mimir-wallet/components';
 import { Operation } from '@mimir-wallet/safe/types';
 
 import { Item } from '../tx-cell/Details';
@@ -25,7 +25,7 @@ function Details({ defaultOpen = false, transaction }: Props) {
   return (
     <>
       <Item label='Module' content={<AddressRow iconSize={16} withCopy address={transaction.to} />} />
-      <Item label='Transaction' content={transaction.transaction} />
+      <Item label='Transaction' content={<Hash hash={transaction.transaction} withExplorer />} />
       <Item label='Execute Time' content={dayjs(transaction.updatedAt).format()} />
 
       <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>

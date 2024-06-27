@@ -10,7 +10,8 @@ import { assetsSrviceUrl } from '@mimir-wallet/config';
 export function useQueryTokens() {
   const { data } = useQuery<TokenInfo[]>({
     initialData: [],
-    queryKey: [assetsSrviceUrl(`tokens`)]
+    queryKey: [assetsSrviceUrl(`tokens`)],
+    refetchInterval: false
   });
 
   return data;

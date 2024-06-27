@@ -8,6 +8,7 @@ import React, { useEffect } from 'react';
 import ReactFlow, { Edge, Handle, Node, NodeProps, Position, useEdgesState, useNodesState } from 'reactflow';
 import { useAccount } from 'wagmi';
 
+import IconSuccessFill from '@mimir-wallet/assets/svg/icon-success-fill.svg?react';
 import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?react';
 import { type SignatureResponse, type TransactionResponse, TransactionStatus } from '@mimir-wallet/hooks/types';
 import { approveCounts } from '@mimir-wallet/safe';
@@ -44,10 +45,11 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
     <>
       {data.members.length > 0 && (
         <Handle
-          className='bg-default-300'
+          data-approved={data.isApprove}
+          className='bg-default-300 data-[approved=true]:bg-success'
           isConnectable={isConnectable}
           position={Position.Left}
-          style={{ width: 0, height: 0, top: 26 }}
+          style={{ width: 10, height: 10 }}
           type='source'
         />
       )}
@@ -56,7 +58,7 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
           <div>
             <AddressCell fallbackName={data.name} withCopy address={data.address} iconSize={30} />
           </div>
-          {data.isApprove && <div className='w-2.5 h-2.5 rounded-full bg-success' />}
+          {data.isApprove && <IconSuccessFill className='text-success' />}
         </div>
         {data.transaction.status === TransactionStatus.Pending &&
           address &&
@@ -91,10 +93,11 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
       </div>
       {data.parentId ? (
         <Handle
-          className='bg-default-300'
+          data-approved={data.isApprove}
+          className='bg-default-300 data-[approved=true]:bg-success'
           isConnectable={isConnectable}
           position={Position.Right}
-          style={{ width: 0, height: 0 }}
+          style={{ width: 10, height: 10 }}
           type='target'
         />
       ) : null}

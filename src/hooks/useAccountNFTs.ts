@@ -15,6 +15,7 @@ export function useAccountNFTs(address?: Address) {
     initialData: {
       assets: []
     },
+    queryHash: assetsSrviceUrl(`addresses/${address}/nfts?chain_id=${chainId}`),
     queryKey: [address ? assetsSrviceUrl(`addresses/${address}/nfts?chain_id=${chainId}`) : null]
   });
 

@@ -13,7 +13,7 @@ import { fetcher } from '@mimir-wallet/utils/fetcher';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchInterval: 14_000,
+      refetchInterval: 12_000,
       queryFn: ({ queryKey }) => (queryKey[0] ? fetcher(queryKey[0] as string) : undefined)
     }
   }

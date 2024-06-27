@@ -78,7 +78,7 @@ function Networks() {
         </Button>
       </DropdownTrigger>
       <DropdownMenu>
-        <DropdownSection title=''>
+        <DropdownSection title='' showDivider>
           {mains.map((item) => (
             <DropdownItem
               startContent={<Avatar src={item?.iconUrl} className='w-[24px] h-[24px] bg-transparent' />}
@@ -96,7 +96,7 @@ function Networks() {
             </DropdownItem>
           ))}
         </DropdownSection>
-        <DropdownSection title='Testnets' showDivider>
+        <DropdownSection title='Testnets'>
           {tests.map((item) => (
             <DropdownItem
               startContent={<Avatar src={item?.iconUrl} className='w-[24px] h-[24px] bg-transparent' />}

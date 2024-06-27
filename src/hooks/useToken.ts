@@ -95,6 +95,7 @@ export function useToken(tokenAddr?: Address): [meta: TokenMeta | undefined, isF
   const client = useClient({ chainId });
   const { data, isFetched, isFetching } = useReadContracts({
     allowFailure: false,
+    query: { retry: 1 },
     contracts:
       tokenAddr !== zeroAddress
         ? [

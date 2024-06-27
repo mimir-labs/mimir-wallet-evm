@@ -63,7 +63,11 @@ function FunctionArgs({ data, to }: { data: Hex; to?: Address }) {
   return (
     <>
       {to && to !== zeroAddress && (
-        <Item key={`to-${to}`} label='To' content={<AddressRow iconSize={14} address={to} withCopy />} />
+        <Item
+          key={`interact-with-${to}`}
+          label='Interact With'
+          content={<AddressRow iconSize={14} address={to} withCopy />}
+        />
       )}
       {node}
     </>

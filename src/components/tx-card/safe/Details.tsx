@@ -9,7 +9,7 @@ import React, { useMemo } from 'react';
 import { useToggle } from 'react-use';
 import { useAccount, useChainId } from 'wagmi';
 
-import { AddressRow, Bytes, FormatBalance } from '@mimir-wallet/components';
+import { AddressRow, Bytes, FormatBalance, Hash } from '@mimir-wallet/components';
 import { hashSafeTransaction } from '@mimir-wallet/safe';
 import { Operation } from '@mimir-wallet/safe/types';
 
@@ -30,7 +30,9 @@ function Details({ address, defaultOpen = false, transaction }: Props) {
   return (
     <>
       <Item label='Hash' content={hash} />
-      {transaction.executeTransaction ? <Item label='Transaction' content={transaction.executeTransaction} /> : null}
+      {transaction.executeTransaction ? (
+        <Item label='Transaction' content={<Hash hash={transaction.executeTransaction} withExplorer />} />
+      ) : null}
       <Item label='Create Time' content={dayjs(transaction.createdAt).format()} />
       {transaction.executeBlock ? <Item label='Execute Time' content={dayjs(transaction.updatedAt).format()} /> : null}
 

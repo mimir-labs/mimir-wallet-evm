@@ -4,9 +4,9 @@
 import type { Address } from 'abitype';
 import type { Multisig } from '@mimir-wallet/safe/types';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useToggle } from 'react-use';
-import { isAddress } from 'viem';
+import { getAddress, isAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { AddAddressModal } from '@mimir-wallet/components';
@@ -26,28 +26,10 @@ export function useAddressBook(
   const [isOpen, toggleOpen] = useToggle(false);
   const promiseRef = useRef<{ resolve: (value: [Address, string]) => void; reject: (err: unknown) => void }>();
 
-  useEffect(() => {
-    setAddressNames((names) => ({
-      ...names,
-      ...tokens.reduce<Record<string, string>>((results, item) => {
-        if (item.chainId === chainId) {
-          results[item.address] = item.symbol;
-        }
-
-        return results;
-      }, {}),
-      ...multisigs.reduce<Record<string, string>>((value, item) => {
-        value[item.address] = item.name || '';
-
-        return value;
-      }, {})
-    }));
-  }, [chainId, multisigs, setAddressNames, tokens]);
-
   const addAddressBook = useCallback(
     (value?: [Address, string]) => {
       if (value) {
-        setAddress(value[0]);
+        setAddress(getAddress(value[0]));
         setName(value[1]);
       } else {
         setAddress('');
@@ -93,5 +75,30 @@ export function useAddressBook(
     />
   );
 
-  return { addresses, addressNames, addAddressBook, setAddress, setName, setAddressNames, node };
+  return {
+    addresses,
+    addressNames: useMemo(
+      () => ({
+        ...addressNames,
+        ...tokens.reduce<Record<string, string>>((results, item) => {
+          if (item.chainId === chainId) {
+            results[item.address] = item.symbol;
+          }
+
+          return results;
+        }, {}),
+        ...multisigs.reduce<Record<string, string>>((value, item) => {
+          value[item.address] = item.name || '';
+
+          return value;
+        }, {})
+      }),
+      [addressNames, chainId, multisigs, tokens]
+    ),
+    addAddressBook,
+    setAddress,
+    setName,
+    setAddressNames,
+    node
+  };
 }

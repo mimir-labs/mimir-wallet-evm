@@ -205,7 +205,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
               variant='bordered'
               startContent={<IconBatch />}
             >
-              Add To Batch
+              Add To Cache
             </Button>
           )}
         </div>

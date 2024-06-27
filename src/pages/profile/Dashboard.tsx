@@ -5,7 +5,7 @@ import type { Address } from 'abitype';
 
 import { Card, CardBody } from '@nextui-org/react';
 import React, { useMemo } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useChainId } from 'wagmi';
 
 import { AddressOverview } from '@mimir-wallet/components';
 import { useAllowanceTokens } from '@mimir-wallet/features/allowance';
@@ -18,8 +18,10 @@ import FavoriteApps from './FavoriteApps';
 import Info from './Info';
 import PendingTx from './PendingTx';
 import Rules from './Rules';
+import ScrollSessions from './ScrollSessions';
 
 function Dashboard({ address }: { address: Address }) {
+  const chainId = useChainId();
   const { address: walletAccount } = useAccount();
   const account = useQueryAccount(address);
   const { favorites, isFavorite, removeFavorite, addFavorite } = useVisibleApps();
@@ -48,10 +50,12 @@ function Dashboard({ address }: { address: Address }) {
 
   return (
     <div className='grid grid-cols-5 gap-4'>
+      {chainId === 534_352 && <ScrollSessions address={address} />}
+
       <div className='col-span-3'>
         <h6 className='font-bold text-medium mb-2.5'>Info</h6>
         <Card>
-          <CardBody className='w-full h-[240px] p-4'>
+          <CardBody className='w-full h-[220px] p-4'>
             <Info
               isSafe={account?.type === 'safe'}
               nftCounts={nftData.assets.length}
@@ -64,7 +68,7 @@ function Dashboard({ address }: { address: Address }) {
       <div className='col-span-2'>
         <h6 className='font-bold text-medium mb-2.5'>Pending Transaction</h6>
         <Card>
-          <CardBody className='w-full h-[240px] p-4'>
+          <CardBody className='w-full h-[220px] p-4'>
             <PendingTx address={address} />
           </CardBody>
         </Card>
