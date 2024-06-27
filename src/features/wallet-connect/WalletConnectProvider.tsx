@@ -119,6 +119,7 @@ function WalletConnectProvider({ children }: { children: React.ReactNode }) {
           iconUrl: session?.peer.metadata.icons?.[0],
           appName: session?.peer.metadata.name
         },
+        requestId: id,
         onFinal: (signature) => {
           sendSessionResponse(topic, {
             jsonrpc: '2.0',

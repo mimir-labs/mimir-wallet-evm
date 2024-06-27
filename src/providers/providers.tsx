@@ -5,6 +5,7 @@ import type { Address } from 'viem';
 import type { Config } from 'wagmi';
 
 import { NextUIProvider } from '@nextui-org/react';
+import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { useNavigate } from 'react-router-dom';
 
 import { ToastRoot } from '@mimir-wallet/components';
@@ -19,16 +20,18 @@ function Providers({ config, address, children }: { config: Config; address?: Ad
 
   return (
     <NextUIProvider navigate={navigate}>
-      <WalletProvider config={config}>
-        <AddressProvider defaultCurrent={address}>
-          <SafeTxProvider>
-            <WalletConnectProvider>
-              {children}
-              <ToastRoot />
-            </WalletConnectProvider>
-          </SafeTxProvider>
-        </AddressProvider>
-      </WalletProvider>
+      <NextThemesProvider attribute='class' defaultTheme='light'>
+        <WalletProvider config={config}>
+          <AddressProvider defaultCurrent={address}>
+            <SafeTxProvider>
+              <WalletConnectProvider>
+                {children}
+                <ToastRoot />
+              </WalletConnectProvider>
+            </SafeTxProvider>
+          </AddressProvider>
+        </WalletProvider>
+      </NextThemesProvider>
     </NextUIProvider>
   );
 }

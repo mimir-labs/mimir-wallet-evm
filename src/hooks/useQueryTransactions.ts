@@ -42,6 +42,7 @@ export function usePendingTransactions(
 ): [PendingData, isFetched: boolean, isFetching: boolean, refetch: () => void] {
   const { data, isFetched, isFetching, refetch } = useQuery<any[]>({
     initialData: EmptyArray,
+    queryHash: serviceUrl(chainId, `tx/pending/${address}`),
     queryKey: [address ? serviceUrl(chainId, `tx/pending/${address}`) : null]
   });
 
@@ -200,6 +201,7 @@ export function useHistoryTransactions(
   address?: Address
 ): [HistoryData, isFetched: boolean, isFetching: boolean] {
   const { data, isFetched, isFetching } = useQuery({
+    queryHash: serviceUrl(chainId, `tx/history/${address}`),
     queryKey: [address ? serviceUrl(chainId, `tx/history/${address}`) : null]
   });
 
@@ -214,6 +216,7 @@ export function useTransactionSignature(
 ): [TransactionSignature | null, isFetched: boolean, isFetching: boolean, refetch: () => void] {
   const { data, isFetched, isFetching, refetch } = useQuery<any>({
     initialData: null,
+    queryHash: serviceUrl(chainId, `tx/details/${hash}`),
     queryKey: [hash ? serviceUrl(chainId, `tx/details/${hash}`) : null],
     enabled: false
   });

@@ -15,7 +15,7 @@ function WalletConnectModal({ isOpen, onClose }: { isOpen: boolean; onClose: () 
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalContent>
         <ModalBody className='p-5'>
-          {sessionProposal ? <Session proposal={sessionProposal} /> : <Connect sessions={sessions} />}
+          {sessionProposal ? <Session proposal={sessionProposal} onClose={onClose} /> : <Connect sessions={sessions} />}
         </ModalBody>
       </ModalContent>
     </Modal>

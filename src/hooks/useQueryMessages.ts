@@ -22,6 +22,7 @@ export function useQueryMessages(
 ): [MessageSignature[], isFetched: boolean, isFetching: boolean, refetch: () => void] {
   const { data, isFetched, isFetching, refetch } = useQuery<MessageSignature[]>({
     initialData: EmptyArray,
+    queryHash: serviceUrl(chainId, `messages/${address}`),
     queryKey: [address ? serviceUrl(chainId, `messages/${address}`) : null]
   });
 
@@ -34,6 +35,7 @@ export function useQueryMessage(
 ): [MessageSignature | null, isFetched: boolean, isFetching: boolean, refetch: () => void] {
   const { data, isFetched, isFetching, refetch } = useQuery<{ result: MessageSignature | null }>({
     initialData: { result: null },
+    queryHash: serviceUrl(chainId, `message/${hash}`),
     queryKey: [hash ? serviceUrl(chainId, `message/${hash}`) : null]
   });
 

@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import React from 'react';
 import { useToggle } from 'react-use';
 
-import { AddressRow, FormatBalance } from '@mimir-wallet/components';
+import { AddressRow, FormatBalance, Hash } from '@mimir-wallet/components';
 import { useToken } from '@mimir-wallet/hooks';
 
 import { Item } from '../tx-cell/Details';
@@ -35,7 +35,7 @@ function Details({ defaultOpen = false, transaction }: Props) {
   return (
     <>
       <Item label='Time' content={dayjs(transaction.createdAt).format()} />
-      <Item label='Transaction' content={transaction.transaction} />
+      <Item label='Transaction' content={<Hash hash={transaction.transaction} withExplorer />} />
 
       <div onClick={toggleOpen} className='cursor-pointer text-primary font-bold text-small'>
         {isOpen ? 'Hide' : 'View'} Details

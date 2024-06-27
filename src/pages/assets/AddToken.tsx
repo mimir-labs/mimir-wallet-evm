@@ -78,7 +78,9 @@ function AddToken({ isOpen, onClose }: Props) {
                 </div>
               </div>
             ) : null
-          ) : null}
+          ) : (
+            <p className='text-center text-foreground-400'>Input token address to search.</p>
+          )}
         </ModalBody>
         <ModalFooter />
       </ModalContent>

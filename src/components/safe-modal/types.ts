@@ -90,6 +90,7 @@ export interface UseSafeMessage {
   message: SafeMessage;
   metadata?: { website?: string; iconUrl?: string; appName?: string };
   addressChain?: Address[];
+  requestId?: number;
   onSuccess?: (signature: Hex) => void;
   onFinal?: (signature: Hex, messageHash: Hash) => void;
   onClose?: () => void;

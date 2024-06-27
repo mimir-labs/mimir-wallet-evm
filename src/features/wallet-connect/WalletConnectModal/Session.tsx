@@ -15,7 +15,7 @@ import { AddressContext } from '@mimir-wallet/providers';
 import { approveSession, rejectSession } from '../wallet-connect';
 import { WalletConnectContext } from '../WalletConnectProvider';
 
-function Session({ proposal }: { proposal: Web3WalletTypes.SessionProposal }) {
+function Session({ proposal, onClose }: { proposal: Web3WalletTypes.SessionProposal; onClose: () => void }) {
   const chainId = useChainId();
   const [chain] = useChains();
   const { current } = useContext(AddressContext);
@@ -33,10 +33,11 @@ function Session({ proposal }: { proposal: Web3WalletTypes.SessionProposal }) {
 
     try {
       await approveSession(proposal, chainId, current);
+      onClose();
     } catch (error) {
       toastError(error);
     }
-  }, [chainId, current, proposal]);
+  }, [chainId, current, onClose, proposal]);
 
   return (
     <div className='flex flex-col gap-5 items-center'>
@@ -49,7 +50,9 @@ function Session({ proposal }: { proposal: Web3WalletTypes.SessionProposal }) {
           </Link>
         </p>
       </div>
-      <p className='text-small'>You authorize access to Uniswap with the following identity.</p>
+      <p className='text-small'>
+        You authorize access to {proposal.params.proposer.metadata.name} with the following identity.
+      </p>
 
       {current ? (
         <div className='rounded-medium bg-secondary p-2.5 w-full'>

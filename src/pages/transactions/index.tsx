@@ -119,7 +119,7 @@ function Transaction() {
           <Tab key='history' title='History'>
             <History account={account} />
           </Tab>
-          <Tab key='message' title='Messages'>
+          <Tab key='message' title='Message'>
             <Messages account={account} />
           </Tab>
         </Tabs>

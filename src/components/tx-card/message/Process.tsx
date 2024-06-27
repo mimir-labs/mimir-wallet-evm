@@ -40,14 +40,16 @@ function ProgressItem({ signature, account }: { account?: BaseAccount; signature
 function Process({
   account,
   signatures,
-  children
+  children,
+  className
 }: {
   account: BaseAccount;
   signatures: SignatureResponse[];
   children?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className='w-[24%] rounded-medium bg-primary/[0.04] p-3 space-y-2'>
+    <div className={'w-[24%] rounded-medium bg-primary/[0.04] p-3 space-y-2'.concat(` ${className || ''}`)}>
       <h6 className='text-primary font-bold text-medium'>Process</h6>
       <Accordion defaultSelectedKeys='all' className='px-0'>
         <AccordionItem

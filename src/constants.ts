@@ -3,7 +3,7 @@
 
 export const LS_NAMESPACE = 'MIMIR__';
 
-export const CURRENT_ACCOUNT_KEY = 'current_account';
+export const CURRENT_ACCOUNT_KEY = `${LS_NAMESPACE}current_account`;
 
 export const FAVORITE_APP_KEY = 'favorite_app';
 

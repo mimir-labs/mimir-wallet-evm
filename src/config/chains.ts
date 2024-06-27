@@ -4,8 +4,8 @@
 import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { Chain, FallbackTransport, http, isAddress, Transport } from 'viem';
-import { moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
+import { Chain, defineChain, FallbackTransport, http, isAddress, Transport } from 'viem';
+import { darwinia, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
 import { CHAIN_RPC_URL_PREFIX, CURRENT_ACCOUNT_KEY, WALLET_CONNECT_PROJECT_ID } from '@mimir-wallet/constants';
@@ -58,6 +58,51 @@ export const supportedChains = [
     shortName: 'scr-sepolia',
     iconUrl: '/chain-icons/534351.webp',
     nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
+  {
+    ...darwinia,
+    blockExplorers: {
+      default: {
+        name: 'Explorer',
+        url: 'https://explorer.darwinia.network/',
+        apiUrl: 'https://explorer.darwinia.network/api'
+      }
+    },
+    shortName: 'dar',
+    iconUrl: '/chain-icons/46.svg',
+    nativeCurrencyIcon: '/token-icons/RING.svg'
+  },
+  {
+    ...defineChain({
+      id: 44,
+      name: 'Crab Network',
+      nativeCurrency: {
+        decimals: 18,
+        name: 'CRAB',
+        symbol: 'CRAB'
+      },
+      rpcUrls: {
+        default: {
+          http: ['https://crab-rpc.darwinia.network']
+        }
+      },
+      blockExplorers: {
+        default: {
+          name: 'Explorer',
+          url: 'https://crab-scan.darwinia.network',
+          apiUrl: 'https://crab-scan.darwinia.network/api'
+        }
+      },
+      contracts: {
+        multicall3: {
+          address: '0xca11bde05977b3631167028862be2a173976ca11',
+          blockCreated: 599936
+        }
+      }
+    }),
+    shortName: 'cra',
+    iconUrl: '/chain-icons/44.svg',
+    nativeCurrencyIcon: '/token-icons/Crab.svg'
   }
 ] as [CustomChain, ...CustomChain[]];
 
@@ -99,7 +144,7 @@ export function initMimirConfig(): MimirConfig {
   });
 
   let address: Address | undefined;
-  const localAddress = localStorage.getItem(`${CURRENT_ACCOUNT_KEY}:${chain.id}`);
+  const localAddress = store.get(`${CURRENT_ACCOUNT_KEY}:${chain.id}`) as string;
 
   if (urlAddress && isAddress(urlAddress)) {
     address = urlAddress;

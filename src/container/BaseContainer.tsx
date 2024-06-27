@@ -64,9 +64,9 @@ function BaseContainer({
 
             <RecoverModal />
 
-            <div style={{ display: state.length > 0 ? 'none' : undefined }}>
+            <span style={{ display: state.length > 0 ? 'none' : undefined }}>
               <Outlet />
-            </div>
+            </span>
           </div>
         </div>
       ) : (

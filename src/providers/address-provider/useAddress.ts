@@ -63,7 +63,7 @@ export function useAddress(defaultCurrent?: Address) {
   const switchAddress = useCallback(
     (address: Address) => {
       setCurrent(address);
-      store.set(`${CURRENT_ACCOUNT_KEY}:${chainId}`, JSON.stringify(address));
+      store.set(`${CURRENT_ACCOUNT_KEY}:${chainId}`, address);
     },
     [chainId]
   );
@@ -92,9 +92,7 @@ export function useAddress(defaultCurrent?: Address) {
   useEffect(() => {
     if (address) {
       querySync(chainId, address, setMultisigs)
-        .then((multisigs) => {
-          setCurrent((value) => value || multisigs?.[0]?.address);
-        })
+        .then(() => {})
         .finally(() => setIsReady(true));
     } else {
       setIsReady(true);

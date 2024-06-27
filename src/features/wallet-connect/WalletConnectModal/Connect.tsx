@@ -14,6 +14,22 @@ import { asError } from '@mimir-wallet/utils';
 import { isPairingUri } from '../utils';
 import { connect, disconnectSession } from '../wallet-connect';
 
+function ConnectSession({ session }: { session: SessionTypes.Struct }) {
+  const [state, disconnect] = useAsyncFn((session: SessionTypes.Struct) => {
+    return disconnectSession(session);
+  }, []);
+
+  return (
+    <div className='w-full flex items-center gap-2.5 p-2.5 border-1 border-[#d9d9d9]/50 rounded-medium'>
+      <Avatar style={{ width: 30, height: 30 }} src={session.peer.metadata.icons[0]} />
+      <p className='flex-1 text-small'>{session.peer.metadata.name}</p>
+      <Button radius='full' color='warning' size='sm' onClick={() => disconnect(session)} isLoading={state.loading}>
+        Disconnect
+      </Button>
+    </div>
+  );
+}
+
 function Connect({ sessions }: { sessions: SessionTypes.Struct[] }) {
   const [uri, setUri] = useInput('');
   const [error, setError] = useState<Error>();
@@ -45,10 +61,6 @@ function Connect({ sessions }: { sessions: SessionTypes.Struct[] }) {
     [setUri]
   );
 
-  const [state, disconnect] = useAsyncFn((session: SessionTypes.Struct) => {
-    return disconnectSession(session);
-  }, []);
-
   return (
     <div className='flex flex-col gap-5 items-center'>
       <Avatar src='/images/wallet-connect.webp' alt='wallet connect' style={{ width: 150, height: 150 }} />
@@ -67,16 +79,7 @@ function Connect({ sessions }: { sessions: SessionTypes.Struct[] }) {
       {error && <Alert severity='error' title={error?.message} />}
       {sessions.length > 0 && <Divider />}
       {sessions.map((session) => (
-        <div
-          key={session.topic}
-          className='w-full flex items-center gap-2.5 p-2.5 border-1 border-[#d9d9d9]/50 rounded-medium'
-        >
-          <Avatar style={{ width: 30, height: 30 }} src={session.peer.metadata.icons[0]} />
-          <p className='flex-1 text-small'>{session.peer.metadata.name}</p>
-          <Button radius='full' color='warning' size='sm' onClick={() => disconnect(session)} isLoading={state.loading}>
-            Disconnect
-          </Button>
-        </div>
+        <ConnectSession session={session} key={session.topic} />
       ))}
     </div>
   );

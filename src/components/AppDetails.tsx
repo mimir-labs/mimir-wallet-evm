@@ -3,7 +3,7 @@
 
 import type { AppConfig } from '@mimir-wallet/config';
 
-import { Chip, Divider, Link, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
+import { Chip, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react';
 import React from 'react';
 
 import IconDiscord from '@mimir-wallet/assets/svg/icon-discord.svg?react';
@@ -17,6 +17,7 @@ interface Props {
   open: boolean;
   app: AppConfig;
   onClose: () => void;
+  onOpenApp: () => void;
 }
 
 function Contents({ app }: { app: AppConfig }) {
@@ -57,7 +58,7 @@ function Contents({ app }: { app: AppConfig }) {
   );
 }
 
-function DappDetails({ app, onClose, open }: Props) {
+function DappDetails({ app, onClose, open, onOpenApp }: Props) {
   return (
     <Modal size='md' onClose={onClose} isOpen={open}>
       <ModalContent>
@@ -67,13 +68,7 @@ function DappDetails({ app, onClose, open }: Props) {
         </ModalHeader>
         <Contents app={app} />
         <ModalFooter className='justify-center'>
-          <Button
-            color='primary'
-            radius='full'
-            as={Link}
-            style={{ width: 195 }}
-            href={`/apps/${encodeURIComponent(app.url)}`}
-          >
+          <Button color='primary' radius='full' style={{ width: 195 }} onClick={onOpenApp}>
             Open
           </Button>
         </ModalFooter>

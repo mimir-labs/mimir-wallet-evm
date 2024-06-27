@@ -32,6 +32,7 @@ export { default as Empty } from './Empty';
 export { default as FormatBalance } from './FormatBalance';
 export { default as FunctionArgs } from './FunctionArgs';
 export { default as FunctionName } from './FunctionName';
+export { default as Hash } from './Hash';
 export { default as Input } from './Input';
 export { default as InputAddress } from './InputAddress';
 export { default as InputToken } from './InputToken';
