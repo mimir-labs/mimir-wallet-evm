@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Avatar, Badge } from '@nextui-org/react';
+import { Avatar, Badge, Tooltip } from '@nextui-org/react';
 import { useContext } from 'react';
 import { useToggle } from 'react-use';
 
@@ -18,27 +18,34 @@ function WalletConnect() {
 
   return (
     <>
-      <Button variant='bordered' isIconOnly className='border-1 border-secondary' color='primary' onClick={toggleOpen}>
-        <Badge
-          isInvisible={sessions.length === 0}
-          content={
-            sessions.length === 1 ? (
-              <Avatar src={sessions[0].peer.metadata.icons[0]} style={{ width: 16, height: 16 }} />
-            ) : (
-              sessions.length
-            )
-          }
+      <Tooltip placement='bottom' color='default' closeDelay={0} content='Wallet Connect'>
+        <Button
+          variant='bordered'
+          isIconOnly
+          className='border-1 border-secondary hover:bg-primary hover:text-primary-foreground'
           color='primary'
-          placement='bottom-right'
-          size='sm'
-          classNames={{
-            badge: sessions.length === 1 ? ['bg-transparent p-0 border-none'] : []
-          }}
+          onClick={toggleOpen}
         >
-          <IconWalletConnect className='text-primary' />
-        </Badge>
-      </Button>
-
+          <Badge
+            isInvisible={sessions.length === 0}
+            content={
+              sessions.length === 1 ? (
+                <Avatar src={sessions[0].peer.metadata.icons[0]} style={{ width: 16, height: 16 }} />
+              ) : (
+                sessions.length
+              )
+            }
+            color='primary'
+            placement='bottom-right'
+            size='sm'
+            classNames={{
+              badge: sessions.length === 1 ? ['bg-transparent p-0 border-none'] : []
+            }}
+          >
+            <IconWalletConnect />
+          </Badge>
+        </Button>
+      </Tooltip>
       <WalletConnectModal isOpen={isOpen} onClose={toggleOpen} />
     </>
   );

@@ -63,7 +63,7 @@ function WalletConnectProvider({ children }: { children: React.ReactNode }) {
       addTx({
         isApprove: false,
         isCancel: false,
-        address: from,
+        address: getAddress(from),
         tx: buildSafeTransaction(getAddress(to), {
           value: value ? hexToBigInt(value) : 0n,
           data: data || '0x'
@@ -80,7 +80,7 @@ function WalletConnectProvider({ children }: { children: React.ReactNode }) {
           sendSessionResponse(topic, {
             jsonrpc: '2.0',
             id,
-            result: hashSafeTransaction(chainId, from, safeTx)
+            result: hashSafeTransaction(chainId, getAddress(from), safeTx)
           });
         },
         onClose: () => {

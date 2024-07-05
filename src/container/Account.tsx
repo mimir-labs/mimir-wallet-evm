@@ -25,14 +25,14 @@ import { explorerUrl } from '@mimir-wallet/utils';
 function Account({ handleClick }: { handleClick: () => void }) {
   const { isConnected } = useAccount();
   const { current, multisigs } = useContext(AddressContext);
-  const { data, isFetching } = useBalance({ address: current });
+  const { data, isFetched, isFetching } = useBalance({ address: current });
   const [chain] = useChains();
   const [isQrOpen, toggleQrOpen] = useToggle(false);
 
   return (
     <>
       {isConnected ? (
-        multisigs.length > 0 || current ? (
+        current ? (
           <div className='p-2.5 space-y-2.5 border-secondary border-1 rounded-medium text-small'>
             <Button
               onClick={handleClick}
@@ -60,7 +60,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
             <div className='flex items-center gap-1'>
               <AddressIcon isToken size={14} />
               <small className='text-opacity-50 text-foreground'>
-                {isFetching ? (
+                {isFetching && !isFetched ? (
                   <Skeleton className='w-20 h-4' />
                 ) : (
                   <FormatBalance decimals={data?.decimals} showSymbol symbol={data?.symbol} value={data?.value} />
@@ -97,7 +97,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
               </Button>
             </div>
           </div>
-        ) : (
+        ) : multisigs.length > 0 ? null : (
           <Button color='primary' as={Link} href='/create-multisig' size='lg' fullWidth>
             Create Multisig
           </Button>

@@ -8,10 +8,12 @@ import type { InputAddressProps } from './types';
 import { Listbox, ListboxItem } from '@nextui-org/react';
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
-import { getAddress, isAddress } from 'viem';
+import { Address as AddressType, getAddress, isAddress } from 'viem';
 
-import { useInput } from '@mimir-wallet/hooks';
+import IconWarning from '@mimir-wallet/assets/svg/icon-warning-fill.svg?react';
+import { useInputAddress } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
+import { addressEq } from '@mimir-wallet/utils';
 
 import Address from './Address';
 import AddressCell from './AddressCell';
@@ -20,34 +22,35 @@ import AddressName from './AddressName';
 
 function InputAddress({ disabled, value, defaultValue, filtered, isSign = false, label, onChange }: InputAddressProps) {
   const isControlled = useRef(value !== undefined);
-  const { all, isMultisig, isSigner } = useContext(AddressContext);
-  const [inputValue, setInputValue] = useInput(value || defaultValue);
+  const { all, addresses, isMultisig, isSigner, addAddressBook } = useContext(AddressContext);
+  const [[inputValue, isValidAddress], setInputValue] = useInputAddress();
   const [selectedKey, setSelectedKey] = useState<string | undefined>(value || defaultValue || '');
   const [isOpen, toggleOpen] = useToggle(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const items = useMemo(
     () =>
       Array.from(
         new Set(
-          all.filter((item) => {
-            return (
-              (isSign ? isMultisig(item) || isSigner(item) : true) &&
-              (inputValue && inputValue !== selectedKey
-                ? item.toLowerCase().includes(inputValue.toLowerCase())
-                : true) &&
-              (filtered ? filtered.find((_filter) => _filter.toLowerCase() === item.toLowerCase()) : true)
-            );
-          })
+          all
+            .filter((item) => {
+              return (
+                (isSign ? isMultisig(item) || isSigner(item) : true) &&
+                (inputValue && inputValue !== selectedKey
+                  ? item.toLowerCase().includes(inputValue.toLowerCase())
+                  : true) &&
+                (filtered ? filtered.find((_filter) => _filter.toLowerCase() === item.toLowerCase()) : true)
+              );
+            })
+            .concat(!isSign && inputValue && isValidAddress ? (inputValue as AddressType) : [])
         )
       ),
-    [all, filtered, inputValue, isMultisig, isSign, isSigner, selectedKey]
+    [all, filtered, inputValue, isMultisig, isSign, isSigner, isValidAddress, selectedKey]
   );
 
   useEffect(() => {
     if (isControlled.current && value) {
-      setInputValue(value);
       setSelectedKey(value);
     }
   }, [setInputValue, value]);
@@ -62,7 +65,7 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
 
   const handleSelect = (item: string) => {
     setSelectedKey(item);
-    setInputValue(item);
+    setInputValue('');
     toggleOpen(false);
   };
 
@@ -70,8 +73,11 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
     toggleOpen(true);
   };
 
-  const handleClose = () => {
-    toggleOpen(false);
+  const handleClose = (e: React.FocusEvent<HTMLDivElement, Element>) => {
+    if (!e.relatedTarget || !wrapperRef.current?.contains(e.relatedTarget)) {
+      toggleOpen(false);
+      if (!isSign && isValidAddress) handleSelect(inputValue);
+    }
   };
 
   const element = (
@@ -91,11 +97,8 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
   );
 
   const popoverContent = isOpen ? (
-    <div
-      ref={menuRef}
-      className='z-50 bg-white shadow-medium absolute top-full left-0 right-0 max-h-[300px] mt-2 rounded-medium overflow-y-scroll'
-    >
-      <Listbox>
+    <div className='z-50 bg-white shadow-medium absolute top-full left-0 right-0 max-h-[250px] mt-2 rounded-medium overflow-y-scroll'>
+      <Listbox emptyContent='no addresses'>
         {items.map((item) => (
           <ListboxItem key={item} onClick={() => handleSelect(item)}>
             <AddressCell address={item} showFull />
@@ -106,7 +109,11 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
   ) : null;
 
   return (
-    <div data-disabled={disabled} className='input-address-wrapper space-y-2 data-[disabled=true]:pointer-events-none'>
+    <div
+      ref={wrapperRef}
+      data-disabled={disabled}
+      className='input-address-wrapper w-full space-y-2 data-[disabled=true]:pointer-events-none'
+    >
       {label && <div className='font-bold text-small'>{label}</div>}
       <div
         onFocus={handleOpen}
@@ -123,6 +130,20 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
         />
         {popoverContent}
       </div>
+      {!isSign && selectedKey && !addresses.find((item) => addressEq(item, selectedKey)) && (
+        <span className='flex items-center gap-1 text-small'>
+          <IconWarning className='text-warning' />
+          This is an unknown address. You can&nbsp;
+          <span
+            className='cursor-pointer text-primary'
+            onClick={() => {
+              addAddressBook([selectedKey as AddressType, '']);
+            }}
+          >
+            add it to your address book
+          </span>
+        </span>
+      )}
     </div>
   );
 }

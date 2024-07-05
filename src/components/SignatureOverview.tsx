@@ -119,8 +119,7 @@ function makeNodes(
       source: parentId,
       target: nodeId,
       type: 'smoothstep',
-      style: { stroke: '#d9d9d9' },
-      animated: true
+      style: { stroke: '#d9d9d9' }
     });
   }
 

@@ -6,13 +6,14 @@ import type { BaseAccount, MetaTransaction } from '@mimir-wallet/safe/types';
 
 import { Chip, CircularProgress } from '@nextui-org/react';
 import React from 'react';
+import { zeroAddress } from 'viem';
 import { useAccount, useChains } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconFail from '@mimir-wallet/assets/svg/icon-failed-outlined.svg?react';
 import IconMember from '@mimir-wallet/assets/svg/icon-member.svg?react';
 import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?react';
-import { Button, CallDetails, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
+import { AddressIcon, Button, CallDetails, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
 import { useIsReadOnly } from '@mimir-wallet/hooks';
@@ -166,17 +167,15 @@ function TxItems({
         <AppName website={transaction.website} iconUrl={transaction.iconUrl} appName={transaction.appName} />
       </div>
       <div className='col-span-1 flex items-center'>{parsed.functionName}</div>
-      <div className='col-span-1 flex items-center text-small'>
+      <div className='col-span-1 flex items-center text-small gap-1'>
         {dataSize ? (
           <CallDetails multisend={multisend} parsed={parsed} />
         ) : (
-          <FormatBalance
-            prefix='- '
-            value={transaction.value}
-            decimals={chain.nativeCurrency.decimals}
-            showSymbol
-            symbol={chain.nativeCurrency.symbol}
-          />
+          <>
+            <FormatBalance prefix='- ' value={transaction.value} showSymbol={false} {...chain.nativeCurrency} />
+            <AddressIcon size={20} isToken address={zeroAddress} />
+            {chain.nativeCurrency.symbol}
+          </>
         )}
       </div>
       <div className='col-span-1 flex items-center'>

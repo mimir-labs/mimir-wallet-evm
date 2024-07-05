@@ -92,13 +92,13 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
           />
         </div>
         <div className='flex-1 space-y-2.5 text-small max-h-[calc(100%-100px)] overflow-y-auto'>
-          <p>Current Account</p>
+          {current && <p>Current Account</p>}
           {current && (
             <Cell onClose={onClose} isSelect address={current}>
               <AddressCell withCopy iconSize={30} address={current} />
             </Cell>
           )}
-          <Divider />
+          {current && <Divider />}
           <p>Multisig Accounts</p>
           {filtered.map((item) => (
             <Cell

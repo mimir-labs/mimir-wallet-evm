@@ -10,12 +10,11 @@ import { Core } from '@walletconnect/core';
 import { buildApprovedNamespaces, getSdkError } from '@walletconnect/utils';
 import { Web3Wallet, Web3WalletTypes } from '@walletconnect/web3wallet';
 
-import { supportedChains } from '@mimir-wallet/config';
 import { LS_NAMESPACE, WALLET_CONNECT_PROJECT_ID } from '@mimir-wallet/constants';
 import { assert } from '@mimir-wallet/utils';
 
 import { EIP155, MIMIR_WALLET_METADATA, SESSION_ADD_EVENT, SESSION_REJECT_EVENT } from './constants';
-import { getEip155ChainId } from './utils';
+import { getEip155ChainId, stripEip155Prefix } from './utils';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let web3Wallet: Web3WalletType;
@@ -77,7 +76,11 @@ export async function accountsChanged(topic: string, chainId: number, address: s
 }
 
 function _getNamespaces(proposal: Web3WalletTypes.SessionProposal, currentChainId: number, safeAddress: Address) {
-  const eip155ChainIds = supportedChains.map((item) => getEip155ChainId(item.id));
+  const requiredChains = proposal.params.requiredNamespaces[EIP155]?.chains || [];
+
+  const supportedChainIds = [`${currentChainId}`].concat(requiredChains.map(stripEip155Prefix));
+
+  const eip155ChainIds = supportedChainIds.map(getEip155ChainId);
   const eip155Accounts = eip155ChainIds.map((eip155ChainId) => `${eip155ChainId}:${safeAddress}`);
 
   const methods = [
@@ -90,26 +93,20 @@ function _getNamespaces(proposal: Web3WalletTypes.SessionProposal, currentChainI
     'eth_signTypedData_v3',
     'eth_signTypedData_v4',
     'eth_sendTransaction',
-    'personal_sign'
-    // 'wallet_switchEthereumChain'
-    // "wallet_addEthereumChain",
-    // "wallet_getPermissions",
-    // "wallet_requestPermissions",
-    // "wallet_registerOnboarding",
-    // "wallet_watchAsset",
-    // "wallet_scanQRCode",
-    // "wallet_sendCalls",
-    // "wallet_getCallsStatus",
-    // "wallet_showCallsStatus",
-    // "wallet_getCapabilities",
+    'personal_sign',
+    'wallet_switchEthereumChain',
+    'wallet_addEthereumChain',
+    'wallet_getPermissions',
+    'wallet_requestPermissions',
+    'wallet_registerOnboarding',
+    'wallet_watchAsset',
+    'wallet_scanQRCode',
+    'wallet_sendCalls',
+    'wallet_getCallsStatus',
+    'wallet_showCallsStatus',
+    'wallet_getCapabilities'
   ];
-  const events = [
-    'chainChanged',
-    'accountsChanged',
-    // "message",
-    'disconnect',
-    'connect'
-  ];
+  const events = ['chainChanged', 'accountsChanged', 'message', 'disconnect', 'connect'];
 
   return buildApprovedNamespaces({
     proposal: proposal.params,
@@ -139,7 +136,7 @@ export async function approveSession(
     namespaces
   });
 
-  await chainChanged(session.topic, currentChainId);
+  chainChanged(session.topic, currentChainId);
 
   // Workaround: WalletConnect doesn't have a session_add event
   web3Wallet.events.emit(SESSION_ADD_EVENT, session);

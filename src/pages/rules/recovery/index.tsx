@@ -24,7 +24,7 @@ import { useAccount, useChainId } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
-import { Button, Input, SafeTxButton } from '@mimir-wallet/components';
+import { Button, InputAddress, SafeTxButton } from '@mimir-wallet/components';
 import { useDelayModules, useRecoveryTxs } from '@mimir-wallet/features/delay';
 import { useInputAddress } from '@mimir-wallet/hooks';
 import { buildAddRecovery } from '@mimir-wallet/safe';
@@ -153,13 +153,12 @@ function Recovery({ address }: { address?: Address }) {
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={isOpen} onClose={toggleOpen}>
-        <ModalContent>
+      <Modal size='md' isOpen={isOpen} onClose={toggleOpen}>
+        <ModalContent className='overflow-y-visible'>
           <ModalHeader className='font-bold'>Set New Recoverer</ModalHeader>
-          <ModalBody>
-            <Input
-              variant='bordered'
-              labelPlacement='outside'
+          <ModalBody className='py-5'>
+            <InputAddress
+              isSign={false}
               onChange={setRecoverer}
               value={recoverer}
               label='Address'

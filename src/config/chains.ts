@@ -4,11 +4,16 @@
 import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { Chain, defineChain, FallbackTransport, http, isAddress, Transport } from 'viem';
-import { darwinia, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
+import { Chain, defineChain, FallbackTransport, getAddress, http, isAddress, Transport } from 'viem';
+import { darwinia, mainnet, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
-import { CHAIN_RPC_URL_PREFIX, CURRENT_ACCOUNT_KEY, WALLET_CONNECT_PROJECT_ID } from '@mimir-wallet/constants';
+import {
+  CHAIN_RPC_URL_PREFIX,
+  CURRENT_ACCOUNT_KEY,
+  CURRENT_CHAINID_KEY,
+  WALLET_CONNECT_PROJECT_ID
+} from '@mimir-wallet/constants';
 import { store } from '@mimir-wallet/utils';
 
 export type MimirConfig = {
@@ -33,6 +38,12 @@ export type CustomChain = Chain & {
 };
 
 export const supportedChains = [
+  {
+    ...mainnet,
+    shortName: 'eth',
+    iconUrl: '/chain-icons/1.webp',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
   {
     ...moonbeam,
     rpcUrls: {
@@ -108,18 +119,22 @@ export const supportedChains = [
 
 export function initMimirConfig(): MimirConfig {
   const search = new URLSearchParams(window.location.search);
-  const urlAddress = search.get('address');
+
   const urlChainId = search.get('chainid');
+  const localChainId = store.get(CURRENT_CHAINID_KEY) as number;
+  const chainId = urlChainId || localChainId;
 
   let chain: Chain = supportedChains[0];
 
-  if (urlChainId) {
-    const _chain: Chain | undefined = supportedChains.find((chain) => chain.id === Number(urlChainId));
+  if (chainId) {
+    const _chain: Chain | undefined = supportedChains.find((chain) => chain.id === Number(chainId));
 
     if (_chain) {
       chain = _chain;
     }
   }
+
+  store.set(CURRENT_CHAINID_KEY, chain.id);
 
   const storage = createStorage({
     storage: localStorage,
@@ -140,10 +155,12 @@ export function initMimirConfig(): MimirConfig {
         : fallback([...chain.rpcUrls.default.http.map((url) => http(url))]);
 
       return results;
-    }, {})
+    }, {}),
+    appIcon: 'https://safe.mimir.global/images/logo-circle.png'
   });
 
   let address: Address | undefined;
+  const urlAddress = search.get('address');
   const localAddress = store.get(`${CURRENT_ACCOUNT_KEY}:${chain.id}`) as string;
 
   if (urlAddress && isAddress(urlAddress)) {
@@ -153,7 +170,7 @@ export function initMimirConfig(): MimirConfig {
   }
 
   return {
-    address,
+    address: address ? getAddress(address) : undefined,
     walletConfig: config
   };
 }

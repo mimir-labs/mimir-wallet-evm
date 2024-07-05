@@ -4,6 +4,7 @@
 import type { Address } from 'abitype';
 
 import { useContext, useMemo } from 'react';
+import { getAddress, isAddress } from 'viem';
 import { useEnsName } from 'wagmi';
 
 import { AddressContext } from '@mimir-wallet/providers';
@@ -21,8 +22,12 @@ export function useAddressName(
       return fallback;
     }
 
+    if (!isAddress(address)) {
+      return fallback;
+    }
+
     const defaultName = fallback || `${address.slice(0, 6)}...${address.slice(-4)}`;
 
-    return ensName || addressNames[address] || defaultName;
+    return ensName || addressNames[getAddress(address)] || addressNames[address.toLowerCase()] || defaultName;
   }, [address, addressNames, ensName, fallback]);
 }

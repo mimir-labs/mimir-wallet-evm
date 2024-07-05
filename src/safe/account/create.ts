@@ -3,8 +3,7 @@
 
 import type { Address, Chain, ContractFunctionArgs, Hex } from 'viem';
 
-import { randomBytes } from 'crypto';
-import { bytesToBigInt, encodeFunctionData, zeroAddress } from 'viem';
+import { encodeFunctionData, zeroAddress } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
 import { deployments } from '@mimir-wallet/config';
@@ -71,7 +70,7 @@ export function createSafeRequest(
   setup: Setup,
   factory: Address = deployments[chain.id].SafeProxyFactory,
   singleton: Address = deployments[chain.id].SafeL2,
-  salt: bigint = bytesToBigInt(randomBytes(32))
+  salt: bigint = 0n
 ): CreateSafeRequest {
   assert(factory && singleton, `Not supported chain: ${chain.name}`);
 

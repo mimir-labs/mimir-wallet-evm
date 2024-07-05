@@ -5,30 +5,28 @@ import type { Address } from 'abitype';
 import type { EnableClickHandler } from '@mimir-wallet/components/types';
 
 import { Card, CardBody, CardFooter, Divider, Tooltip } from '@nextui-org/react';
-import { randomBytes } from 'crypto';
-import { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
-import { bytesToBigInt } from 'viem';
 
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
 import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
 import { useInput, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
+import { addressEq } from '@mimir-wallet/utils';
 
 import CreateMultisigModal from './CreateMultisigModal';
 import { useCreateMultisig } from './useCreateMultisig';
 
 function CreateMultisig(): React.ReactElement {
-  const { all, addMultisig, isSigner, isMultisig } = useContext(AddressContext);
+  const { all, addMultisig, addresses, addAddressBook, isSigner, isMultisig } = useContext(AddressContext);
   const [name, setName] = useInput();
   const [selected, setSelected] = useState<Address[]>([]);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [[threshold], setThreshold] = useInputNumber('1', true, 1);
   const navigate = useNavigate();
   const [isOpen, toggleOpen] = useToggle(false);
-  const saltRef = useRef(bytesToBigInt(randomBytes(32)));
-  const [state, start, reset] = useCreateMultisig(selected, BigInt(threshold), name, saltRef.current);
+  const [state, start, reset] = useCreateMultisig(selected, BigInt(threshold), name);
 
   const isValid = selected.length > 0 && Number(threshold) > 0;
 
@@ -77,8 +75,18 @@ function CreateMultisig(): React.ReactElement {
             <Button
               onClick={() => {
                 if (isValidAddress) {
-                  setSelected((value) => Array.from(new Set([...value, address])) as Address[]);
-                  onAddressChange('');
+                  const onDone = () => {
+                    setSelected((value) => Array.from(new Set([...value, address])) as Address[]);
+                    onAddressChange('');
+                  };
+
+                  if (!addresses.find((item) => addressEq(item, address))) {
+                    addAddressBook([address as Address, '']).then(() => {
+                      onDone();
+                    });
+                  } else {
+                    onDone();
+                  }
                 }
               }}
               className='min-w-14'

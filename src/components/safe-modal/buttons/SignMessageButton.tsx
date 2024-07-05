@@ -20,6 +20,7 @@ function SignMessageButton({
   safeAddress,
   message,
   addressChain,
+  filterPaths,
   website,
   iconUrl,
   appName,
@@ -29,6 +30,7 @@ function SignMessageButton({
   safeAddress: Address;
   message: SafeMessage;
   addressChain: Address[];
+  filterPaths: Address[][];
   website?: string | undefined;
   iconUrl?: string | undefined;
   appName?: string | undefined;
@@ -69,7 +71,9 @@ function SignMessageButton({
       color='primary'
       fullWidth
       radius='full'
-      disabled={isReadOnly || !addressEq(walletAddress, addressChain[addressChain.length - 1])}
+      disabled={
+        isReadOnly || filterPaths.length === 0 || !addressEq(walletAddress, addressChain[addressChain.length - 1])
+      }
       isLoading={state.loading}
       withConnect
     >

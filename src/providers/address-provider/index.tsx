@@ -5,6 +5,7 @@ import type { Address } from 'abitype';
 import type { State } from './types';
 
 import React, { createContext, useEffect, useMemo, useState } from 'react';
+import { getAddress } from 'viem';
 
 import { useQueryTokens } from '@mimir-wallet/hooks';
 
@@ -56,7 +57,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     setAddressThresholds((thresholds) => ({
       ...thresholds,
       ...multisigs.reduce<Record<string, [number, number]>>((results, item) => {
-        results[item.address] = [item.threshold, item.members.length];
+        results[getAddress(item.address)] = [item.threshold, item.members.length];
 
         return results;
       }, {})

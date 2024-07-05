@@ -4,75 +4,76 @@
 import type { Address } from 'abitype';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
-import { Tab, Tabs } from '@nextui-org/react';
+import { Pagination, Tab, Tabs } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import { useContext, useEffect, useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { Empty, ModuleTxCard, ReceivedCard, SafeTxCard } from '@mimir-wallet/components';
-import { HistoryItem, useHistoryTransactions, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
+import { useHistory, useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
+import {
+  type HistoryData,
+  HistoryType,
+  ModuleTransactionResponse,
+  ReceivedResponse,
+  TransactionSignature
+} from '@mimir-wallet/hooks/types';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import Messages from './Messages';
 import Pending from './Pending';
 
-function Contents({ account, items }: { account: BaseAccount; items: HistoryItem[] }) {
-  const list = useMemo(
-    () =>
-      [...items].sort((l, r) => {
-        const lTime =
-          l.type === 'allowance-tx'
-            ? l.data.createdAt
-            : l.type === 'received-tx'
-              ? new Date(l.data.createdAt).valueOf()
-              : l.type === 'safe-module-tx'
-                ? new Date(l.data.createdAt).valueOf()
-                : l.data.transaction.updatedAt;
-
-        const rTime =
-          r.type === 'allowance-tx'
-            ? r.data.createdAt
-            : r.type === 'received-tx'
-              ? new Date(r.data.createdAt).valueOf()
-              : r.type === 'safe-module-tx'
-                ? new Date(r.data.createdAt).valueOf()
-                : r.data.transaction.updatedAt;
-
-        return rTime - lTime;
-      }),
-    [items]
-  );
-
-  return list.map((item) =>
-    item.type === 'safe-tx' ? (
+function Contents({ account, items }: { account: BaseAccount; items: HistoryData[] }) {
+  return items.map((item) =>
+    item.type === HistoryType.SafeTx ? (
       <SafeTxCard
         hiddenConflictWarning
         defaultOpen={false}
         account={account}
-        key={`queue-${item.data.transaction.updatedAt}-${item.data.transaction.nonce}`}
+        key={`safe-tx-${item.relatedId}`}
         data={[item.data]}
-        nonce={item.data.transaction.nonce}
+        nonce={(item.data as TransactionSignature).transaction.nonce}
       />
-    ) : item.type === 'safe-module-tx' ? (
-      <ModuleTxCard defaultOpen={false} data={item.data} />
-    ) : item.type === 'allowance-tx' ? null : item.type === 'received-tx' ? (
-      <ReceivedCard defaultOpen={false} data={item.data} />
+    ) : item.type === HistoryType.ModuleTx ? (
+      <ModuleTxCard
+        key={`module-tx-${item.relatedId}`}
+        defaultOpen={false}
+        data={item.data as ModuleTransactionResponse}
+      />
+    ) : item.type === HistoryType.Received ? (
+      <ReceivedCard defaultOpen={false} data={item.data as ReceivedResponse} />
     ) : null
   );
 }
 
+const initialPage = 1;
+const pageSize = 20;
+
 function History({ account }: { account: BaseAccount }) {
   const chainId = useChainId();
-  const [items, isFetched] = useHistoryTransactions(chainId, account.address);
+  const [page, setPage] = useQueryParam('page', initialPage.toString());
 
-  if (isFetched && Object.keys(items).length === 0) {
+  const [data, { pageCount }, isFetched, isFetching, isPlaceholderData] = useHistory(
+    chainId,
+    Number(page),
+    pageSize,
+    account.address
+  );
+
+  const entries = useMemo(() => Object.entries(data || {}).sort(([l], [r]) => Number(r) - Number(l)), [data]);
+
+  if (isFetched && Object.keys(entries).length === 0) {
     return <Empty height='80dvh' />;
   }
 
   return (
     <div className='space-y-5'>
-      {Object.entries(items).map(([dayStart, values]) => (
-        <div key={dayStart} className='space-y-2.5'>
+      {entries.map(([dayStart, values]) => (
+        <div
+          data-fetching={!isFetched && isFetching}
+          key={dayStart}
+          className='space-y-2.5 data-[fetching=true]:blur-sm'
+        >
           <p className='font-bold text-medium'>
             {dayjs(Number(dayStart)).startOf('days').valueOf() === dayjs().startOf('days').valueOf()
               ? 'Today'
@@ -81,6 +82,18 @@ function History({ account }: { account: BaseAccount }) {
           <Contents account={account} items={values} />
         </div>
       ))}
+
+      <div className='flex justify-end'>
+        {(isFetched || isPlaceholderData) && (
+          <Pagination
+            isDisabled={!isFetched && isFetching}
+            showControls
+            page={Number(page)}
+            total={pageCount}
+            onChange={(page) => setPage(page.toString())}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -22,7 +22,7 @@ import { isAddress, zeroAddress } from 'viem';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
-import { Button, Input, InputToken, SafeTxButton } from '@mimir-wallet/components';
+import { Button, Input, InputAddress, InputToken, SafeTxButton } from '@mimir-wallet/components';
 import { useAccountTokens, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { buildAddAllowance } from '@mimir-wallet/safe';
 
@@ -77,7 +77,7 @@ function SpendLimit({ address }: { address?: Address }) {
 
       {address && <Delegates safeAccount={address} />}
 
-      <Modal isOpen={isAlertOpen} onClose={toggleAlertOpen}>
+      <Modal size='md' isOpen={isAlertOpen} onClose={toggleAlertOpen}>
         <ModalContent>
           <ModalHeader>What is Easy Expense?</ModalHeader>
           <ModalBody className='pb-5'>
@@ -103,9 +103,8 @@ function SpendLimit({ address }: { address?: Address }) {
         <ModalContent>
           <ModalHeader className='font-bold'>Set New Easy Expense</ModalHeader>
           <ModalBody>
-            <Input
-              variant='bordered'
-              labelPlacement='outside'
+            <InputAddress
+              isSign={false}
               onChange={setDelegate}
               value={delegate}
               label='Address'
