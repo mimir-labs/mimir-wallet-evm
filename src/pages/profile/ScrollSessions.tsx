@@ -27,7 +27,7 @@ function ScrollSessions({ address }: { address: Address }) {
       <div>
         <h1 className='font-extrabold text-[40px] leading-tight text-[#FF684B]'>Scroll Sessions</h1>
         <h6 className='font-bold text-medium'>Your Marks</h6>
-        <h1 className='font-extrabold text-[40px] leading-tight'>{marks || 0}</h1>
+        <h1 className='font-extrabold text-[40px] leading-tight'>{marks?.toFixed(4) || 0}</h1>
       </div>
       <div className='self-end flex gap-2.5'>
         <Button as={Link} href='/apps' className='bg-[#FF684B]' radius='full' color='primary'>

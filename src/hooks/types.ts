@@ -206,3 +206,21 @@ export interface ReceivedResponse {
   updatedAt: string;
   value: bigint;
 }
+
+export type TransactionSignature = {
+  transaction: TransactionResponse;
+  signatures: SignatureResponse[];
+};
+export enum HistoryType {
+  SafeTx,
+  ModuleTx,
+  Received
+}
+
+export type HistoryData = {
+  address: Address;
+  relatedId: string;
+  type: HistoryType;
+  time: number;
+  data: TransactionSignature | ModuleTransactionResponse | ReceivedResponse;
+};

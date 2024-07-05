@@ -12,9 +12,10 @@ import { AddressTransfer, Alert, Button, ButtonLinearBorder, Input, SafeTxButton
 import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
+import { addressEq } from '@mimir-wallet/utils';
 
 function SetupMember({ multisig }: { multisig?: Multisig }) {
-  const { all } = useContext(AddressContext);
+  const { all, addresses, addAddressBook } = useContext(AddressContext);
   const [selected, setSelected] = useState<Address[]>(multisig?.members || []);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [[threshold], setThreshold] = useInputNumber(multisig?.threshold.toString(), true, 1);
@@ -29,7 +30,7 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
     }
   };
 
-  const addresses = useMemo(
+  const allAddresses = useMemo(
     () => all.filter((item) => item.toLowerCase() !== multisig?.address.toLowerCase()),
     [all, multisig?.address]
   );
@@ -55,8 +56,18 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
             <Button
               onClick={() => {
                 if (isValidAddress) {
-                  setSelected((value) => Array.from(new Set([...value, address])) as Address[]);
-                  onAddressChange('');
+                  const onDone = () => {
+                    setSelected((value) => Array.from(new Set([...value, address])) as Address[]);
+                    onAddressChange('');
+                  };
+
+                  if (!addresses.find((item) => addressEq(item, address))) {
+                    addAddressBook([address as Address, '']).then(() => {
+                      onDone();
+                    });
+                  } else {
+                    onDone();
+                  }
                 }
               }}
               className='min-w-14'
@@ -66,7 +77,7 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
               Add
             </Button>
           </div>
-          <AddressTransfer onChange={setSelected} selected={selected} addresses={addresses} />
+          <AddressTransfer onChange={setSelected} selected={selected} addresses={allAddresses} />
           <div>
             <Input
               value={threshold}

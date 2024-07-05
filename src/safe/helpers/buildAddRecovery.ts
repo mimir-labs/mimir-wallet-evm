@@ -3,8 +3,7 @@
 
 import type { IPublicClient, MetaTransaction } from '../types';
 
-import { randomBytes } from 'crypto';
-import { type Address, bytesToBigInt, encodeAbiParameters, encodeFunctionData, Hex } from 'viem';
+import { type Address, encodeAbiParameters, encodeFunctionData, Hex } from 'viem';
 
 import { abis } from '@mimir-wallet/abis';
 import { moduleDeployments } from '@mimir-wallet/config';
@@ -39,7 +38,7 @@ export async function buildAddRecovery(
   const txs: MetaTransaction[] = [];
 
   const initializer = createSetupDelay(safeAccount, safeAccount, safeAccount, BigInt(cooldown), BigInt(expiration));
-  const salt = bytesToBigInt(randomBytes(32));
+  const salt = 0n;
 
   if (!delayAddress) {
     const { result: _delayAddress } = await client.simulateContract({

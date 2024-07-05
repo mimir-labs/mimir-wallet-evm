@@ -6,8 +6,7 @@ import type {
   AllowanceTransactionResponse,
   ModuleTransactionResponse,
   ReceivedResponse,
-  SignatureResponse,
-  TransactionResponse
+  TransactionSignature
 } from './types';
 
 import { useQuery } from '@tanstack/react-query';
@@ -17,11 +16,6 @@ import { Hash } from 'viem';
 
 import { serviceUrl } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
-
-export type TransactionSignature = {
-  transaction: TransactionResponse;
-  signatures: SignatureResponse[];
-};
 
 export type PendingData = {
   current: [bigint, Array<TransactionSignature>] | null;

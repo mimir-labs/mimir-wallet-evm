@@ -28,11 +28,16 @@ function Info({
   const { data } = useBalance({ address });
   const [isOpen, toggleOpen] = useToggle(false);
 
+  const formatUsd = formatDisplay(totalUsd);
+
   return (
     <>
       <div className='space-y-5 h-full'>
         <div className='flex items-center gap-x-2 justify-between'>
-          <h1 className='font-bold text-[40px] leading-[1]'>$ {formatDisplay(totalUsd)}</h1>
+          <h1 className='font-bold text-[40px] leading-[1]'>
+            $ {formatUsd[0]}
+            {formatUsd[1] ? `.${formatUsd[1]}` : ''}
+          </h1>
           {isSafe && (
             <Button as={Link} href='/setting?tab=account' size='sm' color='primary' variant='bordered' radius='full'>
               <IconSet />

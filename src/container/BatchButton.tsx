@@ -48,7 +48,7 @@ function BatchButton() {
           <Button
             variant='bordered'
             isIconOnly
-            className='border-1 border-secondary rounded-medium'
+            className='border-1 border-secondary rounded-medium hover:bg-primary hover:text-primary-foreground'
             color='primary'
             onClick={toggleDrawerOpen}
           >

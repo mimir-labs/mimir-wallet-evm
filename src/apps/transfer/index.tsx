@@ -17,6 +17,7 @@ import {
   ButtonEnable,
   FormatBalance,
   Input,
+  InputAddress,
   InputToken,
   SafeTxButton
 } from '@mimir-wallet/components';
@@ -89,15 +90,7 @@ function Transfer({
             </div>
           </div>
           <div className='flex'>
-            <Input
-              type='text'
-              labelPlacement='outside'
-              label='To'
-              variant='bordered'
-              onChange={setTo}
-              placeholder='Enter receiver address'
-              value={to}
-            />
+            <InputAddress label='To' onChange={setTo} placeholder='Enter receiver address' value={to as Address} />
           </div>
           <InputToken account={current} tokens={tokens.assets} label='Token' value={token} onChange={setToken} />
           <div className='flex'>

@@ -96,7 +96,9 @@ function SafeMessageModal(props: UseSafeMessage) {
               </>
             ) : null}
 
-            {filterPaths.length === 0 && <Alert severity='warning' title='Waiting for other members’ approvement.' />}
+            {!isSignatureReady && filterPaths.length === 0 && (
+              <Alert severity='warning' title='Waiting for other members’ approvement.' />
+            )}
 
             {finalSignature && (
               <Alert
@@ -124,6 +126,7 @@ function SafeMessageModal(props: UseSafeMessage) {
                   safeAddress={address}
                   addressChain={addressChain}
                   message={message}
+                  filterPaths={filterPaths}
                   {...metadata}
                   onSuccess={(signature) => {
                     onSuccess?.(signature);

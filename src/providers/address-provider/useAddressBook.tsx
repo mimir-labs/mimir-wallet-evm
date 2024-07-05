@@ -79,7 +79,6 @@ export function useAddressBook(
     addresses,
     addressNames: useMemo(
       () => ({
-        ...addressNames,
         ...tokens.reduce<Record<string, string>>((results, item) => {
           if (item.chainId === chainId) {
             results[item.address] = item.symbol;
@@ -87,6 +86,7 @@ export function useAddressBook(
 
           return results;
         }, {}),
+        ...addressNames,
         ...multisigs.reduce<Record<string, string>>((value, item) => {
           value[item.address] = item.name || '';
 

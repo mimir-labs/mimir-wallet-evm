@@ -5,7 +5,7 @@ import React from 'react';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconReceive from '@mimir-wallet/assets/svg/icon-receive.svg?react';
-import { Button, FormatBalance } from '@mimir-wallet/components';
+import { AddressIcon, Button, FormatBalance } from '@mimir-wallet/components';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
 import { useToken } from '@mimir-wallet/hooks';
 import { ReceivedResponse } from '@mimir-wallet/hooks/types';
@@ -43,8 +43,10 @@ function TxItems({ isOpen, toggleOpen, transaction }: Props) {
         </span>
       </div>
       <div className='col-span-1 flex items-center' />
-      <div className='col-span-1 flex items-center text-small'>
-        + <FormatBalance value={transaction.value} showSymbol {...(transaction.tokenMeta || meta)} />
+      <div className='col-span-1 flex items-center text-small gap-1'>
+        <FormatBalance prefix='+ ' value={transaction.value} showSymbol={false} {...(transaction.tokenMeta || meta)} />
+        <AddressIcon size={20} isToken address={transaction.token} />
+        {transaction.tokenMeta?.symbol || meta?.symbol}
       </div>
       <div className='col-span-1 flex items-center'>
         <TimeCell time={new Date(transaction.createdAt).valueOf()} />

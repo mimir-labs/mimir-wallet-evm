@@ -20,11 +20,10 @@ import FormatBalance from './FormatBalance';
 
 function InputToken({ disabled, value, account, defaultValue, showBalance, tokens, label, onChange }: InputTokenProps) {
   const isControlled = useRef(value !== undefined);
-  const [inputValue, setInputValue] = useInput('');
+  const [inputValue, setInputValue] = useInput();
   const [selectedKey, setSelectedKey] = useState<string | undefined>(value || defaultValue || '');
   const [isOpen, toggleOpen] = useToggle(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const shouldInputQuery =
     isAddress(inputValue) && tokens.filter((item) => addressEq(item.tokenAddress, inputValue)).length === 0;
   const [inputToken, isFetched, isFetching] = useToken(shouldInputQuery ? inputValue : undefined);
@@ -109,10 +108,7 @@ function InputToken({ disabled, value, account, defaultValue, showBalance, token
   );
 
   const popoverContent = isOpen ? (
-    <div
-      ref={menuRef}
-      className='z-50 bg-white shadow-medium absolute top-full left-0 right-0 max-h-[300px] mt-2 rounded-medium overflow-y-scroll'
-    >
+    <div className='z-50 bg-white shadow-medium absolute top-full left-0 right-0 max-h-[300px] mt-2 rounded-medium overflow-y-scroll'>
       <Listbox items={filterTokens}>
         {(item) => (
           <ListboxItem key={item.tokenAddress} onClick={() => handleSelect(item.tokenAddress)}>

@@ -6,6 +6,7 @@ import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { useQuery } from '@tanstack/react-query';
 import { useContext, useEffect, useMemo } from 'react';
+import { getAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { serviceUrl } from '@mimir-wallet/config';
@@ -33,7 +34,7 @@ function findThresholds(account: BaseAccount): Record<string, [number, number]> 
   let thresholds: Record<string, [number, number]> =
     account.type === 'safe' && account.members && account.threshold
       ? {
-          [account.address]: [account.threshold, account.members.length]
+          [getAddress(account.address)]: [account.threshold, account.members.length]
         }
       : {};
 

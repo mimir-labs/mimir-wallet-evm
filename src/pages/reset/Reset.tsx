@@ -29,7 +29,7 @@ function ResetMember({
   members: Address[];
   threshold: number;
 }) {
-  const { all } = useContext(AddressContext);
+  const { all, addresses, addAddressBook } = useContext(AddressContext);
   const [selected, setSelected] = useState<Address[]>(members);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [[threshold], setThreshold] = useInputNumber(propsThreshold.toString(), true, 1);
@@ -77,7 +77,7 @@ function ResetMember({
     [delayAddress, navigate, safeAddress, selected, threshold]
   );
 
-  const addresses = useMemo(() => all.filter((item) => !addressEq(item, safeAddress)), [all, safeAddress]);
+  const allAddress = useMemo(() => all.filter((item) => !addressEq(item, safeAddress)), [all, safeAddress]);
 
   return (
     <div className='space-y-5'>
@@ -106,8 +106,18 @@ function ResetMember({
             <Button
               onClick={() => {
                 if (isValidAddress) {
-                  setSelected((value) => Array.from(new Set([...value, address])) as Address[]);
-                  onAddressChange('');
+                  const onDone = () => {
+                    setSelected((value) => Array.from(new Set([...value, address])) as Address[]);
+                    onAddressChange('');
+                  };
+
+                  if (!addresses.find((item) => addressEq(item, address))) {
+                    addAddressBook([address as Address, '']).then(() => {
+                      onDone();
+                    });
+                  } else {
+                    onDone();
+                  }
                 }
               }}
               className='min-w-14'
@@ -117,7 +127,7 @@ function ResetMember({
               Add
             </Button>
           </div>
-          <AddressTransfer onChange={setSelected} selected={selected} addresses={addresses} />
+          <AddressTransfer onChange={setSelected} selected={selected} addresses={allAddress} />
           <div>
             <Input
               value={threshold}

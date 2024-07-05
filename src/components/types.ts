@@ -15,7 +15,7 @@ export interface ButtonProps extends Omit<NextButtonProps, 'size'> {
 }
 
 export interface InputAddressProps {
-  value?: Address;
+  value?: string;
   disabled?: boolean;
   isSign?: boolean;
   label?: React.ReactNode;

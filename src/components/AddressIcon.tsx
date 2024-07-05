@@ -4,7 +4,7 @@
 import jazzicon from '@metamask/jazzicon';
 import { Avatar } from '@nextui-org/react';
 import React, { useContext, useLayoutEffect, useMemo, useRef } from 'react';
-import { zeroAddress } from 'viem';
+import { getAddress, zeroAddress } from 'viem';
 import { useChainId, useChains } from 'wagmi';
 
 import { CustomChain } from '@mimir-wallet/config';
@@ -39,7 +39,7 @@ function AddressIcon({
   const chainId = useChainId();
   const [chain] = useChains();
 
-  const threshold = address ? addressThresholds?.[address] : undefined;
+  const threshold = address ? addressThresholds?.[getAddress(address)] : undefined;
 
   useLayoutEffect(() => {
     const { current } = iconRef;
@@ -75,7 +75,7 @@ function AddressIcon({
     <span className='relative'>
       <Avatar
         src={iconSrc || undefined}
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, background: 'transparent' }}
         fallback={<AddressIconJazz address={address} size={size} ensImage={ensImage} />}
       />
       {thresholdVisible && size >= 20 && threshold && (

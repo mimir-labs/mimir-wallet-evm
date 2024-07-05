@@ -68,6 +68,7 @@ function AddressChain({ multisig, filterPaths, deep, addressChain, setAddressCha
   return (
     <div>
       <InputAddress
+        isSign
         onChange={onChange}
         value={selected || ''}
         defaultValue={selected}
