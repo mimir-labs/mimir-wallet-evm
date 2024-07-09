@@ -7,6 +7,7 @@ export * from './useAddressName';
 export * from './useApps';
 export * from './useBatchTxs';
 export * from './useCopy';
+export * from './useDebounceFn';
 export * from './useInput';
 export * from './useInputAddress';
 export * from './useInputNumber';

@@ -5,16 +5,19 @@ import { useCallback, useMemo } from 'react';
 import { useChainId } from 'wagmi';
 
 import { type AppConfig, apps } from '@mimir-wallet/config';
-import { FAVORITE_APP_KEY } from '@mimir-wallet/constants';
+import { CUSTOM_APP_KEY, FAVORITE_APP_KEY } from '@mimir-wallet/constants';
 
 import { useLocalStore } from './useStore';
 
 interface UseApps {
   apps: AppConfig[];
+  customApps: AppConfig[];
   favorites: AppConfig[];
-  isFavorite: (id: number) => boolean;
-  addFavorite: (id: number) => void;
-  removeFavorite: (id: number) => void;
+  isFavorite: (id: string | number) => boolean;
+  addFavorite: (id: string | number) => void;
+  removeFavorite: (id: string | number) => void;
+  addCustom: (app: AppConfig) => void;
+  removeCustom: (id: string | number) => void;
 }
 
 export function useApp(website?: string): AppConfig | undefined {
@@ -44,19 +47,58 @@ const visibleApps = apps.filter((item) => !item.url.startsWith('mimir://internal
 
 export function useVisibleApps(): UseApps {
   const chainId = useChainId();
-  const [favoriteIds, setFavoriteIds] = useLocalStore<number[]>(FAVORITE_APP_KEY, []);
+  const [favoriteIds, setFavoriteIds] = useLocalStore<(number | string)[]>(FAVORITE_APP_KEY, []);
+  const [customApps, setCustomApps] = useLocalStore<Record<string | number, AppConfig>>(CUSTOM_APP_KEY, {});
+
+  const addCustom = useCallback(
+    (app: AppConfig) => {
+      setCustomApps((v) => {
+        const lastSupportedChains = v[app.id]?.supportedChains;
+        const { supportedChains } = app;
+
+        return {
+          ...v,
+          [app.id]: {
+            ...v[app.id],
+            ...app,
+            supportedChains: lastSupportedChains
+              ? supportedChains
+                ? [...lastSupportedChains, ...supportedChains]
+                : undefined
+              : undefined
+          }
+        };
+      });
+    },
+    [setCustomApps]
+  );
+
+  const removeCustom = useCallback(
+    (id: string | number) => {
+      setCustomApps((v) => {
+        const newV = { ...v };
+
+        delete v[id];
+
+        return newV;
+      });
+    },
+    [setCustomApps]
+  );
+
+  const customAppsArr = useMemo(() => Object.values(customApps), [customApps]);
 
   const supportedApps = useMemo(
     () => visibleApps.filter((item) => (item.supportedChains ? item.supportedChains.includes(chainId) : true)),
     [chainId]
   );
   const favorites = useMemo(
-    () => supportedApps.filter((item) => favoriteIds?.includes(item.id)),
-    [favoriteIds, supportedApps]
+    () => supportedApps.concat(customAppsArr).filter((item) => favoriteIds?.includes(item.id)),
+    [customAppsArr, favoriteIds, supportedApps]
   );
 
   const addFavorite = useCallback(
-    (id: number) => {
+    (id: number | string) => {
       setFavoriteIds((ids) => {
         const values = Array.from([...ids, id]);
 
@@ -67,7 +109,7 @@ export function useVisibleApps(): UseApps {
   );
 
   const removeFavorite = useCallback(
-    (id: number) => {
+    (id: number | string) => {
       setFavoriteIds((ids) => {
         const values = ids.filter((_id) => _id !== id);
 
@@ -77,16 +119,19 @@ export function useVisibleApps(): UseApps {
     [setFavoriteIds]
   );
 
-  const isFavorite = useCallback((id: number) => !!favoriteIds?.includes(id), [favoriteIds]);
+  const isFavorite = useCallback((id: number | string) => !!favoriteIds?.includes(id), [favoriteIds]);
 
   return useMemo(
     () => ({
       apps: supportedApps,
+      customApps: customAppsArr,
       favorites,
       addFavorite,
       removeFavorite,
-      isFavorite
+      isFavorite,
+      addCustom,
+      removeCustom
     }),
-    [addFavorite, favorites, isFavorite, removeFavorite, supportedApps]
+    [addCustom, addFavorite, customAppsArr, favorites, isFavorite, removeCustom, removeFavorite, supportedApps]
   );
 }

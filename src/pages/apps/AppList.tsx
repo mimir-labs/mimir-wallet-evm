@@ -1,24 +1,15 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { AppConfig } from '@mimir-wallet/config';
-
 import { AppCell } from '@mimir-wallet/components';
+import { useVisibleApps } from '@mimir-wallet/hooks';
 
-function FavoriteApps({
-  favorites,
-  isFavorite,
-  addFavorite,
-  removeFavorite
-}: {
-  favorites: AppConfig[];
-  isFavorite: (id: string | number) => boolean;
-  addFavorite: (id: string | number) => void;
-  removeFavorite: (id: string | number) => void;
-}) {
+function AppList() {
+  const { apps, isFavorite, removeFavorite, addFavorite } = useVisibleApps();
+
   return (
     <div className='grid grid-cols-12 gap-5'>
-      {favorites.map((app) => {
+      {apps.map((app) => {
         return (
           <div key={app.id} className='col-span-4'>
             <AppCell addFavorite={addFavorite} app={app} isFavorite={isFavorite} removeFavorite={removeFavorite} />
@@ -29,4 +20,4 @@ function FavoriteApps({
   );
 }
 
-export default FavoriteApps;
+export default AppList;

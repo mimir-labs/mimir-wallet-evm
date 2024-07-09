@@ -29,7 +29,9 @@ function AppExplorer() {
           setElement(createElement(C, props));
         });
       } else {
-        setElement(<AppFrame appUrl={url} allowedFeaturesList='' />);
+        const app = apps.find((item) => _url.startsWith(item.url));
+
+        setElement(<AppFrame appUrl={url} iconUrl={app?.icon} appName={app?.icon} allowedFeaturesList='' />);
       }
     }
   }, [url]);

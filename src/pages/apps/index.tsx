@@ -1,26 +1,39 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { AppCell } from '@mimir-wallet/components';
-import { useVisibleApps } from '@mimir-wallet/hooks';
+import { Tab, Tabs } from '@nextui-org/react';
 
+import { useQueryParam } from '@mimir-wallet/hooks';
+
+import AppList from './AppList';
+import CustomApps from './CustomApps';
 import WalletConnectCell from './WalletConnectCell';
 
 function Apps() {
-  const { apps, isFavorite, removeFavorite, addFavorite } = useVisibleApps();
+  const [tab, setTab] = useQueryParam<string>('tab', 'apps');
 
   return (
     <div className='space-y-5'>
       <WalletConnectCell />
-      <div className='grid grid-cols-12 gap-5'>
-        {apps.map((app) => {
-          return (
-            <div key={app.id} className='col-span-4'>
-              <AppCell addFavorite={addFavorite} app={app} isFavorite={isFavorite} removeFavorite={removeFavorite} />
-            </div>
-          );
-        })}
-      </div>
+      <Tabs
+        color='primary'
+        variant='solid'
+        aria-label='Tabs'
+        selectedKey={tab}
+        onSelectionChange={(key) => setTab(key.toString())}
+        classNames={{
+          tabList: ['bg-white', 'shadow-medium', 'rounded-large', 'p-2.5'],
+          tabContent: ['text-primary/50', 'font-bold'],
+          cursor: ['rounded-medium']
+        }}
+      >
+        <Tab key='apps' title='Apps'>
+          <AppList />
+        </Tab>
+        <Tab key='custom' title='Custom Apps'>
+          <CustomApps />
+        </Tab>
+      </Tabs>
     </div>
   );
 }

@@ -16,9 +16,9 @@ import Button from './Button';
 import Drawer from './Drawer';
 
 interface Props {
-  addFavorite: (id: number) => void;
-  removeFavorite: (id: number) => void;
-  isFavorite: (id: number) => boolean;
+  addFavorite: (id: string | number) => void;
+  removeFavorite: (id: string | number) => void;
+  isFavorite: (id: string | number) => boolean;
   app: AppConfig;
 }
 

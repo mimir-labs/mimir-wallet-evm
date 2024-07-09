@@ -7,9 +7,9 @@ export const EIP155 = 'eip155' as const;
 
 export const MIMIR_WALLET_METADATA = {
   name: 'Mimir Wallet',
-  url: 'https://dev-evm.mimir.global',
+  url: 'https://safe.mimir.global',
   description: 'Smart contract wallet for Ethereum',
-  icons: ['https://dev-evm.mimir.global/images/logo-circle.png']
+  icons: ['https://safe.mimir.global/images/logo-circle.png']
 };
 
 export const SESSION_ADD_EVENT = 'session_add' as Web3WalletTypes.Event;

@@ -97,8 +97,6 @@ export function useAddressBook(
     ),
     addAddressBook,
     setAddress,
-    setName,
-    setAddressNames,
     node
   };
 }

@@ -9,10 +9,10 @@ import { FAVORITE_APP_KEY } from '@mimir-wallet/constants';
 import { store } from '@mimir-wallet/utils';
 
 export type AppConfig = {
-  id: number;
+  id: string | number;
   name: string;
   url: string;
-  icon: string;
+  icon?: string;
   desc: string;
   tags: string[];
   supportedChains?: number[];

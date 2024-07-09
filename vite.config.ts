@@ -35,7 +35,13 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
           crypto: ['@rainbow-me/rainbowkit', 'viem', 'wagmi'],
-          ui1: ['react-draggable-list', 'react-toastify', 'framer-motion', '@metamask/jazzicon'],
+          ui1: [
+            'react-draggable-list',
+            'react-toastify',
+            'framer-motion',
+            '@metamask/jazzicon',
+            'react-infinite-scroll-component'
+          ],
           ui2: ['@nextui-org/react', 'next-themes'],
           reactflow: ['reactflow'],
           lottie: ['lottie-web'],

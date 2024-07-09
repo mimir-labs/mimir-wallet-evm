@@ -50,20 +50,13 @@ function findThresholds(account: BaseAccount): Record<string, [number, number]> 
 
 export function useQueryAccount(address?: Address): BaseAccount | null {
   const chainId = useChainId();
-  const { setAddressNames, setAddressThresholds, isMultisig } = useContext(AddressContext);
+  const { setAddressThresholds, isMultisig } = useContext(AddressContext);
 
   const { data } = useQuery<BaseAccount | null>({
     initialData: null,
     queryHash: serviceUrl(chainId, `accounts/${address}/full`),
     queryKey: [address ? serviceUrl(chainId, `accounts/${address}/full`) : null]
   });
-
-  useEffect(() => {
-    if (data) {
-      // const names = findNames(data);
-      // setAddressNames((values) => ({ ...values, ...names }));
-    }
-  }, [setAddressNames, data]);
 
   useEffect(() => {
     if (data) {
