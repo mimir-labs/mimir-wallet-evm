@@ -3,106 +3,104 @@
 
 import type { Address } from 'abitype';
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import dayjs from 'dayjs';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 import { serviceUrl } from '@mimir-wallet/config';
+import { fetcher } from '@mimir-wallet/utils/fetcher';
 
 import { HistoryData, HistoryType } from './types';
 
-type HistoryDataByDay = Record<string, HistoryData[]>;
-
 export function useHistory(
   chainId: number,
-  page = 1,
-  limit = 20,
+  limit = 50,
   address?: Address
 ): [
-  HistoryDataByDay | undefined,
-  { total?: number; page?: number; limit?: number; pageCount: number },
+  HistoryData[] | undefined,
   isFetched: boolean,
   isFetching: boolean,
-  isPlaceholderData: boolean,
-  refetch: () => void
+  hasNextPage: boolean,
+  isFetchingNextPage: boolean,
+  fetchNextPage: () => void
 ] {
-  const { data, isFetched, isFetching, isPlaceholderData, refetch } = useQuery<{
-    data: any[];
-    total: number;
-    page: number;
-    limit: number;
-    pageCount: number;
-  }>({
-    queryHash: serviceUrl(chainId, `history/${address}?page=${page}&limit=${limit}`),
-    queryKey: [address ? serviceUrl(chainId, `history/${address}?page=${page}&limit=${limit}`) : null],
-    placeholderData: keepPreviousData
+  const { data, fetchNextPage, hasNextPage, isFetched, isFetching, isFetchingNextPage } = useInfiniteQuery<any[]>({
+    initialPageParam: null,
+    queryKey: [address ? serviceUrl(chainId, `history/${address}?limit=${limit}`) : null],
+    queryFn: async ({ pageParam, queryKey }) => {
+      if (!queryKey[0]) {
+        return undefined;
+      }
+
+      return fetcher(pageParam ? `${queryKey[0]}&next_cursor=${pageParam}` : `${queryKey[0]}`);
+    },
+    getNextPageParam: (data, allPages) => {
+      if (allPages.length === 50) {
+        return null;
+      }
+
+      if (data.length) {
+        return data.length === limit ? data[data.length - 1].id : null;
+      }
+
+      return null;
+    },
+    maxPages: 50,
+    refetchInterval: 0
   });
 
   return useMemo(
     () => [
-      data?.data
-        .map((item): HistoryData => {
-          if (item.type === HistoryType.SafeTx) {
-            return {
-              ...item,
-              data: {
-                ...item.data,
-                transaction: {
-                  ...item.data.transaction,
-                  value: BigInt(item.data.transaction.value),
-                  safeTxGas: BigInt(item.data.transaction.safeTxGas),
-                  baseGas: BigInt(item.data.transaction.baseGas),
-                  gasPrice: BigInt(item.data.transaction.gasPrice),
-                  nonce: BigInt(item.data.transaction.nonce),
-                  payment: BigInt(item.data.transaction.payment),
-                  executeBlock: item.data.transaction.executeBlock
-                    ? BigInt(item.data.transaction.executeBlock)
-                    : undefined,
-                  replaceBlock: item.data.transaction.replaceBlock
-                    ? BigInt(item.data.transaction.replaceBlock)
-                    : undefined
-                }
-              }
-            };
-          }
-
-          if (item.type === HistoryType.ModuleTx) {
-            return {
-              ...item,
-              data: {
-                ...item.data,
-                value: BigInt(item.data.value),
-                block: BigInt(item.data.block)
-              }
-            };
-          }
-
+      data?.pages.flat().map((item): HistoryData => {
+        if (item.type === HistoryType.SafeTx) {
           return {
             ...item,
             data: {
               ...item.data,
-              block: BigInt(item.data.block),
-              value: BigInt(item.data.value)
+              transaction: {
+                ...item.data.transaction,
+                value: BigInt(item.data.transaction.value),
+                safeTxGas: BigInt(item.data.transaction.safeTxGas),
+                baseGas: BigInt(item.data.transaction.baseGas),
+                gasPrice: BigInt(item.data.transaction.gasPrice),
+                nonce: BigInt(item.data.transaction.nonce),
+                payment: BigInt(item.data.transaction.payment),
+                executeBlock: item.data.transaction.executeBlock
+                  ? BigInt(item.data.transaction.executeBlock)
+                  : undefined,
+                replaceBlock: item.data.transaction.replaceBlock
+                  ? BigInt(item.data.transaction.replaceBlock)
+                  : undefined
+              }
             }
           };
-        })
-        .reduce<HistoryDataByDay>((result, item) => {
-          const dayStart = dayjs(item.time).startOf('days').valueOf();
+        }
 
-          if (result[dayStart]) {
-            result[dayStart].push(item);
-          } else {
-            result[dayStart] = [item];
+        if (item.type === HistoryType.ModuleTx) {
+          return {
+            ...item,
+            data: {
+              ...item.data,
+              value: BigInt(item.data.value),
+              block: BigInt(item.data.block)
+            }
+          };
+        }
+
+        return {
+          ...item,
+          data: {
+            ...item.data,
+            block: BigInt(item.data.block),
+            value: BigInt(item.data.value)
           }
-
-          return result;
-        }, {}),
-      { total: data?.total, page: data?.page, limit: data?.limit, pageCount: data?.pageCount || 1 },
+        };
+      }),
       isFetched,
       isFetching,
-      isPlaceholderData,
-      refetch
+      hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage
     ],
-    [data, isFetched, isFetching, isPlaceholderData, refetch]
+    [data?.pages, fetchNextPage, hasNextPage, isFetched, isFetching, isFetchingNextPage]
   );
 }

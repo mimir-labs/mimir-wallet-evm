@@ -8,22 +8,15 @@ export const services: Record<number, string> = {
   [moonbeam.id]: 'https://evm-moonbeam-api.mimir.global/',
   [scroll.id]: 'https://evm-scroll-api.mimir.global/',
   [sepolia.id]:
-    process.env.NODE_ENV === 'production'
-      ? window.location.hostname === 'dev-evm.mimir.global'
-        ? 'https://dev-evm-sepolia-api.mimir.global/'
-        : 'https://evm-sepolia-api.mimir.global/'
-      : 'http://localhost:9000/',
+    window.location.hostname === 'safe.mimir.global'
+      ? 'https://evm-sepolia-api.mimir.global/'
+      : 'https://dev-evm-sepolia-api.mimir.global/',
   [scrollSepolia.id]: 'https://evm-scroll-sepolia-api.mimir.global/',
   [darwinia.id]: 'https://evm-darwinia-api.mimir.global/',
   44: 'https://evm-crab-api.mimir.global/'
 };
 
-export const assetsServices =
-  process.env.NODE_ENV === 'production'
-    ? window.location.hostname === 'dev-evm.mimir.global'
-      ? 'https://dev-evm-assets.mimir.global/'
-      : 'https://evm-assets-api.mimir.global/'
-    : 'http://localhost:9001/';
+export const assetsServices = 'https://evm-assets-api.mimir.global/';
 
 export function serviceUrl(chainId: number, path: string): string {
   const base = services[chainId];

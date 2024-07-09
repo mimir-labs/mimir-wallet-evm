@@ -30,6 +30,16 @@ function ScrollSessions({ address }: { address: Address }) {
         <h1 className='font-extrabold text-[40px] leading-tight'>{marks?.toFixed(4) || 0}</h1>
       </div>
       <div className='self-end flex gap-2.5'>
+        <Button
+          as='a'
+          target='_blank'
+          href={`https://scroll-sessions.mimir.global/?address=${address}`}
+          className='bg-[#FF684B]'
+          radius='full'
+          color='primary'
+        >
+          Leaderboard
+        </Button>
         <Button as={Link} href='/apps' className='bg-[#FF684B]' radius='full' color='primary'>
           Try In Mimir
         </Button>

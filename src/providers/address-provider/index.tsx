@@ -29,7 +29,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     isCurrent,
     switchAddress
   } = useAddress(defaultCurrent);
-  const { addresses, addressNames, node, addAddressBook, setAddressNames } = useAddressBook(tokens, multisigs);
+  const { addresses, addressNames, node, addAddressBook } = useAddressBook(tokens, multisigs);
   const { customTokens, addCustomToken } = useCustomTokens();
   const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
   const [addressThresholds, setAddressThresholds] = useState<Record<string, [number, number]>>({});
@@ -89,7 +89,6 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     switchAddress,
     addAddressBook,
     addCustomToken,
-    setAddressNames,
     setAddressThresholds
   };
 

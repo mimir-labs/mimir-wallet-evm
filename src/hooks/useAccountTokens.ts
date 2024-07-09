@@ -74,10 +74,7 @@ export function useAccountTokens(address?: Address) {
   });
 
   return [
-    useMemo(
-      () => _combineResults(data, customTokens, customBalances as bigint[]),
-      [customBalances, customTokens, data]
-    ),
+    useMemo(() => _combineResults(data, chainTokens, customBalances as bigint[]), [chainTokens, customBalances, data]),
     isFetched ? (chainTokens.length === 0 ? true : isFetched2) : false,
     isFetching || isFetching2
   ] as const;

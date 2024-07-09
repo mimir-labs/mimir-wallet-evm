@@ -22,10 +22,12 @@ import useAppIsLoading from './useAppIsLoading';
 
 interface Props {
   appUrl: string;
+  iconUrl?: string;
+  appName?: string;
   allowedFeaturesList: string;
 }
 
-function AppFrame({ appUrl, allowedFeaturesList }: Props) {
+function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
   const { iframeRef, appIsLoading, setAppIsLoading } = useAppIsLoading();
   const chains = useChains();
   const { current } = useContext(AddressContext);
@@ -70,7 +72,7 @@ function AppFrame({ appUrl, allowedFeaturesList }: Props) {
         safeTx: undefined,
         cancelNonce: undefined,
         signatures: undefined,
-        metadata: { website: appUrl },
+        metadata: { website: appUrl, iconUrl, appName },
         onSuccess: (tx) => {
           communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, multisig.address, tx) }, id);
         },

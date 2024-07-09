@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { RecoveryTx } from '@mimir-wallet/features/delay/types';
-import type { TransactionSignature } from '@mimir-wallet/hooks';
+import type { TransactionSignature } from '@mimir-wallet/hooks/types';
 import type { BaseAccount, IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody, CardHeader, Divider, Link } from '@nextui-org/react';
