@@ -6,16 +6,21 @@ import type { State } from './types';
 
 import React, { createContext, useEffect, useMemo, useState } from 'react';
 import { getAddress } from 'viem';
+import { useChainId } from 'wagmi';
 
-import { useQueryTokens } from '@mimir-wallet/hooks';
+import { ADDRESS_NAMES_KEY } from '@mimir-wallet/constants';
+import { useLocalStore, useQueryTokens } from '@mimir-wallet/hooks';
 
+import { Query } from './Query';
 import { useAddress } from './useAddress';
 import { useAddressBook } from './useAddressBook';
 import { useCustomTokens } from './useCustomTokens';
+import { useWatchOnly } from './useWatchOnly';
 
 export const AddressContext = createContext<State>({ all: [], addresses: [], signers: [] } as unknown as State);
 
 function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{ defaultCurrent?: Address }>) {
+  const chainId = useChainId();
   const tokens = useQueryTokens();
   const {
     isReady,
@@ -29,10 +34,12 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     isCurrent,
     switchAddress
   } = useAddress(defaultCurrent);
-  const { addresses, addressNames, node, addAddressBook } = useAddressBook(tokens, multisigs);
-  const { customTokens, addCustomToken } = useCustomTokens();
+  const [addressNames, setAddressNames] = useLocalStore<Record<string, string>>(ADDRESS_NAMES_KEY, {});
   const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
   const [addressThresholds, setAddressThresholds] = useState<Record<string, [number, number]>>({});
+  const { addresses, node, addAddressBook } = useAddressBook(setAddressNames);
+  const { watchOnlyList, addWatchOnlyList, node: watchOnlyNode } = useWatchOnly(setAddressNames);
+  const { customTokens, addCustomToken } = useCustomTokens();
 
   useEffect(() => {
     if (tokens.length > 0) {
@@ -72,10 +79,28 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value: State = {
     addresses,
-    addressNames,
+    addressNames: useMemo(
+      () => ({
+        ...tokens.reduce<Record<string, string>>((results, item) => {
+          if (item.chainId === chainId) {
+            results[item.address] = item.symbol;
+          }
+
+          return results;
+        }, {}),
+        ...addressNames,
+        ...multisigs.reduce<Record<string, string>>((value, item) => {
+          value[item.address] = item.name || '';
+
+          return value;
+        }, {})
+      }),
+      [addressNames, chainId, multisigs, tokens]
+    ),
     addressIcons,
     addressThresholds,
     customTokens,
+    watchOnlyList,
     all,
     isReady,
     current,
@@ -89,13 +114,18 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     switchAddress,
     addAddressBook,
     addCustomToken,
-    setAddressThresholds
+    setAddressThresholds,
+    addWatchOnlyList
   };
 
   return (
     <AddressContext.Provider value={value}>
       {children}
       {node}
+      {watchOnlyNode}
+      {watchOnlyList.map((address) => (
+        <Query key={address} address={address} />
+      ))}
     </AddressContext.Provider>
   );
 }

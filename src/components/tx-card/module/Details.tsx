@@ -24,7 +24,7 @@ function Details({ defaultOpen = false, transaction }: Props) {
 
   return (
     <>
-      <Item label='Module' content={<AddressRow iconSize={16} withCopy address={transaction.to} />} />
+      <Item label='Module' content={<AddressRow iconSize={16} withCopy address={transaction.module} />} />
       <Item label='Transaction' content={<Hash hash={transaction.transaction} withExplorer />} />
       <Item label='Execute Time' content={dayjs(transaction.updatedAt).format()} />
 

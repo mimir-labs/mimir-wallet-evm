@@ -18,7 +18,6 @@ const config = {
         'colored-background': 'linear-gradient(319deg, #DB00FF 0%, #0094FF 100%)'
       },
       height: {
-        'sidebar-height': 'calc(100vh - 1px - var(--nextui-spacing-unit)*16)',
         'safe-tx-modal-height': 'calc(100vh - var(--nextui-spacing-unit)*40)'
       },
       aspectRatio: {

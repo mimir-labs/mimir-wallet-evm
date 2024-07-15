@@ -10,10 +10,12 @@ import { useAccount } from 'wagmi';
 import Logo from '@mimir-wallet/assets/images/logo.png';
 import { ButtonEnable, ButtonLinear, MimirLoading, SafeMessageModal, SafeTxModal } from '@mimir-wallet/components';
 import { RecoverModal } from '@mimir-wallet/features/delay';
+import { useIsReadOnly, useQueryAccount } from '@mimir-wallet/hooks';
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 
 import BatchButton from './BatchButton';
 import Networks from './Networks';
+import ReadOnlyAlert from './ReadOnlyAlert';
 import SideBar from './SideBar';
 import WalletConnect from './WalletConnect';
 
@@ -24,9 +26,14 @@ function BaseContainer({
   withSideBar: boolean;
   withPadding: boolean;
 }): React.ReactElement {
-  const { isReady } = useContext(AddressContext);
+  const { isReady, current, watchOnlyList } = useContext(AddressContext);
   const { state } = useContext(SafeTxContext);
   const { isConnected } = useAccount();
+  const safeAccount = useQueryAccount(current);
+  const isReadOnly = useIsReadOnly(safeAccount);
+
+  const showWatchOnlyAlert =
+    isReadOnly && safeAccount && safeAccount.type === 'safe' && !watchOnlyList.includes(safeAccount.address);
 
   return (
     <main id='mimir-main' className='bg-main-background min-h-dvh text-foreground text-small'>
@@ -50,9 +57,15 @@ function BaseContainer({
           <Networks />
         </NavbarContent>
       </Navbar>
+      {showWatchOnlyAlert && <ReadOnlyAlert safeAddress={safeAccount.address} />}
       {isReady ? (
-        <div className='flex'>
-          {withSideBar ? <SideBar /> : null}
+        <div
+          className='flex'
+          style={{
+            minHeight: `calc(100dvh - ${showWatchOnlyAlert ? 37 : 0}px - 1px - var(--nextui-spacing-unit)*16)`
+          }}
+        >
+          {withSideBar ? <SideBar offsetTop={showWatchOnlyAlert ? 37 : 0} /> : null}
           <div className={`flex-1 ${withPadding ? 'p-5' : 'p-0'}`}>
             {state.length > 0 ? (
               state[0].type === 'tx' ? (

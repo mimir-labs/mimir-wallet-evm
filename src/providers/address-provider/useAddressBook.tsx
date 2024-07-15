@@ -2,24 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { Multisig } from '@mimir-wallet/safe/types';
 
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useToggle } from 'react-use';
 import { getAddress, isAddress } from 'viem';
-import { useChainId } from 'wagmi';
 
 import { AddAddressModal } from '@mimir-wallet/components';
-import { ADDRESS_BOOK_KEY, ADDRESS_NAMES_KEY } from '@mimir-wallet/constants';
+import { ADDRESS_BOOK_KEY } from '@mimir-wallet/constants';
 import { useInput, useInputAddress, useLocalStore } from '@mimir-wallet/hooks';
 
 export function useAddressBook(
-  tokens: { name: string; symbol: string; chainId: number; address: Address; icon?: string | null }[],
-  multisigs: Multisig[]
+  setAddressNames: (value: Record<string, string> | ((value: Record<string, string>) => Record<string, string>)) => void
 ) {
-  const chainId = useChainId();
   const [addresses, setAddresses] = useLocalStore<Address[]>(ADDRESS_BOOK_KEY, []);
-  const [addressNames, setAddressNames] = useLocalStore<Record<string, string>>(ADDRESS_NAMES_KEY, {});
 
   const [[address], setAddress] = useInputAddress();
   const [name, setName] = useInput('');
@@ -77,24 +72,6 @@ export function useAddressBook(
 
   return {
     addresses,
-    addressNames: useMemo(
-      () => ({
-        ...tokens.reduce<Record<string, string>>((results, item) => {
-          if (item.chainId === chainId) {
-            results[item.address] = item.symbol;
-          }
-
-          return results;
-        }, {}),
-        ...addressNames,
-        ...multisigs.reduce<Record<string, string>>((value, item) => {
-          value[item.address] = item.name || '';
-
-          return value;
-        }, {})
-      }),
-      [addressNames, chainId, multisigs, tokens]
-    ),
     addAddressBook,
     setAddress,
     node

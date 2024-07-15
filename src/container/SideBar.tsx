@@ -62,7 +62,7 @@ const links: { href: string; key: string; icon: React.ReactNode; label: string }
   }
 ];
 
-function SideBar(): React.ReactElement {
+function SideBar({ offsetTop = 0 }: { offsetTop?: number }): React.ReactElement {
   const location = useLocation();
   const keys = useMemo(
     () =>
@@ -83,7 +83,10 @@ function SideBar(): React.ReactElement {
   const [open, toggleOpen] = useToggle(false);
 
   return (
-    <div className='sticky top-[65px] flex-none w-[232px] h-sidebar-height bg-white border-r-1 border-primary-50 px-4 py-5 space-y-5'>
+    <div
+      style={{ top: offsetTop + 65, height: `calc(100dvh - ${offsetTop}px - 1px - var(--nextui-spacing-unit)*16)` }}
+      className='sticky flex-none w-[232px] bg-white border-r-1 border-primary-50 px-4 py-5 space-y-5'
+    >
       <Account handleClick={toggleOpen} />
       <Listbox
         variant='solid'

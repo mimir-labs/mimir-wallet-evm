@@ -51,7 +51,7 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
         throw new Error('transactions not valid');
       }
 
-      if (!multisig) {
+      if (!current) {
         throw new Error('Not permission');
       }
 
@@ -67,14 +67,14 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
       addTx({
         isApprove: false,
         isCancel: false,
-        address: multisig.address,
+        address: current,
         tx,
         safeTx: undefined,
         cancelNonce: undefined,
         signatures: undefined,
         metadata: { website: appUrl, iconUrl, appName },
         onSuccess: (tx) => {
-          communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, multisig.address, tx) }, id);
+          communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, current, tx) }, id);
         },
         onClose: () => {
           communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, id, true);
@@ -82,12 +82,12 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
       });
     },
     onSignMessage: (message, id) => {
-      if (!multisig) {
+      if (!current) {
         throw new Error('Not permission');
       }
 
       addMessage({
-        address: multisig.address,
+        address: current,
         message: message as SafeMessage,
         onFinal: (signature, messageHash) => {
           communicator?.send({ messageHash, signature }, id);
@@ -168,7 +168,7 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
   });
 
   return (
-    <div className='relative w-full h-sidebar-height'>
+    <div className='relative w-full h-full'>
       {appIsLoading && <Spinner className='absolute left-0 right-0 top-0 bottom-0 m-auto' />}
 
       <div

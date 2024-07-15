@@ -48,14 +48,26 @@ function findThresholds(account: BaseAccount): Record<string, [number, number]> 
   return thresholds;
 }
 
-export function useQueryAccount(address?: Address): BaseAccount | null {
-  const chainId = useChainId();
-  const { setAddressThresholds, isMultisig } = useContext(AddressContext);
+export function useQueryAccount(address?: Address, refetch = true, retry: boolean | number = true): BaseAccount | null {
+  const [account] = useQueryAccountWithState(address, refetch, retry);
 
-  const { data } = useQuery<BaseAccount | null>({
+  return account;
+}
+
+export function useQueryAccountWithState(
+  address?: Address,
+  refetch = true,
+  retry: boolean | number = true
+): [BaseAccount | null, isFetched: boolean, isFetching: boolean] {
+  const chainId = useChainId();
+  const { setAddressThresholds } = useContext(AddressContext);
+
+  const { data, isFetched, isFetching } = useQuery<BaseAccount | null>({
     initialData: null,
     queryHash: serviceUrl(chainId, `accounts/${address}/full`),
-    queryKey: [address ? serviceUrl(chainId, `accounts/${address}/full`) : null]
+    queryKey: [address ? serviceUrl(chainId, `accounts/${address}/full`) : null],
+    ...(refetch ? {} : { refetchInterval: false }),
+    ...(retry ? { retry } : { retry: false })
   });
 
   useEffect(() => {
@@ -66,16 +78,7 @@ export function useQueryAccount(address?: Address): BaseAccount | null {
     }
   }, [setAddressThresholds, data]);
 
-  return useMemo(
-    () =>
-      data
-        ? {
-            ...data,
-            isReadOnly: !isMultisig(data.address)
-          }
-        : null,
-    [data, isMultisig]
-  );
+  return useMemo(() => [data || null, isFetched, isFetching], [data, isFetched, isFetching]);
 }
 
 export function useIsReadOnly(account?: BaseAccount | null) {
