@@ -10,7 +10,10 @@ export function useInputAddress(
   [address: string, isValidAddress: boolean],
   setAddress: (value: string | React.ChangeEvent<HTMLInputElement>) => void
 ] {
-  const [value, setValue] = useState<[string, boolean]>([defaultAddress || '', false]);
+  const [value, setValue] = useState<[string, boolean]>([
+    defaultAddress || '',
+    defaultAddress ? isAddress(defaultAddress) : false
+  ]);
 
   const onChange = useCallback((_value: string | React.ChangeEvent<HTMLInputElement>) => {
     if (typeof _value === 'string') {

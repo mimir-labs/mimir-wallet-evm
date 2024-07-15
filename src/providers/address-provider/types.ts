@@ -16,6 +16,7 @@ export interface State {
   addressIcons: Record<number, Record<string, string>>;
   signers: Address[];
   multisigs: Multisig[];
+  watchOnlyList: Address[];
   isSigner: (value: string) => boolean;
   isMultisig: (value: string) => boolean;
   isCurrent: (value: string) => boolean;
@@ -25,6 +26,7 @@ export interface State {
   addAddressBook: (value?: [address: Address, name: string]) => Promise<[address: Address, name: string]>;
   addCustomToken: (token: CustomToken) => void;
   setAddressThresholds: React.Dispatch<React.SetStateAction<Record<string, [number, number]>>>;
+  addWatchOnlyList: (address?: Address) => void;
 }
 
 export interface CustomToken {

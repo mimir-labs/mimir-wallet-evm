@@ -29,7 +29,7 @@ const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) =>
         />
       )}
       <div className='w-[220px] bg-white flex justify-start text-left p-2.5 h-auto rounded-medium border-1 border-secondary active:scale-[0.97] transition-all hover:bg-secondary shadow-medium hover:border-primary/5'>
-        <AddressCell fallbackName={data.name} withCopy address={data.address} iconSize={30} />
+        <AddressCell withCopy address={data.address} iconSize={30} />
       </div>
       {data.parentId ? (
         <Handle

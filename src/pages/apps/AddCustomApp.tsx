@@ -47,7 +47,7 @@ function AddCustomApp({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
       try {
         const _url = new URL(val);
 
-        const html = await fetch(_url).then((res) => res.text());
+        const html = await fetch(_url, { redirect: 'follow' }).then((res) => res.text());
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
@@ -74,12 +74,34 @@ function AddCustomApp({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         }
 
         result = { name: title || '', description: description || '', icon: iconUrl };
-      } catch (e) {
-        setError(new Error("The app doesn't support Safe App functionality"));
-        setIsLoading(false);
-        setFindApp(undefined);
+      } catch {
+        try {
+          const _url = new URL(val);
 
-        return;
+          _url.pathname = 'manifest.json';
+
+          const json = await fetch(_url).then((res) => res.json());
+
+          const title = json.name || '';
+          const description = json.description || '';
+          let iconUrl: string | undefined;
+
+          if (json.icons && Array.isArray(json.icons) && json.icons.length > 0) {
+            const url = new URL(val);
+
+            url.pathname = json.icons[0].src;
+
+            iconUrl = url.toString();
+          }
+
+          result = { name: title || '', description: description || '', icon: iconUrl };
+        } catch (e) {
+          setError(new Error("The app doesn't support Safe App functionality"));
+          setIsLoading(false);
+          setFindApp(undefined);
+
+          return;
+        }
       }
 
       setFindApp({

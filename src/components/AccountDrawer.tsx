@@ -7,6 +7,7 @@ import { Divider, Link } from '@nextui-org/react';
 import React, { useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import IconAdd from '@mimir-wallet/assets/svg/icon-add.svg?react';
 import IconMore from '@mimir-wallet/assets/svg/icon-more.svg?react';
 import IconSearch from '@mimir-wallet/assets/svg/icon-search.svg?react';
 import { useInput } from '@mimir-wallet/hooks';
@@ -21,12 +22,14 @@ import Input from './Input';
 function Cell({
   address,
   onSelect,
+  isWatchOnly,
   children,
   onClose,
   isSelect
 }: {
   address: Address;
   isSelect: boolean;
+  isWatchOnly: boolean;
   onSelect?: () => void;
   onClose: () => void;
   children: React.ReactNode;
@@ -42,7 +45,7 @@ function Cell({
       className='cursor-pointer flex items-center justify-between h-auto px-2.5 py-1.5 border-secondary text-left bg-white data-[selected=true]:bg-secondary'
       onClick={onSelect}
       endContent={
-        isSelect ? null : (
+        isSelect ? null : isWatchOnly ? null : (
           <Button
             as='div'
             onClick={(e) => {
@@ -66,7 +69,7 @@ function Cell({
 }
 
 function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { multisigs, isCurrent, switchAddress, current } = useContext(AddressContext);
+  const { multisigs, isCurrent, switchAddress, watchOnlyList, addWatchOnlyList, current } = useContext(AddressContext);
   const [search, setSearch] = useInput();
 
   const filtered = useMemo(
@@ -94,14 +97,16 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
         <div className='flex-1 space-y-2.5 text-small max-h-[calc(100%-100px)] overflow-y-auto'>
           {current && <p>Current Account</p>}
           {current && (
-            <Cell onClose={onClose} isSelect address={current}>
+            <Cell isWatchOnly={false} onClose={onClose} isSelect address={current}>
               <AddressCell withCopy iconSize={30} address={current} />
             </Cell>
           )}
+
           {current && <Divider />}
-          <p>Multisig Accounts</p>
+          {filtered.length > 0 && <p>Multisig Accounts</p>}
           {filtered.map((item) => (
             <Cell
+              isWatchOnly={false}
               address={item.address}
               key={item.address}
               isSelect={isCurrent(item.address)}
@@ -114,21 +119,31 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
               <AddressCell withCopy iconSize={30} address={item.address} fallbackName={item.name} />
             </Cell>
           ))}
-          {/* <Divider />
-        <p>Extension Accounts</p>
-        {signers.map((item) => (
-          <Cell
-            key={item}
-            isSelect={isCurrent(item)}
-            onSelect={() => {
-              switchAddress(item);
-              onClose();
-            }}
-          >
-            <AddressCell withCopy iconSize={30} address={item} />
-          </Cell>
-        ))} */}
+
+          <Divider />
+          <p className='flex items-center justify-between'>
+            Watch List
+            <Button size='tiny' radius='full' variant='light' isIconOnly onClick={() => addWatchOnlyList()}>
+              <IconAdd style={{ width: 12, height: 12 }} />
+            </Button>
+          </p>
+          {watchOnlyList.map((address) => (
+            <Cell
+              isWatchOnly
+              address={address}
+              key={address}
+              isSelect={isCurrent(address)}
+              onSelect={() => {
+                switchAddress(address);
+                onClose();
+              }}
+              onClose={onClose}
+            >
+              <AddressCell withCopy iconSize={30} address={address} />
+            </Cell>
+          ))}
         </div>
+
         <ButtonLinear className='justify-self-end' as={Link} href='/create-multisig' size='lg' fullWidth radius='full'>
           Create Multisig
         </ButtonLinear>
