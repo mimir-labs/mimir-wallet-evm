@@ -6,7 +6,7 @@ import type { BatchTxItem } from './hooks/types';
 import Events from 'eventemitter3';
 
 type EventTypes = {
-  batch_tx_added: (value: BatchTxItem) => void;
+  batch_tx_added: (value: BatchTxItem[], alert: boolean) => void;
 };
 
 export const events = new Events<EventTypes>();

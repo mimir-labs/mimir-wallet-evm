@@ -1,14 +1,9 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Link } from '@nextui-org/react';
-import { useLocation } from 'react-router-dom';
-
 import { Button } from '@mimir-wallet/components';
 
-function EmptyBatch({ onClose }: { onClose?: () => void }) {
-  const { pathname } = useLocation();
-
+function EmptyBatch({ onAdd }: { onAdd?: () => void }) {
   return (
     <div className='flex flex-col justify-center items-center gap-5 h-full'>
       <svg xmlns='http://www.w3.org/2000/svg' width='106' height='103' viewBox='0 0 106 103' fill='none'>
@@ -24,14 +19,8 @@ function EmptyBatch({ onClose }: { onClose?: () => void }) {
         Save gas and signatures by adding multiple Multisig transactions to a single transaction. You can reorder and
         delete individual transactions in a cache.
       </p>
-      <Button
-        as={Link}
-        href={`/apps/${encodeURIComponent(`mimir://app/transfer?callbackPath=${encodeURIComponent(pathname)}`)}`}
-        onClick={onClose}
-        color='primary'
-        radius='full'
-      >
-        Add New Transfer
+      <Button onClick={onAdd} color='primary' radius='full'>
+        Add New Transaction
       </Button>
     </div>
   );

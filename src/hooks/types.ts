@@ -64,29 +64,11 @@ export interface SignatureResponse {
   children?: SignatureResponse[];
 }
 
-export type CallFunctions =
-  | 'multiSend'
-  | 'transferToken'
-  | 'addOwnerWithThreshold'
-  | 'removeOwner'
-  | 'swapOwner'
-  | 'changeThreshold'
-  | 'transfer';
-
-export interface CallArgs {
-  [other: string]: unknown;
-  multiSend: [Hex];
-  transferToken: [token: Address, receiver: Address, amount: bigint];
-  transfer: [receiver: Address, amount: bigint];
-  addOwnerWithThreshold: [owner: Address, threshold: bigint];
-  removeOwner: [prevOwner: Address, owner: Address, threshold: bigint];
-  swapOwner: [prevOwner: Address, oldOwner: Address, newOwner: Address];
-  changeThreshold: [threshold: bigint];
-}
+export type CallFunctions = string;
 
 export interface ParsedCall<F extends CallFunctions = CallFunctions> {
   functionName: F;
-  args: CallArgs[F];
+  args: unknown[];
   names: (string | undefined)[];
   types: string[];
 }

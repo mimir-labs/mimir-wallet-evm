@@ -18,7 +18,7 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
   if (parsed.functionName === 'changeThreshold') {
     const { args } = parsed as ParsedCall<'changeThreshold'>;
 
-    return args[0].toString();
+    return args[0]?.toString();
   }
 
   if (parsed.functionName === 'swapOwner') {
@@ -33,7 +33,7 @@ function CallDetails({ parsed, multisend }: { parsed: ParsedCall; multisend?: Me
   if (parsed.functionName === 'transferToken') {
     const { args } = parsed as ParsedCall<'transferToken'>;
 
-    return <FormatBalance value={args[2]} />;
+    return <FormatBalance value={args[2] as bigint} />;
   }
 
   if (parsed.functionName === 'multiSend') {
