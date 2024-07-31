@@ -14,6 +14,7 @@ import { useChains } from 'wagmi';
 
 import Drag from '@mimir-wallet/assets/images/drag.svg';
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
+import IconCopy from '@mimir-wallet/assets/svg/icon-copy.svg?react';
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
 import { AppName, Button, CallDisplay, FormatBalance } from '@mimir-wallet/components';
 import { useParseCall } from '@mimir-wallet/hooks';
@@ -24,6 +25,7 @@ export type BatchItemType = BatchTxItem & {
   selected: number[];
   onSelected: (state: boolean) => void;
   onDelete: () => void;
+  onCopy: () => void;
 };
 
 interface Props {
@@ -33,7 +35,7 @@ interface Props {
 }
 
 function BatchItem({
-  item: { from, to, value, data, website, iconUrl, appName, id, index, selected, onSelected, onDelete },
+  item: { from, to, value, data, website, iconUrl, appName, id, index, selected, onSelected, onDelete, onCopy },
   dragHandleProps
 }: Props) {
   const [isOpen, toggleOpen] = useToggle(false);
@@ -68,7 +70,15 @@ function BatchItem({
             />
           )}
         </div>
-        <div className='col-span-1 flex items-center flex-row-reverse'>
+        <div className='col-span-1 flex items-center justify-between'>
+          <div className='flex items-center gap-1'>
+            <Button onClick={onCopy} size='tiny' radius='full' variant='light' isIconOnly color='primary'>
+              <IconCopy style={{ width: 20, height: 20 }} />
+            </Button>
+            <Button onClick={onDelete} size='tiny' radius='full' variant='light' isIconOnly color='danger'>
+              <IconDelete style={{ width: 18, height: 18 }} />
+            </Button>
+          </div>
           <Button
             data-open={isOpen}
             onClick={toggleOpen}
@@ -80,9 +90,6 @@ function BatchItem({
             color='primary'
           >
             <ArrowDown />
-          </Button>
-          <Button onClick={onDelete} size='tiny' radius='full' variant='light' isIconOnly color='danger'>
-            <IconDelete />
           </Button>
         </div>
       </div>

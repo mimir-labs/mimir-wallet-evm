@@ -11,7 +11,7 @@ import { decodeMultisend } from '../multisend';
 import { type IPublicClient, type MetaTransaction } from '../types';
 
 export async function simulate(client: IPublicClient, tx: MetaTransaction, safeAddress: Address) {
-  const accessorAddress = deployments[client.chain.id].SimulateTxAccessor;
+  const accessorAddress = deployments[client.chain.id].SimulateTxAccessor[0];
 
   const simulationData = encodeFunctionData({
     abi: abis.SimulateTxAccessor,
@@ -28,7 +28,7 @@ export async function simulate(client: IPublicClient, tx: MetaTransaction, safeA
 
   const res = await service.simulateTx(
     client.chain.id,
-    (tx.to === deployments[client.chain.id].MultiSend
+    (tx.to === deployments[client.chain.id].MultiSend[0]
       ? decodeMultisend(
           decodeFunctionData({
             abi: [abis.MultiSend[1]],

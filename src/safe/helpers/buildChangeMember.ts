@@ -39,7 +39,7 @@ export async function buildChangeMember(
   newMembers: Address[],
   newThreshold: bigint | number | string
 ): Promise<MetaTransaction> {
-  const multisendAddress = deployments[client.chain.id]?.MultiSend;
+  const multisendAddress = deployments[client.chain.id]?.MultiSend[0];
 
   assert(multisendAddress, `multisend not support on ${client.chain.name}`);
 

@@ -52,7 +52,7 @@ export function buildMultiSendSafeTx(
   txs: MetaTransaction[],
   overrides?: Partial<SafeTransaction>
 ): MetaTransaction {
-  const multisendAddress = deployments[chain.id]?.MultiSend;
+  const multisendAddress = deployments[chain.id]?.MultiSend[0];
 
   assert(multisendAddress, `multisend not support on ${chain.name}`);
 

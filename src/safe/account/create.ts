@@ -68,8 +68,8 @@ export function createSafeRequest(
   chain: Chain,
   account: Address,
   setup: Setup,
-  factory: Address = deployments[chain.id].SafeProxyFactory,
-  singleton: Address = deployments[chain.id].SafeL2,
+  factory: Address = deployments[chain.id].SafeProxyFactory[0],
+  singleton: Address = deployments[chain.id].SafeL2[0],
   salt: bigint = 0n
 ): CreateSafeRequest {
   assert(factory && singleton, `Not supported chain: ${chain.name}`);

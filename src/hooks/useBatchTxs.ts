@@ -17,7 +17,7 @@ export function useBatchTxs(
   address?: string | null
 ): [
   txs: BatchTxItem[],
-  addTx: (value: BatchTxItem) => void,
+  addTx: (value: Omit<BatchTxItem, 'id'>[], alert?: boolean) => void,
   deleteTx: (ids: number[]) => void,
   setTx: (txs: BatchTxItem[]) => void
 ] {
@@ -26,19 +26,23 @@ export function useBatchTxs(
 
   const txs = useMemo(() => (address ? values?.[chainId]?.[address] || [] : []), [address, chainId, values]);
   const addTx = useCallback(
-    (value: BatchTxItem) => {
+    (value: Omit<BatchTxItem, 'id'>[], alert: boolean = true) => {
       if (!address) return;
+
+      const id = txs.length ? Math.max(...txs.map((item) => item.id)) + 1 : 1;
+
+      const added: BatchTxItem[] = value.map((item, index) => ({ ...item, id: id + index }));
 
       setValues((_values) => ({
         ...(_values || {}),
         [chainId]: {
           ...(_values?.[chainId] || {}),
-          [address]: [...(_values?.[chainId]?.[address] || []), value]
+          [address]: [...(_values?.[chainId]?.[address] || []), ...added]
         }
       }));
-      events.emit('batch_tx_added', value);
+      events.emit('batch_tx_added', added, alert);
     },
-    [address, chainId, setValues]
+    [address, chainId, setValues, txs]
   );
   const deleteTx = useCallback(
     (ids: number[]) => {

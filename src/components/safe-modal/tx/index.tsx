@@ -47,23 +47,24 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
     refetch
   } = useSafeTx(props);
   const [signOnly, toggleSignOnly] = useToggle(true);
-  const [txs, addTx] = useBatchTxs(address);
+  const [, addTx] = useBatchTxs(address);
   const [dataSize] = useParseCall(tx.data);
 
   useHighlightTab();
   useCloseWhenPathChange(onClose);
 
   const handleAddBatch = useCallback(() => {
-    addTx({
-      ...tx,
-      value: tx.value.toString(),
-      website: metadata?.website,
-      iconUrl: metadata?.iconUrl,
-      appName: metadata?.appName,
-      id: Math.max(...txs.map((item) => item.id)) + 1
-    });
+    addTx([
+      {
+        ...tx,
+        value: tx.value.toString(),
+        website: metadata?.website,
+        iconUrl: metadata?.iconUrl,
+        appName: metadata?.appName
+      }
+    ]);
     onClose?.();
-  }, [addTx, metadata?.appName, metadata?.iconUrl, metadata?.website, onClose, tx, txs]);
+  }, [addTx, metadata?.appName, metadata?.iconUrl, metadata?.website, onClose, tx]);
 
   return (
     <div className='w-full'>
