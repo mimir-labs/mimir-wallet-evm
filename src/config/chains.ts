@@ -115,6 +115,35 @@ export const supportedChains = [
     iconUrl: '/chain-icons/44.svg',
     nativeCurrencyIcon: '/token-icons/Crab.svg'
   },
+  // {
+  //   ...defineChain({
+  //     id: 1337,
+  //     name: 'MegaETH',
+  //     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  //     rpcUrls: {
+  //       default: {
+  //         http: ['http://playstation.megaeth.systems:2425']
+  //       }
+  //     },
+  //     blockExplorers: {
+  //       default: {
+  //         name: 'Explorer',
+  //         url: '',
+  //         apiUrl: ''
+  //       }
+  //     },
+  //     contracts: {
+  //       multicall3: {
+  //         address: '0xca11bde05977b3631167028862be2a173976ca11',
+  //         blockCreated: 1
+  //       }
+  //     },
+  //     testnet: true
+  //   }),
+  //   shortName: 'mega',
+  //   iconUrl: '/chain-icons/1337.png',
+  //   nativeCurrencyIcon: '/token-icons/ETH.webp'
+  // },
   {
     ...fraxtal,
     shortName: 'frx',

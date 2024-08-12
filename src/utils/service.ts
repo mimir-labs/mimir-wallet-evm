@@ -5,7 +5,7 @@ import type { Address, Hash, Hex } from 'viem';
 import type { BaseAccount, Operation, SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from './types';
 
-import { serviceUrl } from '@mimir-wallet/config';
+import { notificationServiceUrl, serviceUrl } from '@mimir-wallet/config';
 
 import { fetcher } from './fetcher';
 
@@ -121,6 +121,44 @@ export function parseTx(
 > {
   return fetcher(serviceUrl(chainId, `parse/${hash}`), {
     method: 'GET',
+    headers: jsonHeader
+  });
+}
+
+export function subscribeFirebase(signature: Hex, token: string): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`subscribe`), {
+    method: 'POST',
+    body: JSON.stringify({ signature, token }),
+    headers: jsonHeader
+  });
+}
+
+export function subscribeEmail(
+  signature: Hex,
+  email: string,
+  created: boolean,
+  approved: boolean,
+  executed: boolean
+): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`subscribe/email`), {
+    method: 'POST',
+    body: JSON.stringify({ signature, email, created, approved, executed }),
+    headers: jsonHeader
+  });
+}
+
+export function unsubscribeFirebase(signature: Hex): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`unsubscribe`), {
+    method: 'POST',
+    body: JSON.stringify({ signature }),
+    headers: jsonHeader
+  });
+}
+
+export function unsubscribeEmail(signature: Hex, topics: string[]): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`unsubscribe/email`), {
+    method: 'POST',
+    body: JSON.stringify({ signature, topics }),
     headers: jsonHeader
   });
 }

@@ -4,4 +4,5 @@
 export * from './apps';
 export * from './chains';
 export * from './deployments';
+export * from './firebase';
 export * from './service';

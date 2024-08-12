@@ -10,7 +10,7 @@ export const services: Record<number, string> = {
   [sepolia.id]:
     window.location.hostname === 'safe.mimir.global'
       ? 'https://evm-sepolia-api.mimir.global/'
-      : 'https://dev-evm-sepolia-api.mimir.global/',
+      : 'https://evm-sepolia-api.mimir.global/',
   [scrollSepolia.id]: 'https://evm-scroll-sepolia-api.mimir.global/',
   [darwinia.id]: 'https://evm-darwinia-api.mimir.global/',
   44: 'https://evm-crab-api.mimir.global/',
@@ -18,6 +18,7 @@ export const services: Record<number, string> = {
 };
 
 export const assetsServices = 'https://evm-assets-api.mimir.global/';
+export const notificationService = 'https://evm-notification.mimir.global/';
 
 export function serviceUrl(chainId: number, path: string): string {
   const base = services[chainId];
@@ -27,4 +28,8 @@ export function serviceUrl(chainId: number, path: string): string {
 
 export function assetsSrviceUrl(path: string): string {
   return `${assetsServices}${path}`;
+}
+
+export function notificationServiceUrl(path: string): string {
+  return `${notificationService}${path}`;
 }

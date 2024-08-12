@@ -140,7 +140,10 @@ function InputToken({ disabled, value, account, defaultValue, showBalance, token
   ) : null;
 
   return (
-    <div data-disabled={disabled} className='input-token-wrapper space-y-2 data-[disabled=true]:pointer-events-none'>
+    <div
+      data-disabled={disabled}
+      className='input-token-wrapper w-full space-y-2 data-[disabled=true]:pointer-events-none'
+    >
       {label && <div className='font-bold text-small'>{label}</div>}
       <div
         onFocus={handleOpen}

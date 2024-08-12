@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => ({
           ui2: ['@nextui-org/react', 'next-themes'],
           reactflow: ['reactflow'],
           lottie: ['lottie-web'],
-          others: ['react-ga4']
+          others: ['react-ga4', 'socket.io-client', 'dayjs']
         }
       }
     }
@@ -59,8 +59,16 @@ export default defineConfig(({ mode }) => ({
       : [
           eslintPlugin(),
           VitePWA({
+            strategies: 'injectManifest',
+            srcDir: 'src/service-workers',
+            filename: 'sw.ts',
             registerType: 'autoUpdate',
             includeAssets: ['favicon.png', 'robots.txt', 'apple-touch-icon.png', 'icons/*.svg', 'fonts/*.woff2'],
+            injectManifest: {
+              buildPlugins: {
+                vite: [tsconfigPaths()]
+              }
+            },
             manifest: {
               theme_color: '#BD34FE',
               icons: [

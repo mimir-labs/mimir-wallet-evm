@@ -13,6 +13,7 @@ export * from './useInputAddress';
 export * from './useInputNumber';
 export * from './useMultisig';
 export * from './useMultisigs';
+export * from './useNotification';
 export * from './useParseCall';
 export * from './useQueryAccount';
 export * from './useQueryHistory';
