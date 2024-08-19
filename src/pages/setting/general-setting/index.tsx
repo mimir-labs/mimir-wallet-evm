@@ -6,6 +6,7 @@ import { Tab, Tabs } from '@nextui-org/react';
 import { useQueryParam } from '@mimir-wallet/hooks';
 
 import Appearance from './Appearance';
+import Notification from './notification';
 import RpcSet from './RpcSet';
 
 function GeneralSetting() {
@@ -28,6 +29,9 @@ function GeneralSetting() {
       </Tab>
       <Tab key='network' title='Network&RPC'>
         <RpcSet />
+      </Tab>
+      <Tab key='notification' title='Notification'>
+        <Notification />
       </Tab>
     </Tabs>
   );

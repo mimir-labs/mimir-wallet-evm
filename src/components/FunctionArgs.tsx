@@ -47,7 +47,7 @@ function FunctionArgs({ data, to }: { data: Hex; to?: Address }) {
             label={parsed.names[index] || index.toString()}
             content={
               parsed.types[index] === 'address' ? (
-                <AddressRow iconSize={14} address={item.toString()} />
+                <AddressRow iconSize={14} address={item?.toString()} />
               ) : (
                 parse(item || '')
               )

@@ -5,7 +5,7 @@ import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { Chain, defineChain, FallbackTransport, getAddress, http, isAddress, Transport } from 'viem';
-import { darwinia, mainnet, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
+import { arbitrum, darwinia, fraxtal, mainnet, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
 import {
@@ -42,6 +42,12 @@ export const supportedChains = [
     ...mainnet,
     shortName: 'eth',
     iconUrl: '/chain-icons/1.webp',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
+  {
+    ...arbitrum,
+    shortName: 'arb',
+    iconUrl: '/chain-icons/42161.webp',
     nativeCurrencyIcon: '/token-icons/ETH.webp'
   },
   {
@@ -114,6 +120,41 @@ export const supportedChains = [
     shortName: 'cra',
     iconUrl: '/chain-icons/44.svg',
     nativeCurrencyIcon: '/token-icons/Crab.svg'
+  },
+  // {
+  //   ...defineChain({
+  //     id: 1337,
+  //     name: 'MegaETH',
+  //     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  //     rpcUrls: {
+  //       default: {
+  //         http: ['http://playstation.megaeth.systems:2425']
+  //       }
+  //     },
+  //     blockExplorers: {
+  //       default: {
+  //         name: 'Explorer',
+  //         url: '',
+  //         apiUrl: ''
+  //       }
+  //     },
+  //     contracts: {
+  //       multicall3: {
+  //         address: '0xca11bde05977b3631167028862be2a173976ca11',
+  //         blockCreated: 1
+  //       }
+  //     },
+  //     testnet: true
+  //   }),
+  //   shortName: 'mega',
+  //   iconUrl: '/chain-icons/1337.png',
+  //   nativeCurrencyIcon: '/token-icons/ETH.webp'
+  // },
+  {
+    ...fraxtal,
+    shortName: 'frx',
+    iconUrl: '/chain-icons/252.svg',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
   }
 ] as [CustomChain, ...CustomChain[]];
 

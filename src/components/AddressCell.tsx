@@ -17,6 +17,7 @@ import CopyAddressButton from './CopyAddressButton';
 interface Props {
   isToken?: boolean;
   icon?: string;
+  name?: string;
   address?: string | null | undefined;
   showFull?: boolean;
   iconSize?: number;
@@ -24,33 +25,38 @@ interface Props {
   fallbackName?: React.ReactNode;
   withCopy?: boolean;
   withExplorer?: boolean;
+  replaceAddress?: string;
+  className?: string;
 }
 
 function AddressCell({
   icon,
   isToken,
   iconSize,
+  name,
   address,
   fallbackName,
   disableEns,
   withCopy,
   withExplorer,
-  showFull
+  showFull,
+  replaceAddress,
+  className
 }: Props) {
   const [chain] = useChains();
 
   return (
-    <div className='address-cell flex items-center gap-x-2.5 flex-grow-0'>
+    <div className={`address-cell flex items-center gap-x-2.5 flex-grow-0 ${className}`}>
       <AddressIcon src={icon} isToken={isToken} size={iconSize} address={address} />
       <div className='address-cell-content flex flex-col gap-y-[5px]'>
         <div
-          className='inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'
+          className='address-cell-content-name inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'
           style={{ maxWidth: showFull ? '999px' : undefined }}
         >
-          <AddressName address={address} disableEns={disableEns} fallback={fallbackName} />
+          {name || <AddressName address={address} disableEns={disableEns} fallback={fallbackName} />}
         </div>
-        <div className='inline-flex items-center gap-[5px] text-tiny leading-[14px] h-[14px] max-h-[14px] font-normal opacity-50'>
-          <Address address={address} showFull={showFull} />
+        <div className='address-cell-content-address inline-flex items-center gap-[5px] text-tiny leading-[14px] h-[14px] max-h-[14px] font-normal opacity-50'>
+          {replaceAddress || <Address address={address} showFull={showFull} />}
           <span className='inline-flex items-center' style={{ display: withCopy || withExplorer ? undefined : 'none' }}>
             {withCopy && address ? <CopyAddressButton as='div' size='tiny' address={address} color='default' /> : null}
             {withExplorer && address && (

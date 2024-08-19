@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address, Hash, Hex } from 'viem';
-import type { BaseAccount, SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
+import type { BaseAccount, Operation, SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from './types';
 
-import { serviceUrl } from '@mimir-wallet/config';
+import { notificationServiceUrl, serviceUrl } from '@mimir-wallet/config';
 
 import { fetcher } from './fetcher';
 
@@ -104,6 +104,73 @@ export function simulateTx(
 export function getSafeTx(chainId: number, hash: string): Promise<{ executeTransaction?: Hash }> {
   return fetcher(serviceUrl(chainId, `tx/${hash}`), {
     method: 'GET',
+    headers: jsonHeader
+  });
+}
+
+export function parseTx(
+  chainId: number,
+  hash: string
+): Promise<
+  {
+    to: Address;
+    value: string;
+    data: Hex;
+    operation: Operation;
+  }[]
+> {
+  return fetcher(serviceUrl(chainId, `parse/${hash}`), {
+    method: 'GET',
+    headers: jsonHeader
+  });
+}
+
+export function subscribeFirebase(
+  uuid: string,
+  chainId: number,
+  address: Address,
+  token: string
+): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`subscribe`), {
+    method: 'POST',
+    body: JSON.stringify({
+      chainId,
+      address,
+      token,
+      uuid
+    }),
+    headers: jsonHeader
+  });
+}
+
+export function subscribeEmail(
+  uuid: string,
+  chainId: number,
+  address: Address,
+  email: string,
+  created: boolean,
+  approved: boolean,
+  executed: boolean
+): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`subscribe/email`), {
+    method: 'POST',
+    body: JSON.stringify({ uuid, chainId, address, email, created, approved, executed }),
+    headers: jsonHeader
+  });
+}
+
+export function unsubscribeFirebase(uuid: string, chainId: number, address: Address): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`unsubscribe/${uuid}`), {
+    method: 'POST',
+    body: JSON.stringify({ chainId, address }),
+    headers: jsonHeader
+  });
+}
+
+export function unsubscribeEmail(signature: Hex, topics: string[]): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`unsubscribe/email`), {
+    method: 'POST',
+    body: JSON.stringify({ signature, topics }),
     headers: jsonHeader
   });
 }

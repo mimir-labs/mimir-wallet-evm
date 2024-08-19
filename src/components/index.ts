@@ -39,6 +39,7 @@ export { default as InputAddress } from './InputAddress';
 export { default as InputToken } from './InputToken';
 export { default as NftCard } from './NftCard';
 export { default as QrcodeAddress } from './QrcodeAddress';
+export { default as ReloadPrompt } from './ReloadPrompt';
 export { default as SafeTxButton } from './SafeTxButton';
 export { default as SafeTxOverview } from './SafeTxOverview';
 export { default as SignatureOverview } from './SignatureOverview';

@@ -22,7 +22,13 @@ function AddAddressModal({ isOpen, onClose, onConfirm, name, address, setName, s
   const disabled = !name || !isAddress(address);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} hideCloseButton>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      hideCloseButton
+      classNames={{ wrapper: 'z-[10000000]', backdrop: 'z-[10000000]' }}
+      disableAnimation
+    >
       <ModalContent>
         <ModalHeader className='justify-center font-bold text-2xl'>Add New Contact</ModalHeader>
         <Divider />

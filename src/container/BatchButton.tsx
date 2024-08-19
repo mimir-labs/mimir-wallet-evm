@@ -19,8 +19,10 @@ function BatchButton() {
   const [isDrawerOpen, toggleDrawerOpen] = useToggle(false);
 
   useEffect(() => {
-    const listener = () => {
-      toggleOpen(true);
+    const listener = (_: unknown, alert: boolean) => {
+      if (alert) {
+        toggleOpen(true);
+      }
     };
 
     events.on('batch_tx_added', listener);

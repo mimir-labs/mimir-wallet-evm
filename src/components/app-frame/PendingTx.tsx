@@ -30,17 +30,22 @@ function PendingTx({ address }: { address: Address }) {
       />
       <div
         data-expanded={expanded}
-        className='fixed bottom-0 left-0 right-0 w-full h-[calc(50vh+60px)] bg-secondary translate-y-[50vh] transition-all data-[expanded=true]:translate-y-0'
+        className='fixed bottom-0 left-0 right-0 w-full h-[calc(50vh+60px)] data-[expanded=true]:bg-secondary bg-primary-400 translate-y-[50vh] transition-all data-[expanded=true]:translate-y-0'
       >
         <div className='cursor-pointer flex items-center justify-between h-[60px] px-6' onClick={toggleExpand}>
-          <h6 className='font-bold text-medium text-primary'>{counts} Pending Transactions</h6>
+          <h6
+            data-expanded={expanded}
+            className='font-bold text-medium data-[expanded=true]:text-secondary-foreground text-primary-foreground'
+          >
+            {counts} Pending Transactions
+          </h6>
           <Button
             data-expanded={expanded}
             isIconOnly
             size='sm'
             color='secondary'
             radius='full'
-            className='bg-primary/5 data-[expanded=true]:rotate-180'
+            className='bg-primary/5 data-[expanded=false]:text-secondary data-[expanded=true]:rotate-180'
             onClick={toggleExpand}
           >
             <ExpandArrow />

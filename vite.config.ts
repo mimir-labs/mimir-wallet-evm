@@ -43,9 +43,10 @@ export default defineConfig(({ mode }) => ({
             'react-infinite-scroll-component'
           ],
           ui2: ['@nextui-org/react', 'next-themes'],
+          chart: ['chart.js', 'react-chartjs-2'],
           reactflow: ['reactflow'],
           lottie: ['lottie-web'],
-          others: ['react-ga4']
+          others: ['react-ga4', 'socket.io-client', 'dayjs']
         }
       }
     }
@@ -59,8 +60,16 @@ export default defineConfig(({ mode }) => ({
       : [
           eslintPlugin(),
           VitePWA({
+            strategies: 'injectManifest',
+            srcDir: 'src/service-workers',
+            filename: 'sw.ts',
             registerType: 'autoUpdate',
             includeAssets: ['favicon.png', 'robots.txt', 'apple-touch-icon.png', 'icons/*.svg', 'fonts/*.woff2'],
+            injectManifest: {
+              buildPlugins: {
+                vite: [tsconfigPaths()]
+              }
+            },
             manifest: {
               theme_color: '#BD34FE',
               icons: [

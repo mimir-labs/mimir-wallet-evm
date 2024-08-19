@@ -67,7 +67,7 @@ function AddressIcon({
         iconSrc = (chain as CustomChain).nativeCurrencyIcon;
       }
     } else {
-      iconSrc = addressIcons?.[chainId]?.[address];
+      iconSrc ||= addressIcons?.[chainId]?.[address];
     }
   }
 
@@ -81,7 +81,9 @@ function AddressIcon({
       {thresholdVisible && size >= 20 && threshold && (
         <span className='absolute left-0 right-0 bottom-0 w-full flex items-center justify-center overflow-visible'>
           <span className='flex-1 flex items-center justify-center font-bold text-tiny rounded-full bg-primary text-primary-foreground whitespace-nowrap translate-y-[40%]'>
-            <span className='scale-85 origin-center'>{threshold.join('/')}</span>
+            <span className='origin-center' style={{ fontSize: size / 4 < 10 ? 10 : size / 4, lineHeight: 1.5 }}>
+              {threshold.join('/')}
+            </span>
           </span>
         </span>
       )}

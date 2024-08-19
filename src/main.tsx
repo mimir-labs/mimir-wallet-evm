@@ -3,6 +3,17 @@
 
 import './index.css';
 
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip
+} from 'chart.js';
 import dayjs from 'dayjs';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -20,6 +31,20 @@ dayjs.extend((_, dayjsClass) => {
     return oldFormat.bind(this)(formatString ?? 'YYYY-MM-DD HH:mm:ss');
   };
 });
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement
+);
+
 initializeFavoriteApps();
 
 const mimirConfig = initMimirConfig();

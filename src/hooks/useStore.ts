@@ -43,7 +43,7 @@ export function useStore<T>(
     return () => {
       store.off('store_changed', onChange);
     };
-  });
+  }, [key]);
 
   return [
     value || defaultValue,

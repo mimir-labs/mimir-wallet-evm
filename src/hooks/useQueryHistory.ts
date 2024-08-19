@@ -13,8 +13,14 @@ import { HistoryData, HistoryType } from './types';
 
 export function useHistory(
   chainId: number,
-  limit = 50,
-  address?: Address
+  limit = 20,
+  address?: Address,
+  type?: HistoryType,
+  startTime?: number,
+  endTime?: number,
+  to?: string,
+  module?: string,
+  token?: string
 ): [
   HistoryData[] | undefined,
   isFetched: boolean,
@@ -23,9 +29,35 @@ export function useHistory(
   isFetchingNextPage: boolean,
   fetchNextPage: () => void
 ] {
+  let filters = '';
+
+  if (type !== undefined && type !== null) {
+    filters += `&type=${type}`;
+  }
+
+  if (startTime) {
+    filters += `&start=${startTime}`;
+  }
+
+  if (endTime) {
+    filters += `&end=${endTime}`;
+  }
+
+  if (to) {
+    filters += `&to=${to}`;
+  }
+
+  if (token) {
+    filters += `&token=${token}`;
+  }
+
+  if (module) {
+    filters += `&module=${module}`;
+  }
+
   const { data, fetchNextPage, hasNextPage, isFetched, isFetching, isFetchingNextPage } = useInfiniteQuery<any[]>({
     initialPageParam: null,
-    queryKey: [address ? serviceUrl(chainId, `history/${address}?limit=${limit}`) : null],
+    queryKey: [address ? serviceUrl(chainId, `history/${address}?limit=${limit}${filters}`) : null],
     queryFn: async ({ pageParam, queryKey }) => {
       if (!queryKey[0]) {
         return undefined;
@@ -34,7 +66,7 @@ export function useHistory(
       return fetcher(pageParam ? `${queryKey[0]}&next_cursor=${pageParam}` : `${queryKey[0]}`);
     },
     getNextPageParam: (data, allPages) => {
-      if (allPages.length === 50) {
+      if (allPages.length === 20) {
         return null;
       }
 
@@ -44,7 +76,7 @@ export function useHistory(
 
       return null;
     },
-    maxPages: 50,
+    maxPages: 20,
     refetchInterval: 0
   });
 

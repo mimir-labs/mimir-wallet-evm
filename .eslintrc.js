@@ -73,6 +73,7 @@ module.exports = {
       }
     ],
     'no-void': 'off',
+    'no-console': 'off',
     '@typescript-eslint/naming-convention': 'off',
     '@typescript-eslint/padding-line-between-statements': 'off',
     '@typescript-eslint/prefer-enum-initializers': 'off',

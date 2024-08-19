@@ -46,7 +46,14 @@ function Content({ account, safeAddress }: { account: Address; safeAddress: Addr
                 resetting the Account setup.
               </p>
             </div>
-            <Checkbox size='sm' isSelected={ignore} onValueChange={setIgnore}>
+            <Checkbox
+              size='sm'
+              isSelected={ignore}
+              onValueChange={(state) => {
+                toggleOpen(false);
+                setIgnore(state);
+              }}
+            >
               {`Don't show me again`}
             </Checkbox>
           </ModalBody>

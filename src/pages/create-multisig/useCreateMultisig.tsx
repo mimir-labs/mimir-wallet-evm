@@ -66,7 +66,7 @@ export function useCreateMultisig(
 
   const starter = [
     async (client: IPublicClient, wallet: IWalletClient) => {
-      const fallbackHandler = deployments[wallet.chain.id].CompatibilityFallbackHandler;
+      const fallbackHandler = deployments[wallet.chain.id].CompatibilityFallbackHandler[0];
 
       const request = createSafeRequest(
         wallet.chain,
