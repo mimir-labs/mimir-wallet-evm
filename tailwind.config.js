@@ -49,7 +49,7 @@ const config = {
         extend: 'light',
         colors: {
           foreground: {DEFAULT: '#151F34'},
-          divider: {DEFAULT: '#F5F3FF'},
+          divider: {DEFAULT: '#F5F3FF', 300: '#D9D9D9'},
           primary: {
             50: '#F5F3FF',
             100: '#EEE8FF',

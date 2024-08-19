@@ -4,39 +4,30 @@
 import { Card, CardBody, Switch } from '@nextui-org/react';
 import React, { useContext, useEffect } from 'react';
 import { useAsyncFn, useToggle } from 'react-use';
-import { getAddress } from 'viem';
-import { useAccount, useChainId, useWalletClient } from 'wagmi';
+import { useChainId } from 'wagmi';
 
 import { getRegisterDeviceToken, requestNotificationPermission } from '@mimir-wallet/features/push-notification/setup';
-import { useNotifications } from '@mimir-wallet/hooks';
+import { useDeviceUuid, useNotifications } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { service } from '@mimir-wallet/utils';
 
 function NotificationFirebase() {
   const chainId = useChainId();
-  const { address } = useAccount();
-  const { data: wallet } = useWalletClient();
-  const { multisigs } = useContext(AddressContext);
-  const [firebases, , isFetched] = useNotifications(address);
+  const deviceUuid = useDeviceUuid();
+  const { current } = useContext(AddressContext);
+  const [firebases, , isFetched] = useNotifications(deviceUuid);
   const [isEnabled, toggleEnable] = useToggle(false);
 
   useEffect(() => {
     if (isFetched) {
-      const isEnable =
-        multisigs.length > 0 && firebases && firebases.length
-          ? multisigs.reduce<boolean>((result, item) => {
-              result &&= !!firebases.find(({ topic }) => topic === `${chainId}.${getAddress(item.address)}`);
-
-              return result;
-            }, true)
-          : false;
+      const isEnable = !!firebases?.find((item) => item.topic === `${chainId}.${current}`);
 
       toggleEnable(isEnable);
     }
-  }, [chainId, firebases, isFetched, multisigs, toggleEnable]);
+  }, [chainId, current, firebases, isFetched, toggleEnable]);
 
   const [state, handleEnable] = useAsyncFn(async () => {
-    if (!wallet) {
+    if (!current) {
       return;
     }
 
@@ -48,24 +39,18 @@ function NotificationFirebase() {
 
     const token = await getRegisterDeviceToken();
 
-    const signature = await wallet.signMessage({ message: token });
-
-    service.subscribeFirebase(signature, token);
+    service.subscribeFirebase(deviceUuid, chainId, current, token);
 
     toggleEnable(true);
-  }, [toggleEnable, wallet]);
+  }, [chainId, current, deviceUuid, toggleEnable]);
 
   const [disableState, handleDisable] = useAsyncFn(async () => {
-    if (!wallet) {
-      return;
-    }
+    if (!current) return;
 
-    const signature = await wallet.signMessage({ message: 'Unsubscribe notification' });
-
-    await service.unsubscribeFirebase(signature);
+    await service.unsubscribeFirebase(deviceUuid, chainId, current);
 
     toggleEnable(false);
-  }, [toggleEnable, wallet]);
+  }, [chainId, current, deviceUuid, toggleEnable]);
 
   return (
     <Card>
@@ -81,7 +66,7 @@ function NotificationFirebase() {
                 handleDisable();
               }
             }}
-            disabled={state.loading || disableState.loading || multisigs.length === 0}
+            disabled={state.loading || disableState.loading}
           />
         </div>
         <p className='text-tiny text-foreground/50'>

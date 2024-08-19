@@ -8,6 +8,7 @@ export const CURRENT_CHAINID_KEY = `${LS_NAMESPACE}chainid`;
 
 export const FAVORITE_APP_KEY = 'favorite_app';
 export const CUSTOM_APP_KEY = `${LS_NAMESPACE}custom_app`;
+export const DEVICE_UUIR_KEY = `${LS_NAMESPACE}uuid`;
 
 export const ADDRESS_BOOK_KEY = 'address_book';
 export const ADDRESS_NAMES_KEY = 'address_names';

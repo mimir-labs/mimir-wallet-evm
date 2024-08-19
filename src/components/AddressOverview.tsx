@@ -4,7 +4,17 @@
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import React, { useEffect } from 'react';
-import ReactFlow, { Edge, Handle, Node, NodeProps, Position, useEdgesState, useNodesState } from 'reactflow';
+import ReactFlow, {
+  Controls,
+  Edge,
+  Handle,
+  MiniMap,
+  Node,
+  NodeProps,
+  Position,
+  useEdgesState,
+  useNodesState
+} from 'reactflow';
 
 import { EmptyArray } from '@mimir-wallet/constants';
 
@@ -147,7 +157,10 @@ function AddressOverview({ account }: Props) {
       onEdgesChange={onEdgesChange}
       onNodesChange={onNodesChange}
       zoomOnScroll
-    />
+    >
+      <MiniMap pannable zoomable />
+      <Controls />
+    </ReactFlow>
   );
 }
 

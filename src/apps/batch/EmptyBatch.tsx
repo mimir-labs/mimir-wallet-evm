@@ -1,9 +1,11 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import { Link } from '@nextui-org/react';
+
 import { Button } from '@mimir-wallet/components';
 
-function EmptyBatch({ onAdd }: { onAdd?: () => void }) {
+function EmptyBatch({ onAdd, onClose }: { onAdd?: () => void; onClose?: () => void }) {
   return (
     <div className='flex flex-col justify-center items-center gap-5 h-full'>
       <svg xmlns='http://www.w3.org/2000/svg' width='106' height='103' viewBox='0 0 106 103' fill='none'>
@@ -21,6 +23,15 @@ function EmptyBatch({ onAdd }: { onAdd?: () => void }) {
       </p>
       <Button onClick={onAdd} color='primary' radius='full'>
         Add New Transaction
+      </Button>
+      <Button
+        as={Link}
+        onClick={onClose}
+        href={`/apps/${encodeURIComponent(`mimir://app/transfer?callbackPath=${encodeURIComponent('/')}`)}`}
+        color='primary'
+        radius='full'
+      >
+        Add New Transfer
       </Button>
     </div>
   );

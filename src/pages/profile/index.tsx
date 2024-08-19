@@ -5,7 +5,7 @@ import { useContext } from 'react';
 
 import { AddressContext } from '@mimir-wallet/providers';
 
-import Dashboard from './Dashboard';
+import Dashboard from './dashboard';
 import Welcome from './Welcome';
 
 function Profile() {

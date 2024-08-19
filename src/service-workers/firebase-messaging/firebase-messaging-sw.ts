@@ -34,6 +34,7 @@ export function firebaseMessagingSw() {
   const messaging = getMessaging(app);
 
   onBackgroundMessage(messaging, async (payload) => {
+    console.log('receice message:', payload);
     const { notification, data } = payload;
 
     if (notification) {

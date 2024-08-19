@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => ({
             'react-infinite-scroll-component'
           ],
           ui2: ['@nextui-org/react', 'next-themes'],
+          chart: ['chart.js', 'react-chartjs-2'],
           reactflow: ['reactflow'],
           lottie: ['lottie-web'],
           others: ['react-ga4', 'socket.io-client', 'dayjs']

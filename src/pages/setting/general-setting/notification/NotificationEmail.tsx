@@ -4,19 +4,18 @@
 import { Card, CardBody, Switch } from '@nextui-org/react';
 import React, { useContext, useEffect } from 'react';
 import { useAsyncFn, useToggle } from 'react-use';
-import { useAccount, useChainId, useWalletClient } from 'wagmi';
+import { useChainId } from 'wagmi';
 
 import { Button, Input } from '@mimir-wallet/components';
-import { useInput, useNotifications } from '@mimir-wallet/hooks';
+import { useDeviceUuid, useInput, useNotifications } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { service } from '@mimir-wallet/utils';
 
 function NotificationEmail() {
   const chainId = useChainId();
-  const { address } = useAccount();
-  const { data: wallet } = useWalletClient();
-  const { multisigs } = useContext(AddressContext);
-  const [, emails, isFetched] = useNotifications(address);
+  const deviceUuid = useDeviceUuid();
+  const { current } = useContext(AddressContext);
+  const [, emails, isFetched] = useNotifications(deviceUuid);
   const [email, setEmail] = useInput('');
   const [isEnabled, toggleEnable] = useToggle(false);
   const [isApprovedEnabled, toggleApprovedEnable] = useToggle(false);
@@ -30,20 +29,9 @@ function NotificationEmail() {
         setEmail(emails[0].email);
       }
 
-      const isApprovedEnable =
-        multisigs.length > 0 && emails && emails.length
-          ? emails.reduce((result, item) => result && item.approved, true)
-          : false;
-
-      const isCreatedEnable =
-        multisigs.length > 0 && emails && emails.length
-          ? emails.reduce((result, item) => result && item.created, true)
-          : false;
-
-      const isExecutedEnable =
-        multisigs.length > 0 && emails && emails.length
-          ? emails.reduce((result, item) => result && item.executed, true)
-          : false;
+      const isApprovedEnable = emails?.find((item) => item.topic === `${chainId}.${current}` && item.approved);
+      const isCreatedEnable = emails?.find((item) => item.topic === `${chainId}.${current}` && item.created);
+      const isExecutedEnable = emails?.find((item) => item.topic === `${chainId}.${current}` && item.executed);
 
       toggleApprovedEnable(isApprovedEnable);
       toggleCreatedEnable(isCreatedEnable);
@@ -51,9 +39,9 @@ function NotificationEmail() {
     }
   }, [
     chainId,
+    current,
     emails,
     isFetched,
-    multisigs,
     setEmail,
     toggleApprovedEnable,
     toggleCreatedEnable,
@@ -63,15 +51,21 @@ function NotificationEmail() {
 
   const [state, handleEnable] = useAsyncFn(
     async (email: string) => {
-      if (!wallet) {
+      if (!current) {
         return;
       }
 
-      const signature = await wallet.signMessage({ message: email });
-
-      service.subscribeEmail(signature, email, isCreatedEnabled, isApprovedEnabled, isExecutedEnabled);
+      service.subscribeEmail(
+        deviceUuid,
+        chainId,
+        current,
+        email,
+        isCreatedEnabled,
+        isApprovedEnabled,
+        isExecutedEnabled
+      );
     },
-    [isApprovedEnabled, isCreatedEnabled, isExecutedEnabled, wallet]
+    [chainId, current, deviceUuid, isApprovedEnabled, isCreatedEnabled, isExecutedEnabled]
   );
 
   return (
@@ -87,7 +81,7 @@ function NotificationEmail() {
               toggleCreatedEnable(state);
               toggleExecutedEnable(state);
             }}
-            disabled={multisigs.length === 0 || !email}
+            disabled={!email}
           />
         </div>
         <Input variant='bordered' placeholder='Please input your email' value={email} onChange={setEmail} />
@@ -99,24 +93,16 @@ function NotificationEmail() {
         </p>
         <div className='flex items-center justify-between'>
           Transaction Created
-          <Switch
-            disabled={multisigs.length === 0 || !email}
-            isSelected={isEnabled && isCreatedEnabled}
-            onValueChange={toggleCreatedEnable}
-          />
+          <Switch disabled={!email} isSelected={isEnabled && isCreatedEnabled} onValueChange={toggleCreatedEnable} />
         </div>
         <div className='flex items-center justify-between'>
           Transaction Executed
-          <Switch
-            disabled={multisigs.length === 0 || !email}
-            isSelected={isEnabled && isExecutedEnabled}
-            onValueChange={toggleExecutedEnable}
-          />
+          <Switch disabled={!email} isSelected={isEnabled && isExecutedEnabled} onValueChange={toggleExecutedEnable} />
         </div>
         <div className='flex items-center justify-between'>
           New Approvement
           <Switch
-            disabled={multisigs.length === 0 || !email}
+            disabled={!email}
             isSelected={isEnabled && isApprovedEnabled}
             onValueChange={(state) => {
               if (state) {

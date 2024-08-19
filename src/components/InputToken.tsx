@@ -8,7 +8,8 @@ import type { InputTokenProps, InputTokenType } from './types';
 import { Listbox, ListboxItem, Skeleton } from '@nextui-org/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
-import { Address as AddressType, getAddress, isAddress } from 'viem';
+import { Address as AddressType, getAddress, isAddress, zeroAddress } from 'viem';
+import { useChains } from 'wagmi';
 
 import { useAccountBalance, useInput, useToken } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
@@ -19,6 +20,7 @@ import AddressIcon from './AddressIcon';
 import FormatBalance from './FormatBalance';
 
 function InputToken({ disabled, value, account, defaultValue, showBalance, tokens, label, onChange }: InputTokenProps) {
+  const [chain] = useChains();
   const isControlled = useRef(value !== undefined);
   const [inputValue, setInputValue] = useInput();
   const [selectedKey, setSelectedKey] = useState<string | undefined>(value || defaultValue || '');
@@ -98,7 +100,7 @@ function InputToken({ disabled, value, account, defaultValue, showBalance, token
               {tokenMeta?.symbol}
             </div>
             <div className='inline-flex items-center gap-1 text-tiny leading-[14px] h-[14px] max-h-[14px] font-normal opacity-50'>
-              <Address address={selectedKey} showFull />
+              {selectedKey === zeroAddress ? chain.nativeCurrency.name : <Address address={selectedKey} showFull />}
             </div>
           </div>
           <b>{showBalance && <FormatBalance {...tokenMeta} {...selectedToken} />}</b>
@@ -128,6 +130,7 @@ function InputToken({ disabled, value, account, defaultValue, showBalance, token
                 icon={item.icon || undefined}
                 fallbackName={item.symbol}
                 address={item.tokenAddress}
+                replaceAddress={item.tokenAddress === zeroAddress ? chain.nativeCurrency.name : undefined}
                 showFull
                 iconSize={24}
                 withCopy

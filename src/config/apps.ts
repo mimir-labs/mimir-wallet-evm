@@ -113,7 +113,7 @@ export const apps: AppConfig[] = [
     url: 'https://app.uniswap.org/',
     icon: '/app-icons/uniswap.svg',
     desc: 'Swap or provide liquidity on the Uniswap Protocol',
-    supportedChains: [1, 5, 11155111, 42161, 421613, 10, 420, 137, 80001, 42220, 44787, 56],
+    supportedChains: [1, 5, 11155111, 42_161, 42_1613, 10, 420, 137, 80001, 42220, 44787, 56],
     website: 'https://uniswap.org/',
     github: 'https://github.com/Uniswap/',
     twitter: 'https://x.com/Uniswap/',
@@ -125,13 +125,26 @@ export const apps: AppConfig[] = [
     url: 'https://app.aave.com/',
     icon: '/app-icons/aave.png',
     desc: 'Aave is an Open Source Protocol to create Non-Custodial Liquidity Markets to earn interest on supplying and borrowing assets with a variable or stable interest rate. The protocol is designed for easy integration into your products and services.',
-    supportedChains: [1, 534_352],
+    supportedChains: [1, 42_161, 534_352],
     website: 'https://aave.com/',
     github: 'https://github.com/aave',
     twitter: 'https://x.com/aave',
     discord: 'https://discord.com/invite/aave',
     tags: ['DeFi', 'Lending/Borrowing'],
     isScrollSession: true
+  },
+  {
+    id: 10004,
+    name: 'StellaSwap',
+    url: 'https://app.stellaswap.com',
+    icon: '/app-icons/stellaswap.png',
+    desc: 'StellaSwap allows for swapping of compatible tokens on Moonbeam.',
+    supportedChains: [1284],
+    website: 'https://stellaswap.com/',
+    github: 'https://github.com/stellaswap',
+    twitter: 'https://x.com/StellaSwap',
+    discord: 'https://discord.com/invite/FbdTFfg8bw',
+    tags: ['DeFi', 'Dex', 'Swap']
   }
 ];
 

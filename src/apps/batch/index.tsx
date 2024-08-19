@@ -29,7 +29,7 @@ function Batch({ onClose }: { onClose?: () => void }) {
     <>
       <div className='w-[50vw] max-w-[560px] min-w-[320px] h-full'>
         {txs.length === 0 ? (
-          <EmptyBatch onAdd={toggleOpen} />
+          <EmptyBatch onAdd={toggleOpen} onClose={onClose} />
         ) : (
           <div className='flex flex-col gap-y-5 h-full'>
             <h4 className='flex items-center justify-between font-bold text-xl'>

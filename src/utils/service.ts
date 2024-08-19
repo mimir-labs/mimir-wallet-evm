@@ -125,16 +125,28 @@ export function parseTx(
   });
 }
 
-export function subscribeFirebase(signature: Hex, token: string): Promise<{ success: boolean }> {
+export function subscribeFirebase(
+  uuid: string,
+  chainId: number,
+  address: Address,
+  token: string
+): Promise<{ success: boolean }> {
   return fetcher(notificationServiceUrl(`subscribe`), {
     method: 'POST',
-    body: JSON.stringify({ signature, token }),
+    body: JSON.stringify({
+      chainId,
+      address,
+      token,
+      uuid
+    }),
     headers: jsonHeader
   });
 }
 
 export function subscribeEmail(
-  signature: Hex,
+  uuid: string,
+  chainId: number,
+  address: Address,
   email: string,
   created: boolean,
   approved: boolean,
@@ -142,15 +154,15 @@ export function subscribeEmail(
 ): Promise<{ success: boolean }> {
   return fetcher(notificationServiceUrl(`subscribe/email`), {
     method: 'POST',
-    body: JSON.stringify({ signature, email, created, approved, executed }),
+    body: JSON.stringify({ uuid, chainId, address, email, created, approved, executed }),
     headers: jsonHeader
   });
 }
 
-export function unsubscribeFirebase(signature: Hex): Promise<{ success: boolean }> {
-  return fetcher(notificationServiceUrl(`unsubscribe`), {
+export function unsubscribeFirebase(uuid: string, chainId: number, address: Address): Promise<{ success: boolean }> {
+  return fetcher(notificationServiceUrl(`unsubscribe/${uuid}`), {
     method: 'POST',
-    body: JSON.stringify({ signature }),
+    body: JSON.stringify({ chainId, address }),
     headers: jsonHeader
   });
 }

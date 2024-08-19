@@ -20,7 +20,7 @@ function CustomApps() {
         <div key='add-custom-app' className='col-span-4'>
           <Card className='cursor-pointer h-full'>
             <CardBody className='flex flex-row items-center gap-5 p-5' onClick={toggleOpen}>
-              <Button variant='light' isIconOnly size='lg' radius='full'>
+              <Button variant='light' isIconOnly size='lg' radius='full' onClick={toggleOpen}>
                 <IconAdd className='text-primary w-12 h-12' />
               </Button>
               <div>

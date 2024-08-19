@@ -7,7 +7,6 @@ import { matchRoutes, useLocation } from 'react-router-dom';
 import { useToggle } from 'react-use';
 
 import AddressBookSvg from '@mimir-wallet/assets/svg/address-book.svg?react';
-import AssetSvg from '@mimir-wallet/assets/svg/asset.svg?react';
 import DappSvg from '@mimir-wallet/assets/svg/dapp.svg?react';
 import HomeSvg from '@mimir-wallet/assets/svg/home.svg?react';
 import RuleSvg from '@mimir-wallet/assets/svg/icon-rule.svg?react';
@@ -23,12 +22,6 @@ const links: { href: string; key: string; icon: React.ReactNode; label: string }
     key: 'home',
     icon: <HomeSvg />,
     label: 'Home'
-  },
-  {
-    href: '/assets',
-    key: 'assets',
-    icon: <AssetSvg />,
-    label: 'Assets'
   },
   {
     href: '/apps',
@@ -55,7 +48,7 @@ const links: { href: string; key: string; icon: React.ReactNode; label: string }
     label: 'Rules'
   },
   {
-    href: '/setting?tab=general',
+    href: '/setting',
     key: 'setting',
     icon: <SetSvg style={{ width: 20, height: 20 }} />,
     label: 'Setting'

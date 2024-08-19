@@ -7,7 +7,7 @@ import BaseContainer from './container/BaseContainer';
 import PageAddressBook from './pages/address-book';
 import PageApps from './pages/apps';
 import PageAppExplorer from './pages/apps/app-explorer';
-import PageAssets from './pages/assets';
+// import PageAssets from './pages/assets';
 import PageCreateMultisig from './pages/create-multisig';
 import PageImportMultisig from './pages/import-multisig';
 import PageProfile from './pages/profile';
@@ -21,7 +21,7 @@ function App(): React.ReactElement {
     <Routes>
       <Route element={<BaseContainer withPadding withSideBar />}>
         <Route index element={<PageProfile />} />
-        <Route path='/assets' element={<PageAssets />} />
+        {/* <Route path='/assets' element={<PageAssets />} /> */}
         <Route path='/apps' element={<PageApps />} />
         <Route path='/transactions' element={<PageTransactions />} />
         <Route path='/address-book' element={<PageAddressBook />} />
