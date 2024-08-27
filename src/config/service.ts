@@ -15,6 +15,7 @@ export const services: Record<number, string> = {
   [darwinia.id]: 'https://evm-darwinia-api.mimir.global/',
   44: 'https://evm-crab-api.mimir.global/',
   252: 'https://evm-fraxtal-api.mimir.global/',
+  8453: 'https://evm-base-api.mimir.global/',
   42_161: 'https://evm-arbitrum-api.mimir.global/'
 };
 

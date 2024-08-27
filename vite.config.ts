@@ -34,19 +34,25 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
-          crypto: ['@rainbow-me/rainbowkit', 'viem', 'wagmi'],
-          ui1: [
-            'react-draggable-list',
-            'react-toastify',
-            'framer-motion',
-            '@metamask/jazzicon',
-            'react-infinite-scroll-component'
-          ],
-          ui2: ['@nextui-org/react', 'next-themes'],
           chart: ['chart.js', 'react-chartjs-2'],
           reactflow: ['reactflow'],
           lottie: ['lottie-web'],
-          others: ['react-ga4', 'socket.io-client', 'dayjs']
+          wagmi: ['wagmi', 'viem'],
+          'framer-motion': ['framer-motion'],
+          dayjs: ['dayjs'],
+          firebase: ['firebase/app', 'firebase/messaging'],
+          common: [
+            '@metamask/jazzicon',
+            'react-draggable-list',
+            'react-toastify',
+            'react-infinite-scroll-component',
+            'lodash-es',
+            'qrcode-generator',
+            'react-ga4',
+            'react-use',
+            'socket.io-client',
+            'uuid'
+          ]
         }
       }
     }

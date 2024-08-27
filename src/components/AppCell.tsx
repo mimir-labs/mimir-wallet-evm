@@ -47,7 +47,11 @@ function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
     toggleOpen(false);
 
     if (!app.isDrawer) {
-      navigate(`/apps/${encodeURIComponent(app.url)}`);
+      if (app.isExternal) {
+        window.open(app.url, '_blank');
+      } else {
+        navigate(`/apps/${encodeURIComponent(app.url)}`);
+      }
     } else {
       app.Component?.().then((C) => {
         toggleDrawerOpen(true);
