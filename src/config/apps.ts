@@ -19,9 +19,11 @@ export type AppConfig = {
   website?: string;
   github?: string;
   twitter?: string;
+  telegram?: string;
   discord?: string;
   Component?: () => Promise<React.ComponentType>; // only for mimir://dapp/*
   isDrawer?: boolean;
+  isExternal?: boolean;
   isScrollSession?: boolean;
 };
 
@@ -145,6 +147,18 @@ export const apps: AppConfig[] = [
     twitter: 'https://x.com/StellaSwap',
     discord: 'https://discord.com/invite/FbdTFfg8bw',
     tags: ['DeFi', 'Dex', 'Swap']
+  },
+  {
+    id: 10005,
+    name: 'FinTax',
+    url: 'https://www.fintax.tech/#/register?code=ZXCVS2',
+    icon: '/app-icons/fintax.svg',
+    desc: 'Professional Web3 Tax and Financial management software dedicated to crypto assets.',
+    website: 'https://www.fintax.tech/#/register?code=ZXCVS2',
+    twitter: 'https://x.com/FinTax_Offical',
+    telegram: 'https://t.me/TaxDAO_ENchat',
+    tags: ['FinTax'],
+    isExternal: true
   }
 ];
 

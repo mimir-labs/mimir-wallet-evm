@@ -5,7 +5,7 @@ import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { Chain, defineChain, FallbackTransport, getAddress, http, isAddress, Transport } from 'viem';
-import { arbitrum, darwinia, fraxtal, mainnet, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
+import { arbitrum, base, darwinia, fraxtal, mainnet, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
 import {
@@ -48,6 +48,12 @@ export const supportedChains = [
     ...arbitrum,
     shortName: 'arb',
     iconUrl: '/chain-icons/42161.webp',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
+  {
+    ...base,
+    shortName: 'base',
+    iconUrl: '/chain-icons/8453.svg',
     nativeCurrencyIcon: '/token-icons/ETH.webp'
   },
   {

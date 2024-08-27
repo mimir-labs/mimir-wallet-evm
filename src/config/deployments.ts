@@ -70,6 +70,11 @@ export const moduleDeployments: Record<number, ModuleDeploymentType> = {
     Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
     Delay: ['0xd54895B1121A2eE3f37b502F507631FA1331BED6']
   },
+  56: {
+    ModuleProxyFactory: ['0x000000000000aDdB49795b0f9bA5BC298cDda236'],
+    Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
+    Delay: ['0xd54895B1121A2eE3f37b502F507631FA1331BED6']
+  },
   137: {
     ModuleProxyFactory: ['0x000000000000aDdB49795b0f9bA5BC298cDda236'],
     Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
@@ -117,6 +122,7 @@ export const deployments: Record<number, DeploymentType> = Object.entries({
   10: ['eip155', 'canonical'],
   44: ['eip155', 'canonical'],
   46: ['eip155', 'canonical'],
+  56: ['canonical', 'eip155'],
   82: ['eip155'],
   137: ['canonical'],
   252: ['eip155', 'canonical'],

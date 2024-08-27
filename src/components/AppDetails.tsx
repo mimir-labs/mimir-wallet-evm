@@ -8,6 +8,7 @@ import React from 'react';
 
 import IconDiscord from '@mimir-wallet/assets/svg/icon-discord.svg?react';
 import IconGithub from '@mimir-wallet/assets/svg/icon-github.svg?react';
+import IconTelegram from '@mimir-wallet/assets/svg/icon-telegram.svg?react';
 import IconWebsite from '@mimir-wallet/assets/svg/icon-website.svg?react';
 import IconX from '@mimir-wallet/assets/svg/icon-x.svg?react';
 
@@ -49,6 +50,11 @@ function Contents({ app }: { app: AppConfig }) {
           {app.twitter && (
             <Button as='a' isIconOnly color='secondary' href={app.twitter} size='sm' radius='full' target='_blank'>
               <IconX />
+            </Button>
+          )}
+          {app.telegram && (
+            <Button as='a' isIconOnly color='secondary' href={app.telegram} size='sm' radius='full' target='_blank'>
+              <IconTelegram />
             </Button>
           )}
         </div>
