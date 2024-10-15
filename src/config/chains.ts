@@ -5,7 +5,19 @@ import type { Address } from 'abitype';
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { Chain, defineChain, FallbackTransport, getAddress, http, isAddress, Transport } from 'viem';
-import { arbitrum, base, darwinia, fraxtal, mainnet, moonbeam, scroll, scrollSepolia, sepolia } from 'viem/chains';
+import {
+  arbitrum,
+  base,
+  darwinia,
+  fraxtal,
+  mainnet,
+  manta,
+  moonbeam,
+  scroll,
+  scrollSepolia,
+  sepolia,
+  zetachain
+} from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
 import {
@@ -19,12 +31,13 @@ import { store } from '@mimir-wallet/utils';
 export type MimirConfig = {
   address?: Address;
   walletConfig: Config;
+  refetchInterval?: number;
 };
 
 type ChainBlockExplorer = {
   name: string;
   url: string;
-  apiUrl: string | undefined;
+  apiUrl?: string | undefined;
 };
 
 export type CustomChain = Chain & {
@@ -35,6 +48,7 @@ export type CustomChain = Chain & {
   shortName: string;
   iconUrl: string;
   nativeCurrencyIcon: string;
+  interval?: number; // refetch data interval, default is 3000
 };
 
 export const supportedChains = [
@@ -42,7 +56,8 @@ export const supportedChains = [
     ...mainnet,
     shortName: 'eth',
     iconUrl: '/chain-icons/1.webp',
-    nativeCurrencyIcon: '/token-icons/ETH.webp'
+    nativeCurrencyIcon: '/token-icons/ETH.webp',
+    interval: 12_000
   },
   {
     ...arbitrum,
@@ -66,7 +81,8 @@ export const supportedChains = [
     },
     shortName: 'mbeam',
     iconUrl: '/chain-icons/1284.svg',
-    nativeCurrencyIcon: '/token-icons/GLMR.svg'
+    nativeCurrencyIcon: '/token-icons/GLMR.svg',
+    interval: 6_000
   },
   { ...scroll, shortName: 'scr', iconUrl: '/chain-icons/534352.webp', nativeCurrencyIcon: '/token-icons/ETH.webp' },
   {
@@ -74,7 +90,8 @@ export const supportedChains = [
     rpcUrls: { default: { http: ['https://ethereum-sepolia-rpc.publicnode.com', ...sepolia.rpcUrls.default.http] } },
     shortName: 'sep',
     iconUrl: '/chain-icons/11155111.webp',
-    nativeCurrencyIcon: '/token-icons/ETH.webp'
+    nativeCurrencyIcon: '/token-icons/ETH.webp',
+    interval: 12_000
   },
   {
     ...scrollSepolia,
@@ -93,7 +110,8 @@ export const supportedChains = [
     },
     shortName: 'dar',
     iconUrl: '/chain-icons/46.svg',
-    nativeCurrencyIcon: '/token-icons/RING.svg'
+    nativeCurrencyIcon: '/token-icons/RING.svg',
+    interval: 12_000
   },
   {
     ...defineChain({
@@ -125,44 +143,60 @@ export const supportedChains = [
     }),
     shortName: 'cra',
     iconUrl: '/chain-icons/44.svg',
-    nativeCurrencyIcon: '/token-icons/Crab.svg'
+    nativeCurrencyIcon: '/token-icons/Crab.svg',
+    interval: 12_000
   },
-  // {
-  //   ...defineChain({
-  //     id: 1337,
-  //     name: 'MegaETH',
-  //     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  //     rpcUrls: {
-  //       default: {
-  //         http: ['http://playstation.megaeth.systems:2425']
-  //       }
-  //     },
-  //     blockExplorers: {
-  //       default: {
-  //         name: 'Explorer',
-  //         url: '',
-  //         apiUrl: ''
-  //       }
-  //     },
-  //     contracts: {
-  //       multicall3: {
-  //         address: '0xca11bde05977b3631167028862be2a173976ca11',
-  //         blockCreated: 1
-  //       }
-  //     },
-  //     testnet: true
-  //   }),
-  //   shortName: 'mega',
-  //   iconUrl: '/chain-icons/1337.png',
-  //   nativeCurrencyIcon: '/token-icons/ETH.webp'
-  // },
   {
     ...fraxtal,
     shortName: 'frx',
     iconUrl: '/chain-icons/252.svg',
     nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
+  {
+    ...manta,
+    shortName: 'manta',
+    iconUrl: '/chain-icons/169.svg',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  },
+  {
+    ...zetachain,
+    shortName: 'zeta',
+    iconUrl: '/chain-icons/7000.svg',
+    nativeCurrencyIcon: '/token-icons/zeta.svg'
   }
 ] as [CustomChain, ...CustomChain[]];
+
+if (process.env.NODE_ENV === 'development' || window.location.hostname !== 'safe.mimir.global') {
+  supportedChains.push({
+    ...defineChain({
+      id: 1337,
+      name: 'MegaETH',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: {
+        default: {
+          http: ['https://playstation.megaeth.systems']
+        }
+      },
+      blockExplorers: {
+        default: {
+          name: 'Explorer',
+          url: '',
+          apiUrl: ''
+        }
+      },
+      contracts: {
+        multicall3: {
+          address: '0xca11bde05977b3631167028862be2a173976ca11',
+          blockCreated: 1
+        }
+      },
+      testnet: true
+    }),
+    shortName: 'mega',
+    iconUrl: '/chain-icons/1337.png',
+    nativeCurrencyIcon: '/token-icons/ETH.webp'
+  });
+}
 
 export function initMimirConfig(): MimirConfig {
   const search = new URLSearchParams(window.location.search);
@@ -171,10 +205,10 @@ export function initMimirConfig(): MimirConfig {
   const localChainId = store.get(CURRENT_CHAINID_KEY) as number;
   const chainId = urlChainId || localChainId;
 
-  let chain: Chain = supportedChains[0];
+  let chain: CustomChain = supportedChains[0];
 
   if (chainId) {
-    const _chain: Chain | undefined = supportedChains.find((chain) => chain.id === Number(chainId));
+    const _chain: CustomChain | undefined = supportedChains.find((chain) => chain.id === Number(chainId));
 
     if (_chain) {
       chain = _chain;
@@ -218,6 +252,7 @@ export function initMimirConfig(): MimirConfig {
 
   return {
     address: address ? getAddress(address) : undefined,
-    walletConfig: config
+    walletConfig: config,
+    refetchInterval: chain.interval
   };
 }

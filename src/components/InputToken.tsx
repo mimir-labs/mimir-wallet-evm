@@ -97,7 +97,7 @@ function InputToken({ disabled, value, account, defaultValue, showBalance, token
         <>
           <div className='flex-1 flex flex-col gap-y-1'>
             <div className='inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'>
-              {tokenMeta?.symbol}
+              {selectedKey === zeroAddress ? chain.nativeCurrency.symbol : tokenMeta?.symbol}
             </div>
             <div className='inline-flex items-center gap-1 text-tiny leading-[14px] h-[14px] max-h-[14px] font-normal opacity-50'>
               {selectedKey === zeroAddress ? chain.nativeCurrency.name : <Address address={selectedKey} showFull />}

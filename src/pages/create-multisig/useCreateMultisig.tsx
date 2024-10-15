@@ -274,7 +274,7 @@ export function useCreateMultisig(
           /* empty */
         }
 
-        await sleep(10_000);
+        await sleep(3_000);
       }
 
       setState((state) => ({

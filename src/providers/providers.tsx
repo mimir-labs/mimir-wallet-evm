@@ -15,13 +15,23 @@ import AddressProvider from './address-provider';
 import SafeTxProvider from './safe-tx-provider';
 import WalletProvider from './WalletProvider';
 
-function Providers({ config, address, children }: { config: Config; address?: Address; children: React.ReactNode }) {
+function Providers({
+  config,
+  refetchInterval,
+  address,
+  children
+}: {
+  config: Config;
+  refetchInterval?: number;
+  address?: Address;
+  children: React.ReactNode;
+}) {
   const navigate = useNavigate();
 
   return (
     <NextUIProvider navigate={navigate}>
       <NextThemesProvider attribute='class' defaultTheme='light'>
-        <WalletProvider config={config}>
+        <WalletProvider config={config} refetchInterval={refetchInterval}>
           <AddressProvider defaultCurrent={address}>
             <SafeTxProvider>
               <WalletConnectProvider>
