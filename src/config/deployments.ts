@@ -80,6 +80,11 @@ export const moduleDeployments: Record<number, ModuleDeploymentType> = {
     Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
     Delay: ['0xd54895B1121A2eE3f37b502F507631FA1331BED6']
   },
+  169: {
+    ModuleProxyFactory: ['0xFE6F94Ca39CA2E44681cfCABa1aAbc05f0b45B17'],
+    Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
+    Delay: ['0xe224f2281b2CC1169FA2270E636F4D296347fd47']
+  },
   252: {
     ModuleProxyFactory: ['0x5d91648185f3d5683a1fad8464d31035886f2ef3'],
     Allowance: ['0xE46FE78DBfCa5E835667Ba9dCd3F3315E7623F8a'],
@@ -88,6 +93,16 @@ export const moduleDeployments: Record<number, ModuleDeploymentType> = {
   1284: {
     ModuleProxyFactory: ['0x000000000000aDdB49795b0f9bA5BC298cDda236'],
     Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134', '0xE46FE78DBfCa5E835667Ba9dCd3F3315E7623F8a'],
+    Delay: ['0xd54895B1121A2eE3f37b502F507631FA1331BED6']
+  },
+  1337: {
+    ModuleProxyFactory: ['0x000000000000aDdB49795b0f9bA5BC298cDda236'],
+    Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
+    Delay: ['0xd54895B1121A2eE3f37b502F507631FA1331BED6']
+  },
+  7000: {
+    ModuleProxyFactory: ['0x000000000000aDdB49795b0f9bA5BC298cDda236'],
+    Allowance: ['0xCFbFaC74C26F8647cBDb8c5caf80BB5b32E43134'],
     Delay: ['0xd54895B1121A2eE3f37b502F507631FA1331BED6']
   },
   8453: {
@@ -125,8 +140,11 @@ export const deployments: Record<number, DeploymentType> = Object.entries({
   56: ['canonical', 'eip155'],
   82: ['eip155'],
   137: ['canonical'],
+  169: ['canonical'],
   252: ['eip155', 'canonical'],
   1284: ['canonical'],
+  1337: ['canonical'],
+  7000: ['eip155', 'canonical'],
   8453: ['eip155', 'canonical'],
   42_161: ['canonical'],
   534_351: ['canonical', 'eip155'],

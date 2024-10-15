@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => ({
       output: {
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
-          chart: ['chart.js', 'react-chartjs-2'],
+          chart: ['chart.js', 'react-chartjs-2', '@dagrejs/dagre'],
           reactflow: ['reactflow'],
           lottie: ['lottie-web'],
           wagmi: ['wagmi', 'viem'],

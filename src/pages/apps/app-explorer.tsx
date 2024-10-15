@@ -5,7 +5,9 @@ import { createElement, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { AppFrame } from '@mimir-wallet/components';
-import { apps } from '@mimir-wallet/config';
+import { AppConfig, apps } from '@mimir-wallet/config';
+import { CUSTOM_APP_KEY } from '@mimir-wallet/constants';
+import { store } from '@mimir-wallet/utils';
 
 function AppExplorer() {
   const { url } = useParams<'url'>();
@@ -14,9 +16,10 @@ function AppExplorer() {
   useEffect(() => {
     if (url) {
       const _url = decodeURIComponent(url);
+      const customApps = Object.values((store.get(CUSTOM_APP_KEY) || {}) as Record<string | number, AppConfig>);
 
       if (_url.startsWith('mimir://app')) {
-        const app = apps.find((item) => _url.startsWith(item.url));
+        const app = apps.concat(customApps).find((item) => _url.startsWith(item.url));
         const params = new URLSearchParams(new URL(_url).searchParams);
 
         const props: Record<string, unknown> = {};
@@ -29,9 +32,9 @@ function AppExplorer() {
           setElement(createElement(C, props));
         });
       } else {
-        const app = apps.find((item) => _url.startsWith(item.url));
+        const app = apps.concat(customApps).find((item) => _url.startsWith(item.url));
 
-        setElement(<AppFrame appUrl={url} iconUrl={app?.icon} appName={app?.icon} allowedFeaturesList='' />);
+        setElement(<AppFrame appUrl={url} iconUrl={app?.icon} appName={app?.name} allowedFeaturesList='' />);
       }
     }
   }, [url]);

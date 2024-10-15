@@ -5,19 +5,11 @@ import type React from 'react';
 
 import { lightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { Config, WagmiProvider } from 'wagmi';
 
 import { AddressIconJazz } from '@mimir-wallet/components';
 import { fetcher } from '@mimir-wallet/utils/fetcher';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchInterval: 12_000,
-      queryFn: ({ queryKey }) => (queryKey[0] ? fetcher(queryKey[0] as string) : undefined)
-    }
-  }
-});
 
 const defaultTheme = lightTheme({
   accentColor: '#5F45FF',
@@ -61,10 +53,29 @@ const theme = {
   }
 } as Theme;
 
-function WalletProvider({ children, config }: { config: Config; children: React.ReactNode }): JSX.Element {
+function WalletProvider({
+  children,
+  config,
+  refetchInterval = 3_000
+}: {
+  config: Config;
+  refetchInterval?: number;
+  children: React.ReactNode;
+}): JSX.Element {
+  const queryClient = useRef(
+    new QueryClient({
+      defaultOptions: {
+        queries: {
+          refetchInterval,
+          queryFn: ({ queryKey }) => (queryKey[0] ? fetcher(queryKey[0] as string) : undefined)
+        }
+      }
+    })
+  );
+
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient.current}>
         <RainbowKitProvider locale='en-US' avatar={AddressIconJazz} theme={theme}>
           {children}
         </RainbowKitProvider>

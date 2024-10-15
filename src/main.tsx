@@ -56,7 +56,11 @@ if (container) {
 
   root.render(
     <BrowserRouter>
-      <Providers address={mimirConfig.address} config={mimirConfig.walletConfig}>
+      <Providers
+        address={mimirConfig.address}
+        config={mimirConfig.walletConfig}
+        refetchInterval={mimirConfig.refetchInterval}
+      >
         <App />
       </Providers>
     </BrowserRouter>

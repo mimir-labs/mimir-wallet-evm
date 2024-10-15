@@ -14,7 +14,10 @@ export const services: Record<number, string> = {
   [scrollSepolia.id]: 'https://evm-scroll-sepolia-api.mimir.global/',
   [darwinia.id]: 'https://evm-darwinia-api.mimir.global/',
   44: 'https://evm-crab-api.mimir.global/',
+  169: 'https://evm-manta-api.mimir.global/',
   252: 'https://evm-fraxtal-api.mimir.global/',
+  1337: 'https://dev-evm-megaeth-api.mimir.global/',
+  7000: 'https://evm-zetachain-api.mimir.global/',
   8453: 'https://evm-base-api.mimir.global/',
   42_161: 'https://evm-arbitrum-api.mimir.global/'
 };

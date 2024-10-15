@@ -15,6 +15,7 @@ import { approveCounts } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
 import AddressCell from './AddressCell';
+import { getLayoutedElements } from './AddressOverview';
 import SafeTxButton from './SafeTxButton';
 
 interface Props {
@@ -116,11 +117,6 @@ function makeNodes(
   signatures: SignatureResponse[],
   isApprove: boolean,
   parentId: string | null,
-  xPos: number,
-  yPos: number,
-  xOffset: number,
-  yOffset: number,
-  onYChange?: (offset: number) => void,
   nodes: Node<NodeData>[] = [],
   edges: Edge[] = [],
   onApprove?: () => void,
@@ -146,7 +142,7 @@ function makeNodes(
       onApprove,
       onClose
     },
-    position: { x: xPos, y: yPos },
+    position: { x: 0, y: 0 },
     connectable: false
   };
 
@@ -162,13 +158,7 @@ function makeNodes(
     });
   }
 
-  const nextX = xPos - xOffset;
-  const childCount = members.length;
-
-  const startY = yPos - ((childCount - 1) * yOffset) / 2;
-  let nextY = startY;
-
-  members.forEach((_account, index) => {
+  members.forEach((_account) => {
     const _signature = signatures?.find((item) => addressEq(item.signature.signer, _account.address));
 
     makeNodes(
@@ -178,29 +168,12 @@ function makeNodes(
       _signature?.children || [],
       approveCounts(_account, _signature?.children || [], !!_signature) >= (_account.threshold || 1),
       nodeId,
-      nextX,
-      nextY,
-      xOffset,
-      yOffset,
-      (offset: number) => {
-        onYChange?.(offset);
-        nextY += offset;
-      },
       nodes,
       edges,
       onApprove,
       onClose
     );
-
-    if (index < childCount - 1) {
-      nextY += yOffset * ((_account.members || []).length || 1);
-    }
   });
-
-  const oldY = node.position.y;
-
-  node.position.y = (nextY + startY) / 2;
-  onYChange?.(node.position.y - oldY);
 }
 
 function SafeTxOverview({ account, signatures, transaction, onApprove, onClose }: Props) {
@@ -208,8 +181,8 @@ function SafeTxOverview({ account, signatures, transaction, onApprove, onClose }
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   useEffect(() => {
-    const nodes: Node<NodeData>[] = [];
-    const edges: Edge[] = [];
+    const initialNodes: Node<NodeData>[] = [];
+    const initialEdges: Edge[] = [];
 
     makeNodes(
       account,
@@ -218,16 +191,12 @@ function SafeTxOverview({ account, signatures, transaction, onApprove, onClose }
       signatures,
       approveCounts(account, signatures, true) >= (account.threshold || 1),
       null,
-      0,
-      0,
-      300,
-      78,
-      undefined,
-      nodes,
-      edges,
+      initialNodes,
+      initialEdges,
       onApprove,
       onClose
     );
+    const { nodes, edges } = getLayoutedElements(initialNodes, initialEdges, 260, 70);
 
     setNodes(nodes);
     setEdges(edges);

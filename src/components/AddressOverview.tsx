@@ -3,6 +3,7 @@
 
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
+import dagre from '@dagrejs/dagre';
 import React, { useEffect } from 'react';
 import ReactFlow, {
   Controls,
@@ -25,6 +26,45 @@ interface Props {
 }
 
 type NodeData = { parentId: string | null; name?: string | null; members: BaseAccount[]; address: string };
+
+const dagreGraph = new dagre.graphlib.Graph();
+
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+
+export function getLayoutedElements(nodes: Node[], edges: Edge[], nodeWidth = 260, nodeHeight = 55, direction = 'RL') {
+  const isHorizontal = direction === 'LR';
+
+  dagreGraph.setGraph({ rankdir: direction });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  const newNodes: Node[] = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    const newNode = {
+      ...node,
+      targetPosition: isHorizontal ? Position.Left : Position.Top,
+      sourcePosition: isHorizontal ? Position.Right : Position.Bottom,
+      // We are shifting the dagre node position (anchor=center center) to the top left
+      // so it matches the React Flow node anchor point (top left).
+      position: {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2
+      }
+    };
+
+    return newNode;
+  });
+
+  return { nodes: newNodes, edges };
+}
 
 const AddressNode = React.memo(({ data, isConnectable }: NodeProps<NodeData>) => {
   return (
@@ -61,11 +101,6 @@ const nodeTypes = {
 function makeNodes(
   account: BaseAccount,
   parentId: string | null,
-  xPos: number,
-  yPos: number,
-  xOffset: number,
-  yOffset: number,
-  onYChange?: (offset: number) => void,
   nodes: Node<NodeData>[] = EmptyArray,
   edges: Edge[] = EmptyArray
 ): void {
@@ -78,7 +113,7 @@ function makeNodes(
     resizing: true,
     type: 'AddressNode',
     data: { address: account.address, name: account.name, parentId, members },
-    position: { x: xPos, y: yPos },
+    position: { x: 0, y: 0 },
     connectable: false
   };
 
@@ -94,37 +129,9 @@ function makeNodes(
     });
   }
 
-  const nextX = xPos - xOffset;
-  const childCount = members.length;
-
-  const startY = yPos - ((childCount - 1) * yOffset) / 2;
-  let nextY = startY;
-
-  members.forEach((_account, index) => {
-    makeNodes(
-      _account,
-      nodeId,
-      nextX,
-      nextY,
-      xOffset,
-      yOffset,
-      (offset: number) => {
-        onYChange?.(offset);
-        nextY += offset;
-      },
-      nodes,
-      edges
-    );
-
-    if (index < childCount - 1) {
-      nextY += yOffset * ((_account.members || EmptyArray).length || 1);
-    }
+  members.forEach((_account) => {
+    makeNodes(_account, nodeId, nodes, edges);
   });
-
-  const oldY = node.position.y;
-
-  node.position.y = (nextY + startY) / 2;
-  onYChange?.(node.position.y - oldY);
 }
 
 function AddressOverview({ account }: Props) {
@@ -132,10 +139,12 @@ function AddressOverview({ account }: Props) {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
   useEffect(() => {
-    const nodes: Node<NodeData>[] = [];
-    const edges: Edge[] = [];
+    const initialNodes: Node<NodeData>[] = [];
+    const initialEdges: Edge[] = [];
 
-    makeNodes(account, null, 0, 0, 300, 78, undefined, nodes, edges);
+    makeNodes(account, null, initialNodes, initialEdges);
+
+    const { nodes, edges } = getLayoutedElements(initialNodes, initialEdges);
 
     setNodes(nodes);
     setEdges(edges);
