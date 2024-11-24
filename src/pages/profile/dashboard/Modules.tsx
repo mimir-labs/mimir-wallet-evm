@@ -13,7 +13,7 @@ import { AddressCell, Empty } from '@mimir-wallet/components';
 import { moduleDeployments } from '@mimir-wallet/config';
 import { useDelayAddress } from '@mimir-wallet/features/delay';
 import { DelayModuleResponse } from '@mimir-wallet/features/delay/types';
-import { useSafeModules } from '@mimir-wallet/hooks';
+import { useMediaQuery, useSafeModules } from '@mimir-wallet/hooks';
 import { addressEq, explorerUrl } from '@mimir-wallet/utils';
 
 function Cell({
@@ -31,32 +31,29 @@ function Cell({
     () => !!delayAddress?.find((item) => addressEq(item.address, address)),
     [address, delayAddress]
   );
+  const upSm = useMediaQuery('sm');
 
   const isAllowance = moduleDeployments[chainId]?.Allowance?.includes(address);
 
   return (
     <div
-      className='flex items-center justify-between gap-5 p-5 rounded-large'
+      className='flex items-center justify-between sm:gap-5 gap-2.5 sm:p-5 p-3 rounded-large'
       key={address}
       style={{ background: 'linear-gradient(245deg, #F4F2FF 0%, #FBFDFF 100%)' }}
     >
       <AddressCell
         withCopy
-        showFull
-        iconSize={50}
+        showFull={upSm}
+        iconSize={upSm ? 50 : 40}
         name={isDelay ? 'Recovery' : isAllowance ? 'Easy Expense' : undefined}
         address={address}
         icon={isDelay ? RecoveryImg : isAllowance ? SpendLimitImg : undefined}
-        className={'gap-x-5 '
-          .concat(
-            '[&_.address-cell-content-name]:text-medium [&_.address-cell-content-name]:leading-[20px] [&_.address-cell-content-name]:h-[20px] [&_.address-cell-content-name]:max-h-[20px] '
-          )
-          .concat(
-            '[&_.address-cell-content-address]:text-small [&_.address-cell-content-name]:leading-[18px] [&_.address-cell-content-name]:h-[18px] [&_.address-cell-content-name]:max-h-[18px] '
-          )}
+        className={'sm:gap-x-5 gap-x-2.5 '
+          .concat('sm:[&_.address-cell-content-name]:text-medium [&_.address-cell-content-name]:text-small ')
+          .concat('sm:[&_.address-cell-content-address]:text-small [&_.address-cell-content-address]:text-tiny ')}
       />
 
-      <div className='flex items-center gap-5 font-bold'>
+      <div className='flex items-center sm:gap-5 gap-2.5 font-bold'>
         <span className='text-medium'>Tx {moduleCounts?.[address] || 0}</span>
         <Link isExternal href={explorerUrl('address', chain, address)}>
           {'Detail>'}
@@ -72,7 +69,7 @@ function Modules({ safeAddress, moduleCounts }: { safeAddress: Address; moduleCo
 
   return (
     <Card>
-      <CardBody className='p-5 gap-2.5'>
+      <CardBody className='sm:p-5 p-4 gap-2.5'>
         <h6 className='font-bold text-medium'>Modules</h6>
 
         {isFetched ? (

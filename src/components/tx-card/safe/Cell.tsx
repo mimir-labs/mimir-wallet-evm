@@ -4,7 +4,7 @@
 import type { Address } from 'abitype';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
-import { Modal, ModalBody, ModalContent } from '@nextui-org/react';
+import { Divider, Modal, ModalBody, ModalContent } from '@nextui-org/react';
 import React, { useMemo } from 'react';
 import { useToggle } from 'react-use';
 import { useAccount } from 'wagmi';
@@ -74,6 +74,7 @@ function Cell({ transaction, allPaths, signatures, account, hasCancelTx, default
         }
         details={<Details defaultOpen={defaultOpen} address={account.address} transaction={transaction} />}
       >
+        <Divider className='sm:hidden block' />
         {(!isReadOnly || signatures.length > 0) && (
           <Process signatures={signatures} account={account}>
             {transaction.status > TransactionStatus.Pending || isIndexing ? null : (

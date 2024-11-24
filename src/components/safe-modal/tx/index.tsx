@@ -67,16 +67,16 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
   }, [addTx, metadata?.appName, metadata?.iconUrl, metadata?.website, onClose, tx]);
 
   return (
-    <div className='w-full'>
-      <div className='flex items-center justify-between mb-5'>
+    <div className='w-full sm:space-y-5 space-y-4'>
+      <div className='flex items-center justify-between'>
         <h4 className='font-bold text-xl'>{isCancel ? 'Reject Transaction' : 'Submit Transaction'}</h4>
         <Button size='sm' isIconOnly variant='light' radius='full' onClick={onClose}>
           <IconClose />
         </Button>
       </div>
 
-      <div className='w-full flex p-5 gap-5 h-safe-tx-modal-height overflow-y-auto bg-background rounded-large shadow-large'>
-        <div className='w-[64%] space-y-5 after:block after:h-5'>
+      <div className='w-full flex md:flex-row flex-col md:p-5 p-0 gap-5 md:h-safe-tx-modal-height h-auto overflow-y-auto md:bg-background bg-transparent rounded-large md:shadow-large shadow-none'>
+        <div className='md:w-[64%] md:p-0 p-4 md:bg-transparent bg-background w-full space-y-5 rounded-large after:block after:h-5'>
           {isCancel && (
             <Alert
               size='sm'
@@ -107,7 +107,7 @@ function SafeTxModal<Approve extends boolean, Cancel extends boolean>(props: Use
           <SafetyCheck simulation={simulation} />
         </div>
 
-        <div className='sticky top-0 self-start w-[36%] h-auto p-5 space-y-5 rounded-large shadow-large'>
+        <div className='sticky top-0 self-start md:w-[36%] w-full h-auto sm:p-5 p-4 space-y-5 rounded-large shadow-large md:bg-transparent bg-background'>
           {isSignatureReady ? null : multisig ? (
             <AddressChain
               filterPaths={filterPaths}

@@ -45,7 +45,7 @@ function CreateMultisig(): React.ReactElement {
 
   return (
     <>
-      <Card className='max-w-md mx-auto p-5'>
+      <Card className='max-w-md mx-auto sm:p-5 p-1'>
         <CardBody className='space-y-4'>
           <h3 className='text-xl font-bold'>Create Multisig</h3>
           <Divider />
@@ -161,10 +161,10 @@ function CreateMultisig(): React.ReactElement {
           reset();
           toggleOpen(false);
         }}
-        onDone={(account) => {
+        onDone={(chainId, account) => {
           toggleOpen(false);
           navigate('/');
-          addMultisig(account);
+          addMultisig(chainId, account);
         }}
       />
     </>

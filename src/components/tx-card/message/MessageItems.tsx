@@ -14,7 +14,7 @@ import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?reac
 import { Button, ButtonEnable } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
-import { useIsReadOnly } from '@mimir-wallet/hooks';
+import { useIsReadOnly, useMediaQuery } from '@mimir-wallet/hooks';
 import { SafeTxContext } from '@mimir-wallet/providers';
 import { formatAgo } from '@mimir-wallet/utils';
 
@@ -85,16 +85,18 @@ function MessageItems({
   threshold,
   openOverview
 }: Props) {
+  const upSm = useMediaQuery('sm');
+
   return (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-6 gap-2.5' onClick={toggleOpen}>
-      <div className='col-span-2 flex items-center'>
+    <div className='cursor-pointer h-10 px-3 grid sm:grid-cols-6 grid-cols-7' onClick={toggleOpen}>
+      <div className='sm:col-span-1 col-span-4 flex items-center'>
         <AppName website={message.website} iconUrl={message.iconUrl} appName={message.appName} />
       </div>
-      <div className='col-span-1 flex items-center text-small'>off-chain signature</div>
-      <div className='col-span-1 flex items-center'>
+      <div className='sm:col-span-1 col-span-2 flex items-center text-small'>off-chain signature</div>
+      <div className='col-span-1 sm:flex hidden items-center'>
         <TimeCell time={message.createdAt} />
       </div>
-      <div className='col-span-1 flex items-center'>
+      <div className='col-span-1 sm:flex hidden items-center'>
         <Button
           onClick={openOverview}
           className='h-7 px-2'
@@ -110,15 +112,19 @@ function MessageItems({
           {approval}/{threshold}
         </Button>
       </div>
-      <div className='col-span-1 flex items-center justify-between'>
-        <div className='space-x-2 flex items-center'>
-          <OperateCell
-            isSignatureReady={isSignatureReady}
-            account={account}
-            filterPaths={filterPaths}
-            message={message}
-          />
-        </div>
+      <div className='col-auto flex items-center justify-between'>
+        {upSm ? (
+          <div className='space-x-2 flex items-center'>
+            <OperateCell
+              isSignatureReady={isSignatureReady}
+              account={account}
+              filterPaths={filterPaths}
+              message={message}
+            />
+          </div>
+        ) : (
+          <div />
+        )}
         <Button
           data-open={isOpen}
           onClick={toggleOpen}

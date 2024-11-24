@@ -29,7 +29,7 @@ function SetupName({ multisig }: { multisig?: Multisig }) {
       const signature = await signChangeName(wallet, multisig, name);
 
       await service.changeName(wallet.chain.id, multisig.address, name, signature);
-      await changeName(multisig.address, name);
+      await changeName(multisig.chainId, multisig.address, name);
     },
     [changeName, multisig, name]
   );

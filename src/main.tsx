@@ -16,10 +16,8 @@ import {
 } from 'chart.js';
 import dayjs from 'dayjs';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
 import { registerSW } from 'virtual:pwa-register';
 
-import Providers from './providers/providers';
 import App from './App';
 import { initializeFavoriteApps, initMimirConfig } from './config';
 import { initGa } from './initGa';
@@ -55,15 +53,11 @@ if (container) {
   const root = createRoot(container);
 
   root.render(
-    <BrowserRouter>
-      <Providers
-        address={mimirConfig.address}
-        config={mimirConfig.walletConfig}
-        refetchInterval={mimirConfig.refetchInterval}
-      >
-        <App />
-      </Providers>
-    </BrowserRouter>
+    <App
+      address={mimirConfig.address}
+      config={mimirConfig.walletConfig}
+      refetchInterval={mimirConfig.refetchInterval}
+    />
   );
 }
 

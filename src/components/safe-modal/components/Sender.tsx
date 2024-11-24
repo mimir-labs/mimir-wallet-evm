@@ -6,13 +6,16 @@ import type { Address } from 'abitype';
 import React from 'react';
 
 import { AddressCell } from '@mimir-wallet/components';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 
 function Sender({ address }: { address: Address }) {
+  const upSm = useMediaQuery('sm');
+
   return (
     <div>
       <h6 className='font-bold text-small'>Sending From</h6>
       <div className='flex bg-secondary rounded-small p-2.5 mt-1.5'>
-        <AddressCell iconSize={30} address={address} withCopy showFull />
+        <AddressCell iconSize={30} address={address} withCopy showFull={upSm} />
       </div>
     </div>
   );

@@ -5,12 +5,9 @@ import type { Address } from 'abitype';
 
 import { Tab, Tabs } from '@nextui-org/react';
 import React from 'react';
-import { useToggle } from 'react-use';
 
-import { Button } from '@mimir-wallet/components';
-import { useAccountTokens, useQueryAccount, useQueryParam, useSafeStats } from '@mimir-wallet/hooks';
+import { useAccountTokens, useMediaQuery, useQueryAccount, useQueryParam, useSafeStats } from '@mimir-wallet/hooks';
 
-import AddToken from './AddToken';
 import Hero from './Hero';
 import Member from './Member';
 import Modules from './Modules';
@@ -21,58 +18,49 @@ import Transaction from './Transaction';
 function Dashboard({ address }: { address: Address }) {
   const [data] = useAccountTokens(address);
   const [tab, setTab] = useQueryParam('tab', 'assets', { replace: true });
-  const [isOpen, toggleOpen] = useToggle(false);
   const safeAccount = useQueryAccount(address);
+  const upSm = useMediaQuery('sm');
 
   const [stats] = useSafeStats(address);
 
   return (
-    <>
-      <div className='space-y-5'>
-        <Hero safeAddress={address} totalUsd={data.totalBalanceUsd} />
+    <div className='sm:space-y-5 space-y-3 w-full'>
+      <Hero safeAddress={address} totalUsd={data.totalBalanceUsd} />
 
-        <div className='relative space-y-5'>
-          <div className='absolute right-0 top-8'>
-            {tab === 'assets' && (
-              <Button onClick={toggleOpen} radius='full' color='primary'>
-                Add
-              </Button>
-            )}
-          </div>
-
-          <Tabs
-            color='primary'
-            variant='solid'
-            aria-label='Tabs'
-            selectedKey={tab}
-            onSelectionChange={(key) => setTab(key.toString())}
-            classNames={{
-              tabList: ['bg-white', 'shadow-medium', 'rounded-large', 'p-2.5'],
-              tabContent: ['text-primary/50', 'font-bold'],
-              cursor: ['rounded-medium']
-            }}
-          >
-            <Tab key='assets' title='Assets'>
-              <Tokens address={address} />
-            </Tab>
-            <Tab key='nfts' title='NFTs'>
-              <Nfts address={address} />
-            </Tab>
-            <Tab key='member' title='Member'>
-              <Member safeAccount={safeAccount} />
-            </Tab>
-            <Tab key='transaction' title='Transaction'>
-              <Transaction {...stats} />
-            </Tab>
-            <Tab key='modules' title='Modules'>
-              <Modules safeAddress={address} moduleCounts={stats?.moduleCounts} />
-            </Tab>
-          </Tabs>
-        </div>
+      <div className='relative sm:space-y-5 space-y-3'>
+        <Tabs
+          size={upSm ? 'md' : 'sm'}
+          color='primary'
+          variant='solid'
+          aria-label='Tabs'
+          selectedKey={tab}
+          onSelectionChange={(key) => setTab(key.toString())}
+          classNames={{
+            tabList: ['max-w-[100%]', 'bg-white', 'shadow-medium', 'rounded-large', 'sm:p-2.5 p-1.5 sm:gap-2.5 gap-1'],
+            tab: ['sm:px-3 px-2'],
+            tabContent: ['w-full', 'text-primary/50', 'font-bold'],
+            cursor: ['rounded-medium'],
+            panel: ['w-full']
+          }}
+        >
+          <Tab key='assets' title='Assets'>
+            <Tokens address={address} />
+          </Tab>
+          <Tab key='nfts' title='NFTs'>
+            <Nfts address={address} />
+          </Tab>
+          <Tab key='member' title='Member'>
+            <Member safeAccount={safeAccount} />
+          </Tab>
+          <Tab key='transaction' title='Transaction'>
+            <Transaction {...stats} />
+          </Tab>
+          <Tab key='modules' title='Modules'>
+            <Modules safeAddress={address} moduleCounts={stats?.moduleCounts} />
+          </Tab>
+        </Tabs>
       </div>
-
-      <AddToken isOpen={isOpen} onClose={toggleOpen} />
-    </>
+    </div>
   );
 }
 

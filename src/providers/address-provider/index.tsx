@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
+import type { SafeAccount } from '@mimir-wallet/safe/types';
 import type { State } from './types';
 
 import React, { createContext, useEffect, useMemo, useState } from 'react';
-import { getAddress } from 'viem';
 import { useChainId } from 'wagmi';
 
 import { ADDRESS_NAMES_KEY } from '@mimir-wallet/constants';
@@ -29,6 +29,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     signers,
     isMultisig,
     multisigs,
+    otherChainMultisigs,
     addMultisig,
     changeName,
     isCurrent,
@@ -36,7 +37,7 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
   } = useAddress(defaultCurrent);
   const [addressNames, setAddressNames] = useLocalStore<Record<string, string>>(ADDRESS_NAMES_KEY, {});
   const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
-  const [addressThresholds, setAddressThresholds] = useState<Record<string, [number, number]>>({});
+  const [queryCache, setQueryCache] = useState<Record<Address, SafeAccount>>({});
   const { addresses, node, addAddressBook } = useAddressBook(setAddressNames);
   const { watchOnlyList, addWatchOnlyList, node: watchOnlyNode } = useWatchOnly(setAddressNames);
   const { customTokens, addCustomToken } = useCustomTokens();
@@ -60,17 +61,6 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     }
   }, [tokens]);
 
-  useEffect(() => {
-    setAddressThresholds((thresholds) => ({
-      ...thresholds,
-      ...multisigs.reduce<Record<string, [number, number]>>((results, item) => {
-        results[getAddress(item.address)] = [item.threshold, item.members.length];
-
-        return results;
-      }, {})
-    }));
-  }, [multisigs]);
-
   const all = useMemo(
     () => Array.from(new Set((addresses || []).concat(signers || []).concat(multisigs.map((item) => item.address)))),
     [addresses, multisigs, signers]
@@ -81,6 +71,11 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     addresses,
     addressNames: useMemo(
       () => ({
+        ...otherChainMultisigs.reduce<Record<string, string>>((value, item) => {
+          value[item.address] = item.name || '';
+
+          return value;
+        }, {}),
         ...tokens.reduce<Record<string, string>>((results, item) => {
           if (item.chainId === chainId) {
             results[item.address] = item.symbol;
@@ -95,10 +90,10 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
           return value;
         }, {})
       }),
-      [addressNames, chainId, multisigs, tokens]
+      [addressNames, chainId, multisigs, otherChainMultisigs, tokens]
     ),
     addressIcons,
-    addressThresholds,
+    queryCache,
     customTokens,
     watchOnlyList,
     all,
@@ -108,13 +103,14 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     signers,
     isMultisig,
     multisigs,
+    otherChainMultisigs,
     addMultisig,
     changeName,
     isCurrent,
     switchAddress,
     addAddressBook,
     addCustomToken,
-    setAddressThresholds,
+    setQueryCache,
     addWatchOnlyList
   };
 

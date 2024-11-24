@@ -8,6 +8,7 @@ import React, { useEffect, useMemo } from 'react';
 
 import IconAdd from '@mimir-wallet/assets/svg/icon-add-colored.svg?react';
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 
 import AddressRow from './AddressRow';
 import Button from './Button';
@@ -29,6 +30,8 @@ function Content({
   onSelect: (value: Address) => void;
   addresses: Address[];
 }) {
+  const upSm = useMediaQuery('sm');
+
   return (
     <div className='flex flex-1 flex-col gap-1'>
       <div className='font-bold'>{title}</div>
@@ -39,7 +42,7 @@ function Content({
               key={address}
               className='flex items-center gap-1 justify-between rounded-small p-1.5 bg-secondary text-tiny snap-start'
             >
-              <AddressRow iconSize={20} address={address} showFull />
+              <AddressRow iconSize={20} address={address} showFull={upSm} />
               <Button
                 color={isSelected ? 'danger' : 'primary'}
                 onClick={() => onSelect(address)}

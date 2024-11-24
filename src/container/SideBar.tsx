@@ -3,7 +3,7 @@
 
 import { Listbox, ListboxItem } from '@nextui-org/react';
 import { useMemo } from 'react';
-import { matchRoutes, useLocation } from 'react-router-dom';
+import { matchRoutes, useLocation, useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
 
 import AddressBookSvg from '@mimir-wallet/assets/svg/address-book.svg?react';
@@ -12,7 +12,8 @@ import HomeSvg from '@mimir-wallet/assets/svg/home.svg?react';
 import RuleSvg from '@mimir-wallet/assets/svg/icon-rule.svg?react';
 import SetSvg from '@mimir-wallet/assets/svg/icon-set.svg?react';
 import TransactionsSvg from '@mimir-wallet/assets/svg/transactions.svg?react';
-import { AccountDrawer } from '@mimir-wallet/components';
+import { AccountDrawer, Drawer } from '@mimir-wallet/components';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 
 import Account from './Account';
 
@@ -55,7 +56,18 @@ const links: { href: string; key: string; icon: React.ReactNode; label: string }
   }
 ];
 
-function SideBar({ offsetTop = 0 }: { offsetTop?: number }): React.ReactElement {
+function SideBar({
+  offsetTop = 0,
+  withSideBar,
+  isOpen,
+  onClose
+}: {
+  offsetTop?: number;
+  withSideBar: boolean;
+  isOpen: boolean;
+  onClose: () => void;
+}): React.ReactElement {
+  const navigate = useNavigate();
   const location = useLocation();
   const keys = useMemo(
     () =>
@@ -74,12 +86,10 @@ function SideBar({ offsetTop = 0 }: { offsetTop?: number }): React.ReactElement 
     [location]
   );
   const [open, toggleOpen] = useToggle(false);
+  const upSm = useMediaQuery('sm');
 
-  return (
-    <div
-      style={{ top: offsetTop + 65, height: `calc(100dvh - ${offsetTop}px - 1px - var(--nextui-spacing-unit)*16)` }}
-      className='sticky flex-none w-[232px] bg-white border-r-1 border-primary-50 px-4 py-5 space-y-5'
-    >
+  const element = (
+    <div className='h-full px-4 py-5 sm:space-y-5 space-y-4'>
       <Account handleClick={toggleOpen} />
       <Listbox
         variant='solid'
@@ -101,14 +111,40 @@ function SideBar({ offsetTop = 0 }: { offsetTop?: number }): React.ReactElement 
             className='rounded-medium aria-[selected=true]:text-primary'
             startContent={item.icon}
             key={item.key}
-            href={item.href}
+            onClick={() => {
+              onClose();
+              navigate(item.href);
+            }}
           >
             {item.label}
           </ListboxItem>
         ))}
       </Listbox>
-      <AccountDrawer isOpen={open} onClose={toggleOpen} />
     </div>
+  );
+
+  return (
+    <>
+      {!upSm || !withSideBar ? (
+        <Drawer rounded placement={upSm ? 'left' : 'right'} isOpen={isOpen} onClose={onClose}>
+          {element}
+        </Drawer>
+      ) : (
+        <div
+          style={{ top: offsetTop + 65, height: `calc(100dvh - ${offsetTop}px - 1px - var(--nextui-spacing-unit)*16)` }}
+          className='sticky flex-none w-[232px] bg-white border-r-1 border-primary-50'
+        >
+          {element}
+        </div>
+      )}
+      <AccountDrawer
+        isOpen={open}
+        onClose={() => {
+          toggleOpen(false);
+          onClose();
+        }}
+      />
+    </>
   );
 }
 

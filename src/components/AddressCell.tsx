@@ -50,12 +50,12 @@ function AddressCell({
       <AddressIcon src={icon} isToken={isToken} size={iconSize} address={address} />
       <div className='address-cell-content flex flex-col gap-y-[5px]'>
         <div
-          className='address-cell-content-name inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'
+          className='address-cell-content-name inline font-bold text-sm truncate max-w-[90px] !leading-[1.1]'
           style={{ maxWidth: showFull ? '999px' : undefined }}
         >
           {name || <AddressName address={address} disableEns={disableEns} fallback={fallbackName} />}
         </div>
-        <div className='address-cell-content-address inline-flex items-center gap-[5px] text-tiny leading-[14px] h-[14px] max-h-[14px] font-normal opacity-50'>
+        <div className='address-cell-content-address inline-flex items-center gap-[5px] h-[18px] text-tiny font-normal opacity-50 !leading-[1.1]'>
           {replaceAddress || <Address address={address} showFull={showFull} />}
           <span className='inline-flex items-center' style={{ display: withCopy || withExplorer ? undefined : 'none' }}>
             {withCopy && address ? <CopyAddressButton as='div' size='tiny' address={address} color='default' /> : null}

@@ -1,10 +1,8 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'abitype';
-
 import { Tab, Tabs } from '@nextui-org/react';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 
 import { useQueryAccount, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
@@ -14,18 +12,9 @@ import Messages from './Messages';
 import Pending from './Pending';
 
 function Transaction() {
-  const { current, isMultisig } = useContext(AddressContext);
-  const [address, setAddress] = useQueryParam<string>('address', undefined, { replace: true });
+  const { current: address } = useContext(AddressContext);
   const [tab, setTab] = useQueryParam<string>('tab', 'pending', { replace: true });
-  const account = useQueryAccount(address as Address);
-
-  useEffect(() => {
-    if (!address) {
-      if (current && isMultisig(current)) {
-        setAddress(current);
-      }
-    }
-  }, [address, current, isMultisig, setAddress]);
+  const account = useQueryAccount(address);
 
   return account ? (
     <Tabs

@@ -1,7 +1,11 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import { Route, Routes } from 'react-router-dom';
+import type { Address } from 'abitype';
+import type { Config } from 'wagmi';
+
+import { useRef } from 'react';
+import { createBrowserRouter, Navigate, Outlet, RouterProvider } from 'react-router-dom';
 
 import BaseContainer from './container/BaseContainer';
 import PageAddressBook from './pages/address-book';
@@ -11,33 +15,109 @@ import PageAppExplorer from './pages/apps/app-explorer';
 import PageCreateMultisig from './pages/create-multisig';
 import PageImportMultisig from './pages/import-multisig';
 import PageProfile from './pages/profile';
+import PageWelcome from './pages/profile/Welcome';
 import PageReset from './pages/reset';
 import PageRules from './pages/rules';
 import PageSetting from './pages/setting';
 import PageTransactions from './pages/transactions';
+import Providers from './providers/providers';
 
-function App(): React.ReactElement {
-  return (
-    <Routes>
-      <Route element={<BaseContainer withPadding withSideBar />}>
-        <Route index element={<PageProfile />} />
-        {/* <Route path='/assets' element={<PageAssets />} /> */}
-        <Route path='/apps' element={<PageApps />} />
-        <Route path='/transactions' element={<PageTransactions />} />
-        <Route path='/address-book' element={<PageAddressBook />} />
-        <Route path='/setting' element={<PageSetting />} />
-        <Route path='/rules' element={<PageRules />} />
-        <Route path='/reset/:delayAddress' element={<PageReset />} />
-      </Route>
-      <Route element={<BaseContainer withPadding withSideBar={false} />}>
-        <Route path='/create-multisig' element={<PageCreateMultisig />} />
-        <Route path='/import-multisig' element={<PageImportMultisig />} />
-      </Route>
-      <Route element={<BaseContainer withSideBar={false} withPadding />}>
-        <Route path='/apps/:url' element={<PageAppExplorer />} />
-      </Route>
-    </Routes>
+function App({
+  address,
+  config,
+  refetchInterval
+}: {
+  address?: Address;
+  config: Config;
+  refetchInterval?: number;
+}): React.ReactElement {
+  const router = useRef(
+    createBrowserRouter([
+      {
+        element: (
+          <Providers address={address} config={config} refetchInterval={refetchInterval}>
+            <Outlet />
+          </Providers>
+        ),
+        children: [
+          {
+            element: <BaseContainer auth withSideBar withPadding />,
+            children: [
+              {
+                index: true,
+                element: <PageProfile />
+              },
+              {
+                path: '/apps',
+                element: <PageApps />
+              },
+              {
+                path: '/transactions',
+                element: <PageTransactions />
+              },
+              {
+                path: '/address-book',
+                element: <PageAddressBook />
+              },
+              {
+                path: '/setting',
+                element: <PageSetting />
+              },
+              {
+                path: '/rules',
+                element: <PageRules />
+              },
+              {
+                path: '/reset/:delayAddress',
+                element: <PageReset />
+              }
+            ]
+          },
+          {
+            element: <BaseContainer auth={false} withSideBar={false} withPadding />,
+            children: [
+              {
+                path: '/create-multisig',
+                element: <PageCreateMultisig />
+              },
+              {
+                path: '/import-multisig',
+                element: <PageImportMultisig />
+              }
+            ]
+          },
+          {
+            element: <BaseContainer auth withSideBar={false} withPadding={false} />,
+            children: [
+              {
+                path: '/apps/:url',
+                element: <PageAppExplorer />
+              }
+            ]
+          },
+          {
+            element: <BaseContainer auth={false} withSideBar withPadding />,
+            children: [
+              {
+                path: '/welcome',
+                element: <PageWelcome />
+              }
+            ]
+          }
+        ]
+      },
+      {
+        path: '/assets',
+        element: <Navigate to='/' replace />
+      },
+      {
+        path: '*',
+        element: <Navigate replace to='/' />
+      }
+    ])
   );
+
+  return <RouterProvider router={router.current} />;
 }
 
 export default App;

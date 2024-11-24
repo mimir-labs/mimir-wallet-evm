@@ -22,6 +22,8 @@ import { EmptyArray } from '@mimir-wallet/constants';
 import AddressCell from './AddressCell';
 
 interface Props {
+  showControls?: boolean;
+  showMiniMap?: boolean;
   account: BaseAccount;
 }
 
@@ -134,7 +136,7 @@ function makeNodes(
   });
 }
 
-function AddressOverview({ account }: Props) {
+function AddressOverview({ account, showControls, showMiniMap }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState<NodeData>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
@@ -167,8 +169,8 @@ function AddressOverview({ account }: Props) {
       onNodesChange={onNodesChange}
       zoomOnScroll
     >
-      <MiniMap pannable zoomable />
-      <Controls />
+      {showMiniMap && <MiniMap pannable zoomable />}
+      {showControls && <Controls />}
     </ReactFlow>
   );
 }

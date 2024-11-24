@@ -15,6 +15,7 @@ import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?reac
 import { Button, ButtonEnable, SafeTxButton } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 import { buildSafeTransaction } from '@mimir-wallet/safe';
 import { formatAgo } from '@mimir-wallet/utils';
 
@@ -45,6 +46,7 @@ function TimeCell({ time }: { time?: number }) {
 function TxItems({ isOpen, cooldown, expiration, tx, handleExecute, toggleOpen, refetch }: Props) {
   const { isConnected } = useAccount();
   const maxValue = tx.createdAt + (cooldown || 0);
+  const upSm = useMediaQuery('sm');
 
   const now = Date.now();
 
@@ -56,62 +58,66 @@ function TxItems({ isOpen, cooldown, expiration, tx, handleExecute, toggleOpen, 
   const isExpiration = cooldown && expiration ? tx.createdAt + cooldown + expiration < now : false;
 
   return (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-6' onClick={toggleOpen}>
-      <div className='col-span-3 flex items-center'>
+    <div className='cursor-pointer h-10 px-3 grid sm:grid-cols-6 grid-cols-7' onClick={toggleOpen}>
+      <div className='sm:col-span-3 col-span-4 flex items-center'>
         <AppName website='mimir://internal/recovery' />
       </div>
-      <div className='col-span-1 flex items-center'>
+      <div className='sm:col-span-1 col-span-2 flex items-center'>
         <TimeCell time={tx.createdAt} />
       </div>
-      <div className='col-span-1 flex items-center' />
-      <div className='col-span-1 flex items-center justify-between'>
-        <div className='space-x-2 flex items-center'>
-          {isConnected ? (
-            isExpiration ? (
-              <span className='font-bold text-tiny text-danger'>Expired</span>
-            ) : (
-              <>
-                {cooldown && now > maxValue && (
-                  <ButtonEnable
-                    onClick={handleExecute}
-                    isToastError
+      <div className='col-span-1 sm:flex hidden items-center' />
+      <div className='col-auto flex items-center justify-between'>
+        {upSm ? (
+          <div className='space-x-2 flex items-center'>
+            {isConnected ? (
+              isExpiration ? (
+                <span className='font-bold text-tiny text-danger'>Expired</span>
+              ) : (
+                <>
+                  {cooldown && now > maxValue && (
+                    <ButtonEnable
+                      onClick={handleExecute}
+                      isToastError
+                      size='tiny'
+                      radius='full'
+                      variant='light'
+                      isIconOnly
+                      color='success'
+                    >
+                      <IconSuccess />
+                    </ButtonEnable>
+                  )}
+                  <SafeTxButton
+                    metadata={{ website: 'mimir://internal/cancel-recovery' }}
+                    isApprove={false}
+                    isCancel={false}
+                    address={data}
+                    buildTx={async () =>
+                      buildSafeTransaction(tx.address, {
+                        value: 0n,
+                        data: encodeFunctionData({
+                          abi: abis.Delay,
+                          functionName: 'setTxNonce',
+                          args: [tx.queueNonce + 1n]
+                        })
+                      })
+                    }
+                    onSuccess={refetch}
                     size='tiny'
                     radius='full'
                     variant='light'
                     isIconOnly
-                    color='success'
+                    color='danger'
                   >
-                    <IconSuccess />
-                  </ButtonEnable>
-                )}
-                <SafeTxButton
-                  metadata={{ website: 'mimir://internal/cancel-recovery' }}
-                  isApprove={false}
-                  isCancel={false}
-                  address={data}
-                  buildTx={async () =>
-                    buildSafeTransaction(tx.address, {
-                      value: 0n,
-                      data: encodeFunctionData({
-                        abi: abis.Delay,
-                        functionName: 'setTxNonce',
-                        args: [tx.queueNonce + 1n]
-                      })
-                    })
-                  }
-                  onSuccess={refetch}
-                  size='tiny'
-                  radius='full'
-                  variant='light'
-                  isIconOnly
-                  color='danger'
-                >
-                  <IconFail />
-                </SafeTxButton>
-              </>
-            )
-          ) : null}
-        </div>
+                    <IconFail />
+                  </SafeTxButton>
+                </>
+              )
+            ) : null}
+          </div>
+        ) : (
+          <div />
+        )}
         <Button
           data-open={isOpen}
           onClick={toggleOpen}

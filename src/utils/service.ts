@@ -5,13 +5,20 @@ import type { Address, Hash, Hex } from 'viem';
 import type { BaseAccount, Operation, SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from './types';
 
-import { notificationServiceUrl, serviceUrl } from '@mimir-wallet/config';
+import { accountServices, notificationServiceUrl, serviceUrl } from '@mimir-wallet/config';
 
 import { fetcher } from './fetcher';
 
 export const jsonHeader = { 'Content-Type': 'application/json' };
 
 export const getAuthorizationHeader = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
+
+export function getOwnedAccountForAllChain(address: Address): Promise<AccountResponse[]> {
+  return fetcher(`${accountServices}accounts/owned/${address}`, {
+    method: 'GET',
+    headers: jsonHeader
+  });
+}
 
 export function getAccountFull(chainId: number, address: Address): Promise<BaseAccount> {
   return fetcher(serviceUrl(chainId, `accounts/${address}/full`), {

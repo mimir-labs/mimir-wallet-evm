@@ -22,6 +22,7 @@ import { Bar } from 'react-chartjs-2';
 import IconModule from '@mimir-wallet/assets/svg/icon-module.svg?react';
 import IconSafe from '@mimir-wallet/assets/svg/icon-safe.svg?react';
 import { AddressRow, Empty } from '@mimir-wallet/components';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 
 const options = {
   responsive: true,
@@ -38,6 +39,7 @@ const options = {
 };
 
 function Chart({ txDaily }: { txDaily?: Array<{ time: string; address: Address; counts: number }> }) {
+  const upSm = useMediaQuery('sm');
   const chartData: ChartData<'bar', number[], string> = useMemo(
     () => ({
       labels: txDaily?.map((item) => dayjs(Number(item.time)).format('YYYY-MM-DD')) || [],
@@ -52,17 +54,18 @@ function Chart({ txDaily }: { txDaily?: Array<{ time: string; address: Address; 
     [txDaily]
   );
 
+  const element =
+    txDaily && txDaily.length > 0 ? (
+      <Bar data={chartData} options={options} />
+    ) : (
+      <Empty label='no transactions' height={200} />
+    );
+
   return (
     <Card className='col-span-2'>
-      <CardBody className='gap-5 p-5'>
+      <CardBody className='gap-5 sm:p-5 p-3'>
         <p className='font-bold text-medium text-foreground'>Transaction Counts</p>
-        <div className='p-5 bg-secondary rounded-large'>
-          {txDaily && txDaily.length > 0 ? (
-            <Bar data={chartData} options={options} />
-          ) : (
-            <Empty label='no transactions' height={200} />
-          )}
-        </div>
+        {upSm ? <div className='sm:p-5 p-3 bg-secondary rounded-large'>{element}</div> : element}
       </CardBody>
     </Card>
   );
@@ -103,31 +106,33 @@ function Transaction({
   );
 
   return (
-    <div className='grid grid-cols-2 gap-5'>
+    <div className='grid grid-cols-2 sm:gap-5 gap-2.5'>
       <Card className='col-span-2'>
-        <CardBody className='flex-row px-12 py-5 justify-between items-center gap-10'>
+        <CardBody className='sm:flex-row flex-col sm:px-12 px-4 sm:py-5 py-3 justify-between sm:items-center items-stretch sm:gap-10 gap-3'>
           <div className='flex-grow flex items-center justify-between'>
-            <div className='flex items-center gap-2.5 text-medium text-foreground/50'>
+            <div className='flex items-center gap-2.5 sm:text-medium text-small text-foreground/50'>
               <IconSafe />
               Safe Transaction Executed
             </div>
-            <b className='font-extrabold text-[36px] leading-[43px]'>{safeTxCounts}</b>
+            <b className='font-extrabold sm:text-[36px] sm:leading-[43px] text-[24px] leading-[30px]'>{safeTxCounts}</b>
           </div>
 
-          <Divider orientation='vertical' className='bg-divider-300 h-5' />
+          <Divider orientation='vertical' className='bg-divider-300 h-5 sm:block hidden' />
 
           <div className='flex-grow flex items-center justify-between'>
-            <div className='flex items-center gap-2.5 text-medium text-foreground/50'>
+            <div className='flex items-center gap-2.5 sm:text-medium text-small text-foreground/50'>
               <IconModule />
               Module Transaction Executed
             </div>
-            <b className='font-extrabold text-[36px] leading-[43px]'>{moduleTxCounts}</b>
+            <b className='font-extrabold sm:text-[36px] sm:leading-[43px] text-[24px] leading-[30px]'>
+              {moduleTxCounts}
+            </b>
           </div>
         </CardBody>
       </Card>
 
-      <Card className='col-span-1'>
-        <CardBody className='gap-5 p-5'>
+      <Card className='sm:col-span-1 col-span-2'>
+        <CardBody className='gap-5 sm:p-5 p-3'>
           <p className='font-bold text-medium text-foreground/50'>Contract Interaction</p>
           <Table
             removeWrapper
@@ -156,8 +161,8 @@ function Transaction({
         </CardBody>
       </Card>
 
-      <Card className='col-span-1'>
-        <CardBody className='gap-5  p-5'>
+      <Card className='sm:col-span-1 col-span-2'>
+        <CardBody className='gap-5 sm:p-5 p-3'>
           <p className='font-bold text-medium text-foreground/50'>Module Transaction</p>
           <Table
             removeWrapper
@@ -175,7 +180,7 @@ function Transaction({
               {(item) => (
                 <TableRow key={item.order}>
                   <TableCell>{item.order}</TableCell>
-                  <TableCell>
+                  <TableCell className='whitespace-nowrap'>
                     <AddressRow address={item.address} />
                   </TableCell>
                   <TableCell>{item.count}</TableCell>

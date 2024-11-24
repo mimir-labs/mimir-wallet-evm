@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react';
-import { useMemo } from 'react';
 import { numberToHex, RpcError, UserRejectedRequestError } from 'viem';
-import { ProviderNotFoundError, useChainId, useConnections } from 'wagmi';
+import { ProviderNotFoundError, useChains, useConnections } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import { Button } from '@mimir-wallet/components';
 import { CustomChain, supportedChains } from '@mimir-wallet/config';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 
 const mains = supportedChains.filter((item) => !item.testnet);
 const tests = supportedChains.filter((item) => !!item.testnet);
@@ -53,9 +53,9 @@ async function _switchChain(provider: any, chain: CustomChain) {
 }
 
 function Networks() {
-  const chainId = useChainId();
-  const chain = useMemo(() => supportedChains.find((item) => item.id === chainId), [chainId]);
+  const [chain] = useChains() as [chain: CustomChain];
   const connections = useConnections();
+  const upSm = useMediaQuery('sm');
 
   const switchChain = async (chain: CustomChain) => {
     for (const connection of connections) {
@@ -74,7 +74,7 @@ function Networks() {
           startContent={<Avatar src={chain?.iconUrl} className='w-[24px] h-[24px] bg-transparent' />}
           endContent={<ArrowDown />}
         >
-          {chain?.name}
+          {upSm ? chain.name : ''}
         </Button>
       </DropdownTrigger>
       <DropdownMenu>

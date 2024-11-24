@@ -93,8 +93,8 @@ function Nfts({ address }: { address: Address }) {
   }
 
   return (
-    <div className='space-y-5 min-h-full'>
-      <div className='flex gap-x-1'>
+    <div className='sm:space-y-5 space-y-3 min-h-full'>
+      <div className='flex gap-x-1 flex-wrap'>
         {collections.map((item) => (
           <Button
             data-selected={_collection === item}
@@ -109,7 +109,7 @@ function Nfts({ address }: { address: Address }) {
         ))}
       </div>
       <Divider />
-      <div className='grid grid-cols-5 gap-5 3xl:grid-cols-7 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-4 sm:grid-cols-3'>
+      <div className='grid sm:gap-5 gap-3 3xl:grid-cols-7 2xl:grid-cols-6 xl:grid-cols-5 lg:grid-cols-4 md:grid-cols-4 sm:grid-cols-3 grid-cols-2'>
         {list.map((nft) => (
           <div
             className='group relative cursor-pointer col-span-1'

@@ -27,7 +27,7 @@ function Batch({ onClose }: { onClose?: () => void }) {
 
   return (
     <>
-      <div className='w-[50vw] max-w-[560px] min-w-[320px] h-full'>
+      <div className='w-[50vw] max-w-[560px] min-w-[300px] h-full'>
         {txs.length === 0 ? (
           <EmptyBatch onAdd={toggleOpen} onClose={onClose} />
         ) : (
@@ -82,7 +82,7 @@ function Batch({ onClose }: { onClose?: () => void }) {
 
             <Divider />
 
-            <div className='flex gap-5'>
+            <div className='flex sm:gap-5 gap-4'>
               <Button
                 fullWidth
                 radius='full'

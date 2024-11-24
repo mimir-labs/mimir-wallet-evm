@@ -35,24 +35,24 @@ function TxItems({ isOpen, toggleOpen, transaction }: Props) {
   const [meta] = useToken(transaction.tokenMeta ? undefined : transaction.token);
 
   return (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-6 gap-2.5' onClick={toggleOpen}>
-      <div className='col-span-1 flex items-center'>
+    <div className='cursor-pointer h-10 px-3 grid sm:grid-cols-6 grid-cols-7' onClick={toggleOpen}>
+      <div className='sm:col-span-1 col-span-3 flex items-center'>
         <span className='inline-flex items-center gap-1.5 max-w-full'>
           <IconReceive className='text-success' />
           Receive
         </span>
       </div>
-      <div className='col-span-1 flex items-center' />
-      <div className='col-span-1 flex items-center text-small gap-1'>
+      <div className='col-span-1 sm:flex hidden items-center' />
+      <div className='sm:col-span-1 col-span-3 flex items-center text-small gap-1'>
         <FormatBalance prefix='+ ' value={transaction.value} showSymbol={false} {...(transaction.tokenMeta || meta)} />
         <AddressIcon size={20} isToken address={transaction.token} />
         {transaction.tokenMeta?.symbol || meta?.symbol}
       </div>
-      <div className='col-span-1 flex items-center'>
+      <div className='col-span-1 sm:flex hidden items-center'>
         <TimeCell time={new Date(transaction.createdAt).valueOf()} />
       </div>
-      <div className='col-span-1 flex items-center' />
-      <div className='col-span-1 flex items-center justify-between'>
+      <div className='col-span-1 sm:flex hidden items-center' />
+      <div className='col-auto flex items-center justify-between'>
         <div className='space-x-2 flex items-center' />
         <Button
           data-open={isOpen}

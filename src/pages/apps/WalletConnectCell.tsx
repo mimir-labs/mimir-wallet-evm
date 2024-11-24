@@ -18,9 +18,9 @@ function WalletConnectCell() {
 
   return (
     <>
-      <div className='flex items-center justify-between p-5 rounded-large shadow-medium bg-background'>
+      <div className='flex items-center justify-between sm:flex-row flex-col p-5 gap-3 rounded-large shadow-medium bg-background'>
         <div className='flex-1 flex items-center gap-2.5'>
-          <Avatar src='/images/wallet-connect.webp' style={{ width: 40, height: 40 }} />
+          <Avatar src='/images/wallet-connect.webp' style={{ width: 40, height: 40 }} className='flex-shrink-0' />
           <div>
             <h6 className='font-bold text-medium'>Login as Multisig</h6>
             <p className='text-tiny text-[#D9D9D9]'>
@@ -37,6 +37,7 @@ function WalletConnectCell() {
           }
           radius='full'
           onClick={toggleOpen}
+          className='sm:w-auto w-full'
         >
           Connect to Dapp
         </Button>

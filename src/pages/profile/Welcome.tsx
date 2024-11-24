@@ -6,19 +6,22 @@ import type { Multisig } from '@mimir-wallet/safe/types';
 
 import { Divider, Link, Select, SelectItem } from '@nextui-org/react';
 import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAccount } from 'wagmi';
 
 import IconAdd from '@mimir-wallet/assets/svg/icon-add.svg?react';
 import IconSend from '@mimir-wallet/assets/svg/icon-send-filled.svg?react';
 import { AddressRow, Button, ButtonEnable } from '@mimir-wallet/components';
+import { useMediaQuery } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 function Detected({ multisigs }: { multisigs: Multisig[] }) {
   const { switchAddress } = useContext(AddressContext);
   const [selected, setSelected] = useState<Address>(multisigs[0].address);
+  const navigate = useNavigate();
 
   return (
-    <div className='space-y-2.5 w-[400px]'>
+    <div className='space-y-2.5 sm:w-[400px] w-full'>
       <Select
         color='secondary'
         variant='bordered'
@@ -54,7 +57,15 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
           </SelectItem>
         )}
       </Select>
-      <Button color='primary' fullWidth radius='full' onClick={() => switchAddress(selected)}>
+      <Button
+        color='primary'
+        fullWidth
+        radius='full'
+        onClick={() => {
+          switchAddress(selected);
+          navigate('/');
+        }}
+      >
         Login
       </Button>
 
@@ -78,16 +89,17 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
 function Welcome() {
   const { isConnected } = useAccount();
   const { multisigs } = useContext(AddressContext);
+  const upSm = useMediaQuery('sm');
 
   return (
-    <div className='flex justify-center items-center gap-[80px] h-full'>
-      <div className='w-[309px] overflow-hidden rounded-[30px]'>
+    <div className='flex justify-center items-center sm:flex-row flex-col lg:gap-[80px] md:gap-[60px] sm:gap-[40px] gap-[20px] h-full'>
+      <div className='sm:w-[309px] w-[185px] overflow-hidden sm:rounded-[30px] rounded-[18px]'>
         <video muted playsInline autoPlay loop src='/ux.mp4' controls={false} width='100%' />
       </div>
-      <div className='space-y-5'>
-        <h1 className='font-bold text-[40px] leading-tight'>
+      <div className='sm:w-auto w-full space-y-5'>
+        <h1 className='font-bold md:text-[40px] sm:text-[30px] text-[20px] leading-tight'>
           Start your ultimate
-          <br />
+          {upSm ? <br /> : ''}
           multisig journey
         </h1>
         <p className='font-normal text-[16px] leading-[19px] tracking-[0.16px]'>
@@ -103,7 +115,7 @@ function Welcome() {
                 as={Link}
                 href='/create-multisig'
                 startContent={<IconAdd className='text-white' />}
-                className='flex w-[210px]'
+                className='flex sm:w-[210px] w-full'
                 radius='full'
                 color='primary'
               >
@@ -113,7 +125,7 @@ function Welcome() {
                 as={Link}
                 href='/import-multisig'
                 startContent={<IconSend className='text-white' />}
-                className='flex w-[210px]'
+                className='flex sm:w-[210px] w-full'
                 radius='full'
                 color='primary'
               >
@@ -127,7 +139,7 @@ function Welcome() {
             </>
           )
         ) : (
-          <ButtonEnable withConnect className='flex w-[210px]' color='primary'>
+          <ButtonEnable withConnect className='flex sm:w-[210px] w-full' color='primary'>
             Connect Wallet
           </ButtonEnable>
         )}

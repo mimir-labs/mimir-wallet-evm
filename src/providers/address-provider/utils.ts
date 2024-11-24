@@ -12,13 +12,15 @@ export async function querySync(
   setMultisigs: (values: Multisig[]) => void
 ): Promise<Multisig[]> {
   return service
-    .getOwnedAccount(chainId, address)
+    .getOwnedAccountForAllChain(address)
     .then((data) => {
-      const multisigs: Multisig[] = data
+      const multisigs: Multisig[] = Object.values(data)
+        .flat()
         .filter((item) => item.type === 'safe')
         .map((account) => ({
-          name: account.name,
           address: account.address,
+          chainId: account.chainId,
+          name: account.name,
           isMimir: account.isMimir,
           createdAt: account.createdAt,
           updatedAt: account.updatedAt,

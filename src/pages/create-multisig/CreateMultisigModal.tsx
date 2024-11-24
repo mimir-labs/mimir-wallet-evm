@@ -15,7 +15,7 @@ interface Props {
   state: CreateMultisigState;
   isOpen: boolean;
   onRetry: EnableClickHandler;
-  onDone: (account: AccountResponse) => void;
+  onDone: (chainId: number, account: AccountResponse) => void;
   onClose: () => void;
 }
 
@@ -42,7 +42,7 @@ function CreateMultisigModal({ isOpen, onDone, state, onClose, onRetry }: Props)
         <Divider />
         <ModalFooter className='justify-center'>
           {result ? (
-            <Button onClick={() => onDone(result)} color='primary' radius='full'>
+            <Button onClick={() => onDone(result.chainId, result)} color='primary' radius='full'>
               Start Using
             </Button>
           ) : (

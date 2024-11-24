@@ -18,6 +18,7 @@ function Hash({ hash, withExplorer }: { hash: string; withExplorer: boolean }) {
         href={explorerUrl('tx', chain, hash)}
         isExternal
         showAnchorIcon
+        className='inline [&_svg]:inline'
       >
         {hash}
       </Link>
