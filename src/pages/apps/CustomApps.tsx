@@ -16,8 +16,8 @@ function CustomApps() {
 
   return (
     <>
-      <div className='grid grid-cols-12 gap-5'>
-        <div key='add-custom-app' className='col-span-4'>
+      <div className='grid 3xl:grid-cols-5 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 sm:gap-5 gap-4'>
+        <div key='add-custom-app' className='col-span-1'>
           <Card className='cursor-pointer h-full'>
             <CardBody className='flex flex-row items-center gap-5 p-5' onClick={toggleOpen}>
               <Button variant='light' isIconOnly size='lg' radius='full' onClick={toggleOpen}>
@@ -34,7 +34,7 @@ function CustomApps() {
         </div>
 
         {customApps.map((app) => (
-          <div key={app.id} className='col-span-4'>
+          <div key={app.id} className='col-span-1'>
             <AppCell addFavorite={addFavorite} app={app} isFavorite={isFavorite} removeFavorite={removeFavorite} />
           </div>
         ))}

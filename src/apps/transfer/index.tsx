@@ -23,7 +23,13 @@ import {
 } from '@mimir-wallet/components';
 import { moduleDeployments } from '@mimir-wallet/config';
 import { useDelegateAllowance } from '@mimir-wallet/features/allowance';
-import { useAccountBalance, useAccountTokens, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
+import {
+  useAccountBalance,
+  useAccountTokens,
+  useInputAddress,
+  useInputNumber,
+  useMediaQuery
+} from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildSafeTransaction } from '@mimir-wallet/safe';
 
@@ -46,6 +52,7 @@ function Transfer({
   const [token, setToken] = useState<Address>(propsToken || zeroAddress);
   const [balance, , isFetchingBalance] = useAccountBalance(current, token);
   const allowance = useDelegateAllowance(current, address, token);
+  const upSm = useMediaQuery('sm');
 
   const isInsufficientBalance = balance && amount ? parseUnits(amount, balance.decimals) > balance.value : false;
   const isInsufficientAllowance =
@@ -75,18 +82,18 @@ function Transfer({
   );
 
   return (
-    <div className='max-w-lg mx-auto space-y-5 pt-5'>
+    <div className='max-w-lg mx-auto sm:space-y-5 space-y-4 sm:p-5 p-4'>
       <Button onClick={() => navigate(-1)} variant='bordered' color='primary' radius='full'>
         {'<'} Back
       </Button>
-      <div className='p-5 bg-white rounded-medium space-y-5'>
+      <div className='sm:p-5 p-4 bg-white rounded-medium sm:space-y-5 space-y-4'>
         <h3 className='text-xl font-bold'>Transfer</h3>
         <Divider />
-        <div className='space-y-5'>
+        <div className='sm:space-y-5 space-y-4'>
           <div>
             <div className='font-bold mb-1'>Sending From</div>
             <div className='rounded-medium bg-secondary p-2.5'>
-              <AddressCell address={current} showFull withCopy iconSize={30} />
+              <AddressCell address={current} showFull={upSm} withCopy iconSize={30} />
             </div>
           </div>
           <div className='flex'>
@@ -122,16 +129,17 @@ function Transfer({
             />
           </div>
           {allowance && allowance[0] - allowance[1] > 0n && (
-            <div className='flex justify-between'>
+            <div className='flex items-center justify-between'>
               <Switch
                 isSelected={useSpendLimit}
                 onValueChange={toggleSpendLimit}
                 size='sm'
                 className='flex-row-reverse gap-x-1'
+                classNames={{ label: 'sm:text-small text-tiny' }}
               >
                 Use Easy Expense?
               </Switch>
-              <span>
+              <span className='sm:text-small text-tiny'>
                 <FormatBalance value={allowance[0] - allowance[1]} prefix={<>Easy Expense Limit:</>} />
               </span>
             </div>

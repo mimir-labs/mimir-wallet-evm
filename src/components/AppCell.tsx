@@ -134,7 +134,7 @@ function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
 
       {app.isDrawer && (
         <Drawer placement='right' isOpen={isDrawerOpen} onClose={() => toggleDrawerOpen(false)}>
-          {element}
+          <div className='h-full sm:p-5 p-4'>{element}</div>
         </Drawer>
       )}
 

@@ -43,8 +43,8 @@ function TxItems({ multisend, isOpen, toggleOpen, dataSize, parsed, transaction 
   const [delays] = useDelayAddress(transaction.address);
 
   return (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-6 gap-2.5' onClick={toggleOpen}>
-      <div className='col-span-1 flex items-center gap-1.5'>
+    <div className='cursor-pointer h-10 px-3 grid sm:grid-cols-6 grid-cols-7' onClick={toggleOpen}>
+      <div className='sm:col-span-1 col-span-4 flex items-center gap-1.5'>
         <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'>
           <circle cx='10' cy='10' r='10' fill='#2700FF' />
           <path
@@ -58,8 +58,8 @@ function TxItems({ multisend, isOpen, toggleOpen, dataSize, parsed, transaction 
             ? 'Recovery Module'
             : 'Module Transaction'}
       </div>
-      <div className='col-span-1 flex items-center'>{parsed.functionName}</div>
-      <div className='col-span-1 flex items-center text-small'>
+      <div className='sm:col-span-1 col-span-2 flex items-center'>{parsed.functionName}</div>
+      <div className='col-span-1 sm:flex hidden items-center text-small'>
         {dataSize ? (
           <CallDetails multisend={multisend} parsed={parsed} />
         ) : (
@@ -72,11 +72,11 @@ function TxItems({ multisend, isOpen, toggleOpen, dataSize, parsed, transaction 
           />
         )}
       </div>
-      <div className='col-span-1 flex items-center'>
+      <div className='col-span-1 sm:flex hidden items-center'>
         <TimeCell time={new Date(transaction.createdAt).valueOf()} />
       </div>
-      <div className='col-span-1 flex items-center' />
-      <div className='col-span-1 flex items-center justify-between'>
+      <div className='col-span-1 sm:flex hidden items-center' />
+      <div className='col-auto flex items-center justify-between'>
         <div className='space-x-2 flex items-center' />
         <Button
           data-open={isOpen}

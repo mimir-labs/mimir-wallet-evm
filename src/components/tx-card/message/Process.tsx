@@ -49,7 +49,11 @@ function Process({
   className?: string;
 }) {
   return (
-    <div className={'w-[24%] rounded-medium bg-primary/[0.04] p-3 space-y-2'.concat(` ${className || ''}`)}>
+    <div
+      className={'sm:w-[24%] w-full rounded-medium sm:bg-primary/[0.04] bg-transparent sm:p-3 p-0 space-y-2'.concat(
+        ` ${className || ''}`
+      )}
+    >
       <h6 className='text-primary font-bold text-medium'>Process</h6>
       <Accordion defaultSelectedKeys='all' className='px-0'>
         <AccordionItem

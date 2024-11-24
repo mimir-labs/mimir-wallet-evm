@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import IconAdd from '@mimir-wallet/assets/svg/icon-add.svg?react';
 import IconMore from '@mimir-wallet/assets/svg/icon-more.svg?react';
 import IconSearch from '@mimir-wallet/assets/svg/icon-search.svg?react';
-import { useInput } from '@mimir-wallet/hooks';
+import { useInput, useMediaQuery } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import AddressCell from './AddressCell';
@@ -71,6 +71,7 @@ function Cell({
 function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { multisigs, isCurrent, switchAddress, watchOnlyList, addWatchOnlyList, current } = useContext(AddressContext);
   const [search, setSearch] = useInput();
+  const upSm = useMediaQuery('sm');
 
   const filtered = useMemo(
     () =>
@@ -83,9 +84,9 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
   );
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose}>
-      <div className='flex flex-col gap-5 w-[240px] h-full'>
-        <div>
+    <Drawer rounded placement={upSm ? 'left' : 'right'} isOpen={isOpen} onClose={onClose}>
+      <div className='flex flex-col gap-5 w-[300px] h-full'>
+        <div className='z-[1] absolute top-0 left-0 w-full px-4 py-4 bg-background'>
           <Input
             variant='bordered'
             placeholder='Search'
@@ -94,7 +95,8 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             onChange={setSearch}
           />
         </div>
-        <div className='flex-1 space-y-2.5 text-small max-h-[calc(100%-100px)] overflow-y-auto'>
+
+        <div className='flex-1 space-y-2.5 text-small pt-20 pb-8 px-4 overflow-y-auto'>
           {current && <p>Current Account</p>}
           {current && (
             <Cell isWatchOnly={false} onClose={onClose} isSelect address={current}>
@@ -144,9 +146,19 @@ function AccountDrawer({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
           ))}
         </div>
 
-        <ButtonLinear className='justify-self-end' as={Link} href='/create-multisig' size='lg' fullWidth radius='full'>
-          Create Multisig
-        </ButtonLinear>
+        <div className='z-[1] absolute bottom-0 left-0 w-full px-4 py-4 bg-background'>
+          <ButtonLinear
+            className='justify-self-end'
+            as={Link}
+            href='/create-multisig'
+            size='lg'
+            fullWidth
+            radius='full'
+            onClick={onClose}
+          >
+            Create Multisig
+          </ButtonLinear>
+        </div>
       </div>
     </Drawer>
   );

@@ -1,8 +1,10 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
+import type { Address } from 'abitype';
+
 import { Badge, Button, Popover, PopoverContent, PopoverTrigger } from '@nextui-org/react';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useToggle } from 'react-use';
 
 import Batch from '@mimir-wallet/apps/batch';
@@ -10,11 +12,9 @@ import IconBatch from '@mimir-wallet/assets/svg/icon-batch.svg?react';
 import { Drawer } from '@mimir-wallet/components';
 import { events } from '@mimir-wallet/events';
 import { useBatchTxs } from '@mimir-wallet/hooks';
-import { AddressContext } from '@mimir-wallet/providers';
 
-function BatchButton() {
-  const { current } = useContext(AddressContext);
-  const [txs] = useBatchTxs(current);
+function BatchButton({ address }: { address: Address }) {
+  const [txs] = useBatchTxs(address);
   const [isOpen, toggleOpen] = useToggle(false);
   const [isDrawerOpen, toggleDrawerOpen] = useToggle(false);
 
@@ -74,7 +74,9 @@ function BatchButton() {
       </Popover>
 
       <Drawer placement='right' isOpen={isDrawerOpen} onClose={() => toggleDrawerOpen(false)}>
-        <Batch onClose={() => toggleDrawerOpen(false)} />
+        <div className='sm:p-5 p-4 h-full'>
+          <Batch onClose={() => toggleDrawerOpen(false)} />
+        </div>
       </Drawer>
     </>
   );

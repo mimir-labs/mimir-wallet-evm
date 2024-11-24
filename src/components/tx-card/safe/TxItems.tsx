@@ -16,7 +16,7 @@ import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?reac
 import { AddressIcon, Button, CallDetails, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
-import { useIsReadOnly } from '@mimir-wallet/hooks';
+import { useIsReadOnly, useMediaQuery } from '@mimir-wallet/hooks';
 import {
   CallFunctions,
   ParsedCall,
@@ -160,14 +160,15 @@ function TxItems({
   openOverview
 }: Props) {
   const [chain] = useChains();
+  const upSm = useMediaQuery('sm');
 
   return (
-    <div className='cursor-pointer h-10 px-3 grid grid-cols-6 gap-2.5' onClick={toggleOpen}>
-      <div className='col-span-1 flex items-center'>
+    <div className='cursor-pointer h-10 px-3 grid sm:grid-cols-6 grid-cols-7' onClick={toggleOpen}>
+      <div className='sm:col-span-1 col-span-4 flex items-center'>
         <AppName website={transaction.website} iconUrl={transaction.iconUrl} appName={transaction.appName} />
       </div>
-      <div className='col-span-1 flex items-center'>{parsed.functionName}</div>
-      <div className='col-span-1 flex items-center text-small gap-1'>
+      <div className='sm:col-span-1 col-span-2 flex items-center'>{parsed.functionName}</div>
+      <div className='col-span-1 sm:flex hidden items-center text-small gap-1'>
         {dataSize ? (
           <CallDetails multisend={multisend} parsed={parsed} />
         ) : (
@@ -178,10 +179,10 @@ function TxItems({
           </>
         )}
       </div>
-      <div className='col-span-1 flex items-center'>
+      <div className='col-span-1 sm:flex hidden items-center'>
         <TimeCell time={transaction.updatedAt} />
       </div>
-      <div className='col-span-1 flex items-center'>
+      <div className='col-span-1 sm:flex hidden items-center'>
         <Button
           onClick={openOverview}
           className='h-7 px-2'
@@ -211,18 +212,22 @@ function TxItems({
             : `${approval}/${threshold}`}
         </Button>
       </div>
-      <div className='col-span-1 flex items-center justify-between'>
-        <div className='space-x-2 flex items-center'>
-          <OperateCell
-            isSignatureReady={isSignatureReady}
-            hasCancelTx={hasCancelTx}
-            account={account}
-            filterPaths={filterPaths}
-            isIndexing={isIndexing}
-            transaction={transaction}
-            signatures={signatures}
-          />
-        </div>
+      <div className='col-auto flex items-center justify-between'>
+        {upSm ? (
+          <div className='space-x-2 flex items-center'>
+            <OperateCell
+              isSignatureReady={isSignatureReady}
+              hasCancelTx={hasCancelTx}
+              account={account}
+              filterPaths={filterPaths}
+              isIndexing={isIndexing}
+              transaction={transaction}
+              signatures={signatures}
+            />
+          </div>
+        ) : (
+          <div />
+        )}
         <Button
           data-open={isOpen}
           onClick={toggleOpen}

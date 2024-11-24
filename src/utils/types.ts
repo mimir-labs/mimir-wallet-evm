@@ -7,6 +7,7 @@ import type { AccountType } from '@mimir-wallet/safe/types';
 export interface AccountResponse {
   name: string;
   address: Address;
+  chainId: number;
   isMimir: boolean;
   createdAt: number;
   updatedAt: number;

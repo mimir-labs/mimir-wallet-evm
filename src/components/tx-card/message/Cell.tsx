@@ -6,7 +6,7 @@ import type { MessageResponse, SignatureResponse } from '@mimir-wallet/hooks/typ
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { TRANSITION_VARIANTS } from '@nextui-org/framer-utils';
-import { Modal, ModalBody, ModalContent } from '@nextui-org/react';
+import { Divider, Modal, ModalBody, ModalContent } from '@nextui-org/react';
 import { AnimatePresence, domAnimation, LazyMotion, motion, useWillChange } from 'framer-motion';
 import React, { useContext, useMemo } from 'react';
 import { useToggle } from 'react-use';
@@ -104,6 +104,8 @@ function Cell({ message, allPaths, signatures, account, defaultOpen }: Props) {
               >
                 <div className='flex justify-between gap-3 p-3 mb-3 ml-3 mr-3 bg-white rounded-medium'>
                   <Details message={message} />
+
+                  <Divider className='sm:hidden block' />
 
                   {(!isReadOnly || signatures.length > 0) && (
                     <Process signatures={signatures} account={account}>

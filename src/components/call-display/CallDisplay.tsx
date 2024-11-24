@@ -16,7 +16,7 @@ import Transfer from './Transfer';
 function CallDisplay({ data, from, to, value }: CallDisplayProps) {
   const [size, parsed] = useParseCall(data);
 
-  const transfer = (value || 0n) > 0n ? <Transfer key='send-native-token' from={from} to={to} value={value} /> : null;
+  const transfer = size === 0 ? <Transfer key='send-native-token' from={from} to={to} value={value} /> : null;
 
   const nodes: React.ReactNode[] = [transfer];
 

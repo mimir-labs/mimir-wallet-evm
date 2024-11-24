@@ -45,12 +45,21 @@ function BatchItem({
 
   return (
     <div data-open={isOpen} className='bg-secondary rounded-medium overflow-hidden transition-all'>
-      <div className='cursor-pointer h-11 px-3 grid grid-cols-6 text-small' onClick={toggleOpen}>
+      <div className='cursor-pointer h-11 sm:px-3 px-1.5 grid grid-cols-6 text-small' onClick={toggleOpen}>
         <div className='col-span-1 flex items-center' onClick={(e) => e.stopPropagation()}>
-          <div className='p-2.5 -ml-2.5 cursor-pointer select-none' {...dragHandleProps}>
+          <div
+            className='z-[1] shrink-0 sm:p-2.5 p-1.5 sm:-ml-2.5 -ml-1.5 cursor-pointer select-none'
+            {...dragHandleProps}
+          >
             <img src={Drag} alt='drag' />
           </div>
-          <Checkbox size='sm' isSelected={selected.includes(id)} onValueChange={onSelected}>
+          <Checkbox
+            size='sm'
+            isSelected={selected.includes(id)}
+            onValueChange={onSelected}
+            classNames={{ wrapper: 'sm:mr-2 mr-1' }}
+            className='sm:p-2 p-1'
+          >
             {index + 1}
           </Checkbox>
         </div>
@@ -70,7 +79,7 @@ function BatchItem({
             />
           )}
         </div>
-        <div className='col-span-1 flex items-center justify-between'>
+        <div className='col-auto flex items-center justify-between'>
           <div className='flex items-center gap-1'>
             <Button onClick={onCopy} size='tiny' radius='full' variant='light' isIconOnly color='primary'>
               <IconCopy style={{ width: 20, height: 20 }} />
@@ -86,7 +95,7 @@ function BatchItem({
             radius='full'
             variant='light'
             isIconOnly
-            className='data-[open=true]:rotate-180'
+            className='data-[open=true]:rotate-180 sm:flex hidden'
             color='primary'
           >
             <ArrowDown />

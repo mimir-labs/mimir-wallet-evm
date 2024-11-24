@@ -5,7 +5,21 @@ import type { Address } from 'abitype';
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { getLocalTimeZone, parseDate, today } from '@internationalized/date';
-import { Card, DatePicker, Popover, PopoverContent, PopoverTrigger, Skeleton, Tab, Tabs } from '@nextui-org/react';
+import {
+  Card,
+  DatePicker,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  Skeleton,
+  Tab,
+  Tabs
+} from '@nextui-org/react';
 import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -22,7 +36,7 @@ import {
   ReceivedCard,
   SafeTxCard
 } from '@mimir-wallet/components';
-import { useAccountTokens, useHistory, useQueryParam } from '@mimir-wallet/hooks';
+import { useAccountTokens, useHistory, useMediaQuery, useQueryParam } from '@mimir-wallet/hooks';
 import {
   HistoryType,
   ModuleTransactionResponse,
@@ -140,6 +154,7 @@ function History({ account }: { account: BaseAccount }) {
   const [filter, setFilter] = useState<Filter>({});
   const [isOpen, toggleOpen] = useToggle(false);
   const [tokens] = useAccountTokens(account.address);
+  const upSm = useMediaQuery('sm');
 
   const historyType =
     type === 'outgoing'
@@ -150,6 +165,99 @@ function History({ account }: { account: BaseAccount }) {
           ? HistoryType.ModuleTx
           : undefined;
 
+  const filterElement = (
+    <>
+      <div className='w-full flex sm:flex-row flex-col items-center justify-between gap-3'>
+        <DatePicker
+          variant='bordered'
+          label={<b>Start Time</b>}
+          fullWidth
+          labelPlacement='outside'
+          maxValue={
+            endTime ? parseDate(dayjs(endTime).format('YYYY-MM-DD')).subtract({ days: 1 }) : today(getLocalTimeZone())
+          }
+          value={startTime ? parseDate(dayjs(startTime).format('YYYY-MM-DD')) : null}
+          onChange={(date) => {
+            setStartTime(date.toDate(getLocalTimeZone()).getTime());
+          }}
+        />
+        <DatePicker
+          variant='bordered'
+          label={<b>End Time</b>}
+          fullWidth
+          labelPlacement='outside'
+          minValue={startTime ? parseDate(dayjs(startTime).format('YYYY-MM-DD')).add({ days: 1 }) : undefined}
+          maxValue={today(getLocalTimeZone())}
+          value={endTime ? parseDate(dayjs(endTime).format('YYYY-MM-DD')) : null}
+          onChange={(date) => {
+            setEndTime(date.toDate(getLocalTimeZone()).getTime());
+          }}
+        />
+      </div>
+
+      {historyType === HistoryType.SafeTx && (
+        <InputAddress
+          isSign={false}
+          onChange={setTo}
+          value={to}
+          label='Interact with'
+          placeholder='Enter ethereum address'
+        />
+      )}
+
+      {historyType === HistoryType.ModuleTx && (
+        <InputAddress
+          isSign={false}
+          onChange={setModule}
+          value={module}
+          label='Module Contract'
+          placeholder='Enter ethereum address'
+        />
+      )}
+
+      {historyType === HistoryType.Received && (
+        <InputToken
+          showBalance={false}
+          label='Token'
+          placeholder='Enter ethereum address'
+          account={account.address}
+          tokens={tokens.assets}
+          onChange={setToken}
+          value={token}
+        />
+      )}
+
+      <div className='w-full flex gap-3'>
+        <Button
+          color='primary'
+          variant='bordered'
+          fullWidth
+          onClick={() => {
+            setStartTime(undefined);
+            setEndTime(undefined);
+            setTo('');
+            setModule('');
+            setToken(undefined);
+            setFilter({});
+            toggleOpen(false);
+          }}
+        >
+          Clear
+        </Button>
+        <Button
+          color='primary'
+          fullWidth
+          onClick={() => {
+            setFilter({ startTime, endTime, to, module, token });
+            toggleOpen(false);
+          }}
+        >
+          Confirm
+        </Button>
+      </div>
+    </>
+  );
+
   return (
     <>
       <div className='flex items-center justify-between'>
@@ -158,6 +266,10 @@ function History({ account }: { account: BaseAccount }) {
           selectedKey={type}
           onSelectionChange={(key) => setType(key.toString())}
           variant='underlined'
+          classNames={{
+            tabList: ['sm:p-2.5 p-1.5 sm:gap-2.5 gap-1'],
+            tab: ['sm:px-3 px-2']
+          }}
         >
           <Tab key='all' title='All' />
           <Tab key='outgoing' title='Outgoing' />
@@ -165,106 +277,38 @@ function History({ account }: { account: BaseAccount }) {
           <Tab key='modules' title='Modules' />
         </Tabs>
 
-        <div>
+        {upSm ? (
           <Popover placement='bottom-end' color='default' isOpen={isOpen} onOpenChange={(open) => toggleOpen(open)}>
             <PopoverTrigger>
               <Button color='primary' variant='bordered' radius='full' startContent={<IconFilter />}>
                 Filter
               </Button>
             </PopoverTrigger>
-            <PopoverContent className='w-[450px] p-5 gap-y-5'>
-              <div className='w-full flex items-center justify-between gap-3'>
-                <DatePicker
-                  variant='bordered'
-                  label={<b>Start Time</b>}
-                  fullWidth
-                  labelPlacement='outside'
-                  maxValue={
-                    endTime
-                      ? parseDate(dayjs(endTime).format('YYYY-MM-DD')).subtract({ days: 1 })
-                      : today(getLocalTimeZone())
-                  }
-                  value={startTime ? parseDate(dayjs(startTime).format('YYYY-MM-DD')) : null}
-                  onChange={(date) => {
-                    setStartTime(date.toDate(getLocalTimeZone()).getTime());
-                  }}
-                />
-                <DatePicker
-                  variant='bordered'
-                  label={<b>End Time</b>}
-                  fullWidth
-                  labelPlacement='outside'
-                  minValue={startTime ? parseDate(dayjs(startTime).format('YYYY-MM-DD')).add({ days: 1 }) : undefined}
-                  maxValue={today(getLocalTimeZone())}
-                  value={endTime ? parseDate(dayjs(endTime).format('YYYY-MM-DD')) : null}
-                  onChange={(date) => {
-                    setEndTime(date.toDate(getLocalTimeZone()).getTime());
-                  }}
-                />
-              </div>
-              {historyType === HistoryType.SafeTx && (
-                <InputAddress
-                  isSign={false}
-                  onChange={setTo}
-                  value={to}
-                  label='Interact with'
-                  placeholder='Enter ethereum address'
-                />
-              )}
-              {historyType === HistoryType.ModuleTx && (
-                <InputAddress
-                  isSign={false}
-                  onChange={setModule}
-                  value={module}
-                  label='Module Contract'
-                  placeholder='Enter ethereum address'
-                />
-              )}
-              {historyType === HistoryType.Received && (
-                <InputToken
-                  showBalance={false}
-                  label='Token'
-                  placeholder='Enter ethereum address'
-                  account={account.address}
-                  tokens={tokens.assets}
-                  onChange={setToken}
-                  value={token}
-                />
-              )}
-              <div className='w-full flex gap-3'>
-                <Button
-                  color='primary'
-                  variant='bordered'
-                  fullWidth
-                  onClick={() => {
-                    setStartTime(undefined);
-                    setEndTime(undefined);
-                    setTo('');
-                    setModule('');
-                    setToken(undefined);
-                    setFilter({});
-                    toggleOpen(false);
-                  }}
-                >
-                  Clear
-                </Button>
-                <Button
-                  color='primary'
-                  fullWidth
-                  onClick={() => {
-                    setFilter({ startTime, endTime, to, module, token });
-                    toggleOpen(false);
-                  }}
-                >
-                  Confirm
-                </Button>
-              </div>
-            </PopoverContent>
+            <PopoverContent className='sm:w-[450px] w-[calc(100vw-40px)] p-5 gap-y-5'>{filterElement}</PopoverContent>
           </Popover>
-        </div>
+        ) : (
+          <Button
+            color='primary'
+            variant='bordered'
+            radius='full'
+            startContent={<IconFilter />}
+            size='sm'
+            onClick={toggleOpen}
+          >
+            Filter
+          </Button>
+        )}
       </div>
 
       <Content safeAccount={account} type={historyType} filter={filter} />
+
+      <Modal isOpen={isOpen} onClose={toggleOpen}>
+        <ModalContent>
+          <ModalHeader />
+          <ModalBody className='px-4'>{filterElement}</ModalBody>
+          <ModalFooter />
+        </ModalContent>
+      </Modal>
     </>
   );
 }

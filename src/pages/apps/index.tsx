@@ -13,7 +13,7 @@ function Apps() {
   const [tab, setTab] = useQueryParam<string>('tab', 'apps');
 
   return (
-    <div className='space-y-5'>
+    <div className='sm:space-y-5 space-y-3'>
       <WalletConnectCell />
       <Tabs
         color='primary'

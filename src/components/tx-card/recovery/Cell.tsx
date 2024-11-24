@@ -4,6 +4,7 @@
 import type { RecoveryTx } from '@mimir-wallet/features/delay/types';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
+import { Divider } from '@nextui-org/react';
 import React from 'react';
 import { useToggle } from 'react-use';
 
@@ -44,6 +45,7 @@ function Cell({ tx, cooldown, expiration, defaultOpen, handleExecute, refetch }:
       }
       details={<Details cooldown={cooldown} expiration={expiration} tx={tx} />}
     >
+      <Divider className='sm:hidden block' />
       <Process refetch={refetch} tx={tx} handleExecute={handleExecute} cooldown={cooldown} expiration={expiration} />
     </TxCell>
   );

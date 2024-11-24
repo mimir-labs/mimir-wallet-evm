@@ -12,11 +12,13 @@ function ReadOnlyAlert({ safeAddress }: { safeAddress: Address }) {
   const { addWatchOnlyList } = useContext(AddressContext);
 
   return (
-    <div className='z-30 sticky top-[65px] w-full bg-colored-background h-[37px] px-5 py-2.5 flex items-center gap-2.5 text-primary-foreground'>
+    <div className='z-30 sticky top-[65px] w-full bg-colored-background sm:h-[37px] h-auto sm:px-5 px-2.5 sm:py-2.5 py-0.5 flex items-center gap-2.5 text-primary-foreground'>
       <IconWarning />
-      You are not a member of this account, currently in Watch-only mode.
-      <span className='cursor-pointer hover:underline' onClick={() => addWatchOnlyList(safeAddress)}>
-        {'Add to watch list>>'}
+      <span>
+        You are not a member of this account, currently in Watch-only mode.
+        <span className='cursor-pointer hover:underline' onClick={() => addWatchOnlyList(safeAddress)}>
+          {'Add to watch list>>'}
+        </span>
       </span>
     </div>
   );

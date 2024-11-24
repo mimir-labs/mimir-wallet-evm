@@ -10,11 +10,12 @@ interface Props {
   isOpen: boolean;
   placement?: 'left' | 'right';
   className?: string;
+  rounded?: boolean;
   children: React.ReactNode;
   onClose: () => void;
 }
 
-function Drawer({ placement = 'left', isOpen, className, onClose, children }: Props): React.ReactElement {
+function Drawer({ rounded, placement = 'left', isOpen, className, onClose, children }: Props): React.ReactElement {
   const backdrop = (
     <LazyMotion features={domAnimation}>
       <motion.div
@@ -108,8 +109,14 @@ function Drawer({ placement = 'left', isOpen, className, onClose, children }: Pr
                     }
                   }
             }
-            className={'z-50 fixed top-0 bottom-0 p-5 bg-background shadow-medium'
+            data-placement={placement}
+            className={'z-50 fixed top-0 bottom-0 bg-background shadow-medium'
               .concat(placement === 'left' ? ' left-0' : ' right-0')
+              .concat(
+                rounded
+                  ? ' data-[placement=right]:rounded-tl-large data-[placement=right]:rounded-bl-large data-[placement=left]:rounded-tr-large data-[placement=left]:rounded-br-large'
+                  : ''
+              )
               .concat(` ${className || ''}`)}
           >
             {children}

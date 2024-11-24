@@ -24,6 +24,7 @@ export interface Multisig {
   transaction: Hash;
   updateBlock?: number;
   updateTransaction?: Hash;
+  chainId: number;
 }
 
 export type IWalletClient = WalletClient<Transport, Chain, Account>;

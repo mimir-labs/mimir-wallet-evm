@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
-import type { BaseAccount } from '@mimir-wallet/safe/types';
+import type { BaseAccount, SafeAccount } from '@mimir-wallet/safe/types';
 
 import { useQuery } from '@tanstack/react-query';
 import { useContext, useEffect, useMemo } from 'react';
@@ -30,22 +30,22 @@ function findNames(account: BaseAccount): Record<string, string> {
   return names;
 }
 
-function findThresholds(account: BaseAccount): Record<string, [number, number]> {
-  let thresholds: Record<string, [number, number]> =
+function findBaseAccount(account: BaseAccount): Record<Address, SafeAccount> {
+  let cache: Record<Address, SafeAccount> =
     account.type === 'safe' && account.members && account.threshold
       ? {
-          [getAddress(account.address)]: [account.threshold, account.members.length]
+          [getAddress(account.address)]: account as SafeAccount
         }
       : {};
 
   for (const _account of account.members || []) {
-    thresholds = {
-      ...thresholds,
-      ...findThresholds(_account)
+    cache = {
+      ...cache,
+      ...findBaseAccount(_account)
     };
   }
 
-  return thresholds;
+  return cache;
 }
 
 export function useQueryAccount(address?: Address, refetch = true, retry: boolean | number = true): BaseAccount | null {
@@ -60,7 +60,7 @@ export function useQueryAccountWithState(
   retry: boolean | number = true
 ): [BaseAccount | null, isFetched: boolean, isFetching: boolean] {
   const chainId = useChainId();
-  const { setAddressThresholds } = useContext(AddressContext);
+  const { setQueryCache } = useContext(AddressContext);
 
   const { data, isFetched, isFetching } = useQuery<BaseAccount | null>({
     initialData: null,
@@ -72,11 +72,11 @@ export function useQueryAccountWithState(
 
   useEffect(() => {
     if (data) {
-      const thresholds = findThresholds(data);
+      const accounts = findBaseAccount(data);
 
-      setAddressThresholds((values) => ({ ...values, ...thresholds }));
+      setQueryCache((values) => ({ ...values, ...accounts }));
     }
-  }, [setAddressThresholds, data]);
+  }, [setQueryCache, data]);
 
   return useMemo(() => [data || null, isFetched, isFetching], [data, isFetched, isFetching]);
 }

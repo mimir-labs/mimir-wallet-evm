@@ -75,7 +75,7 @@ function Modules({ safeAddress }: { safeAddress: Address }) {
 
           {fallback && (
             <div className='bg-secondary rounded-medium p-2.5'>
-              <AddressCell withCopy withExplorer address={fallback} showFull />
+              <AddressCell withCopy withExplorer address={fallback} />
             </div>
           )}
         </CardBody>

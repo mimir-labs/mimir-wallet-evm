@@ -36,7 +36,7 @@ function TxCell({ from, isOpen, items, children, details, to, value, data }: Pro
               style={{ overflowY: 'hidden', willChange }}
               variants={TRANSITION_VARIANTS.collapse}
             >
-              <div className='flex justify-between gap-3 p-3 mb-3 ml-3 mr-3 bg-white rounded-medium'>
+              <div className='flex sm:flex-row flex-col justify-between gap-3 p-3 mb-3 ml-3 mr-3 bg-white rounded-medium'>
                 <Details from={from} data={data} to={to} value={value}>
                   {details}
                 </Details>

@@ -8,15 +8,16 @@ import { Chain, defineChain, FallbackTransport, getAddress, http, isAddress, Tra
 import {
   arbitrum,
   base,
+  bsc,
   darwinia,
   fraxtal,
+  lukso,
   mainnet,
   manta,
   moonbeam,
   scroll,
   scrollSepolia,
-  sepolia,
-  zetachain
+  sepolia
 } from 'viem/chains';
 import { type Config, createStorage, fallback } from 'wagmi';
 
@@ -85,6 +86,13 @@ export const supportedChains = [
     interval: 6_000
   },
   { ...scroll, shortName: 'scr', iconUrl: '/chain-icons/534352.webp', nativeCurrencyIcon: '/token-icons/ETH.webp' },
+  {
+    ...bsc,
+    shortName: 'bnb',
+    iconUrl: '/chain-icons/56.svg',
+    nativeCurrencyIcon: '/token-icons/BNB.svg',
+    interval: 3_000
+  },
   {
     ...sepolia,
     rpcUrls: { default: { http: ['https://ethereum-sepolia-rpc.publicnode.com', ...sepolia.rpcUrls.default.http] } },
@@ -159,10 +167,10 @@ export const supportedChains = [
     nativeCurrencyIcon: '/token-icons/ETH.webp'
   },
   {
-    ...zetachain,
-    shortName: 'zeta',
-    iconUrl: '/chain-icons/7000.svg',
-    nativeCurrencyIcon: '/token-icons/zeta.svg'
+    ...lukso,
+    shortName: 'lukso',
+    iconUrl: '/chain-icons/42.svg',
+    nativeCurrencyIcon: '/token-icons/LYX.svg'
   }
 ] as [CustomChain, ...CustomChain[]];
 
