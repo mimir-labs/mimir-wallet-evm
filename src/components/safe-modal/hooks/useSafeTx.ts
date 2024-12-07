@@ -7,10 +7,16 @@ import type { SafeTxState, UseSafeTx } from '../types';
 
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { zeroAddress } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import { PENDING_SAFE_TX_PREFIX } from '@mimir-wallet/constants';
-import { useMultisig, usePendingTransactions, useQueryAccount, useSafeNonce } from '@mimir-wallet/hooks';
+import {
+  useCurrentChain,
+  useMultisig,
+  usePendingTransactions,
+  useQueryAccount,
+  useSafeNonce
+} from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import {
   approveCounts,
@@ -39,7 +45,7 @@ export function useSafeTx<Approve extends boolean, Cancel extends boolean>({
   address,
   addressChain: propsAddressChain
 }: UseSafeTx<Approve, Cancel>): SafeTxState {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { isSigner } = useContext(AddressContext);
   const [addressChain, setAddressChain] = useState<Address[]>(propsAddressChain || []);
   const [customNonce, setCustomNonce] = useState<bigint>();

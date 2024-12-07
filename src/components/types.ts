@@ -15,6 +15,10 @@ export interface ButtonProps extends Omit<NextButtonProps, 'size'> {
 }
 
 export interface InputAddressProps {
+  className?: string;
+  isRow?: boolean;
+  iconSize?: number;
+  hideAddAddressBook?: boolean;
   value?: string;
   disabled?: boolean;
   isSign?: boolean;

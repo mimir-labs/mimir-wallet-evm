@@ -9,17 +9,18 @@ import React, { useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AddressTransfer, Alert, Button, ButtonLinearBorder, Input, SafeTxButton } from '@mimir-wallet/components';
-import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
+import { useGroupAccounts, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
 function SetupMember({ multisig }: { multisig?: Multisig }) {
-  const { all, addresses, addAddressBook } = useContext(AddressContext);
+  const { addresses, addAddressBook } = useContext(AddressContext);
   const [selected, setSelected] = useState<Address[]>(multisig?.members || []);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [[threshold], setThreshold] = useInputNumber(multisig?.threshold.toString(), true, 1);
   const navigate = useNavigate();
+  const { currentChainAll } = useGroupAccounts();
 
   const isValid = selected.length > 0 && Number(threshold) > 0;
 
@@ -31,8 +32,8 @@ function SetupMember({ multisig }: { multisig?: Multisig }) {
   };
 
   const allAddresses = useMemo(
-    () => all.filter((item) => item.toLowerCase() !== multisig?.address.toLowerCase()),
-    [all, multisig?.address]
+    () => currentChainAll.filter((item) => !addressEq(item, multisig?.address)),
+    [currentChainAll, multisig?.address]
   );
 
   return (

@@ -5,15 +5,15 @@ import jazzicon from '@metamask/jazzicon';
 import { Avatar } from '@nextui-org/react';
 import React, { useContext, useLayoutEffect, useMemo, useRef } from 'react';
 import { zeroAddress } from 'viem';
-import { useChainId, useChains } from 'wagmi';
 
 import { CustomChain } from '@mimir-wallet/config';
-import { useThresholds } from '@mimir-wallet/hooks';
+import { useChain, useCurrentChain, useThresholds } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import AddressIconJazz from './AddressIconJazz';
 
 interface Props {
+  chainId?: number;
   address?: string | null | undefined;
   ensImage?: string | null;
   size?: number;
@@ -23,6 +23,7 @@ interface Props {
 }
 
 function AddressIcon({
+  chainId: propsChainId,
   ensImage,
   size = 24,
   thresholdVisible = true,
@@ -34,12 +35,12 @@ function AddressIcon({
     address ||= zeroAddress;
   }
 
+  const [chainId] = useCurrentChain();
   const { addressIcons } = useContext(AddressContext);
   const icon = useMemo(() => (address ? jazzicon(size, parseInt(address.slice(2, 10), 16)) : null), [size, address]);
   const iconRef = useRef<HTMLDivElement>(null);
-  const chainId = useChainId();
-  const [chain] = useChains();
-  const thresholds = useThresholds(thresholdVisible ? address : null);
+  const chain = useChain(propsChainId || chainId);
+  const thresholds = useThresholds(propsChainId || chainId, thresholdVisible ? address : null);
 
   useLayoutEffect(() => {
     const { current } = iconRef;
@@ -66,8 +67,8 @@ function AddressIcon({
       if (isToken) {
         iconSrc = (chain as CustomChain).nativeCurrencyIcon;
       }
-    } else {
-      iconSrc ||= addressIcons?.[chainId]?.[address];
+    } else if (chain) {
+      iconSrc ||= addressIcons?.[chain.id]?.[address];
     }
   }
 

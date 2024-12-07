@@ -7,10 +7,9 @@ import { Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } fro
 import React, { useMemo, useState } from 'react';
 import { useAsyncFn } from 'react-use';
 import { isHex } from 'viem';
-import { useChainId } from 'wagmi';
 
 import { Alert, Button, Input } from '@mimir-wallet/components';
-import { useInput } from '@mimir-wallet/hooks';
+import { useCurrentChain, useInput } from '@mimir-wallet/hooks';
 import { service } from '@mimir-wallet/utils';
 
 function AddNewCache({
@@ -22,7 +21,7 @@ function AddNewCache({
   onClose: () => void;
   onAddTxs: (txs: Omit<BatchTxItem, 'id'>[]) => void;
 }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [value, setValue] = useInput('');
   const [error, setError] = useState<Error>();
 

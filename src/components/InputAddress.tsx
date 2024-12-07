@@ -11,7 +11,7 @@ import { useToggle } from 'react-use';
 import { Address as AddressType, getAddress, isAddress } from 'viem';
 
 import IconWarning from '@mimir-wallet/assets/svg/icon-warning-fill.svg?react';
-import { useInputAddress, useMediaQuery } from '@mimir-wallet/hooks';
+import { useGroupAccounts, useInputAddress, useMediaQuery } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -20,9 +20,21 @@ import AddressCell from './AddressCell';
 import AddressIcon from './AddressIcon';
 import AddressName from './AddressName';
 
-function InputAddress({ disabled, value, defaultValue, filtered, isSign = false, label, onChange }: InputAddressProps) {
+function InputAddress({
+  className,
+  isRow,
+  iconSize = 30,
+  disabled,
+  value,
+  defaultValue,
+  filtered,
+  hideAddAddressBook = false,
+  isSign = false,
+  label,
+  onChange
+}: InputAddressProps) {
   const isControlled = useRef(value !== undefined);
-  const { all, addresses, multisigs, isMultisig, isSigner, addAddressBook } = useContext(AddressContext);
+  const { addresses, multisigs, addAddressBook } = useContext(AddressContext);
   const [[inputValue, isValidAddress], setInputValue] = useInputAddress();
   const [selectedKey, setSelectedKey] = useState<string | undefined>(value || defaultValue || '');
   const [isOpen, toggleOpen] = useToggle(false);
@@ -31,25 +43,19 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
   const popoverRef = useRef<HTMLDivElement>(null);
   const direction = useRef<'top' | 'bottom'>('bottom');
   const upSm = useMediaQuery('sm');
+  const { currentChainAll, currentChainMultisigs, signers } = useGroupAccounts();
 
   const items = useMemo(
     () =>
-      Array.from(
-        new Set(
-          all
-            .filter((item) => {
-              return (
-                (isSign ? isMultisig(item) || isSigner(item) : true) &&
-                (inputValue && inputValue !== selectedKey
-                  ? item.toLowerCase().includes(inputValue.toLowerCase())
-                  : true) &&
-                (filtered ? filtered.find((_filter) => _filter.toLowerCase() === item.toLowerCase()) : true)
-              );
-            })
-            .concat(!isSign && inputValue && isValidAddress ? (inputValue as AddressType) : [])
-        )
-      ),
-    [all, filtered, inputValue, isMultisig, isSign, isSigner, isValidAddress, selectedKey]
+      (isSign ? currentChainMultisigs.concat(signers) : currentChainAll)
+        .filter((item) => {
+          return (
+            (inputValue && inputValue !== selectedKey ? item.toLowerCase().includes(inputValue.toLowerCase()) : true) &&
+            (filtered ? filtered.find((_filter) => _filter.toLowerCase() === item.toLowerCase()) : true)
+          );
+        })
+        .concat(!isSign && inputValue && isValidAddress ? (inputValue as AddressType) : []),
+    [currentChainAll, currentChainMultisigs, filtered, inputValue, isSign, isValidAddress, selectedKey, signers]
   );
 
   useEffect(() => {
@@ -93,9 +99,20 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
     if (!isSign && isValidAddress) handleSelect(inputValue);
   };
 
-  const element = (
+  const element = isRow ? (
     <div className='address-cell inline-flex items-center gap-x-2.5 flex-grow-0'>
-      <AddressIcon size={30} address={selectedKey} />
+      <AddressIcon size={iconSize} address={selectedKey} />
+      {selectedKey && !isOpen ? (
+        <div className='address-cell-content flex flex-col gap-y-1'>
+          <div className='inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'>
+            <AddressName address={selectedKey} />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  ) : (
+    <div className='address-cell inline-flex items-center gap-x-2.5 flex-grow-0'>
+      <AddressIcon size={iconSize} address={selectedKey} />
       {selectedKey && !isOpen ? (
         <div className='address-cell-content flex flex-col gap-y-1'>
           <div className='inline font-bold text-sm leading-[16px] h-[16px] max-h-[16px] truncate max-w-[90px]'>
@@ -116,7 +133,7 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
       onClose={handleClose}
       ref={popoverRef}
       triggerRef={wrapperRef}
-      placement='top-start'
+      placement='bottom-start'
       style={{ width: wrapperRef.current?.clientWidth }}
     >
       <Listbox emptyContent='no addresses' className='max-h-[250px] overflow-y-auto'>
@@ -134,12 +151,14 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
       <div
         ref={wrapperRef}
         data-disabled={disabled}
-        className='input-address-wrapper w-full space-y-2 data-[disabled=true]:pointer-events-none'
+        className={'input-address-wrapper w-full space-y-2 data-[disabled=true]:pointer-events-none'.concat(
+          ` ${className || ''}`
+        )}
         onClick={handleOpen}
       >
         {label && <div className='font-bold text-small'>{label}</div>}
 
-        <div className='group relative w-full inline-flex tap-highlight-transparent px-2 border-medium min-h-10 rounded-medium flex-col items-start justify-center gap-0 transition-all !duration-150 motion-reduce:transition-none h-14 py-2 shadow-none border-default-200 hover:border-primary hover:bg-primary-50 data-[focus=true]:border-primary data-[focus=true]:bg-transparent'>
+        <div className='InputAddressContent group relative w-full inline-flex tap-highlight-transparent px-2 border-medium min-h-10 rounded-medium flex-col items-start justify-center gap-0 transition-all !duration-150 motion-reduce:transition-none h-14 py-2 shadow-none border-default-200 hover:border-primary hover:bg-primary-50 data-[focus=true]:border-primary data-[focus=true]:bg-transparent'>
           {element}
           <input
             ref={inputRef}
@@ -150,9 +169,10 @@ function InputAddress({ disabled, value, defaultValue, filtered, isSign = false,
           />
         </div>
 
-        {!isSign &&
+        {!hideAddAddressBook &&
+          !isSign &&
           selectedKey &&
-          !multisigs.find((item) => addressEq(item.address, selectedKey)) &&
+          !multisigs[selectedKey] &&
           !addresses.find((item) => addressEq(item, selectedKey)) && (
             <span className='flex items-center gap-1 text-small'>
               <IconWarning className='text-warning' />

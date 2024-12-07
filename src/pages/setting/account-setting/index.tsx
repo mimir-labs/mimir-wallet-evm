@@ -9,14 +9,12 @@ import { useMultisig, useQueryParam } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import Modules from './modules';
+import MultiChain from './multi-chain';
 import Setup from './Setup';
 
 function AccountSetting() {
   const [tab, setTab] = useQueryParam('accountTab', 'setup', { replace: true });
-  const [addressQuery] = useQueryParam<string>('settingAccount');
-  const { current } = useContext(AddressContext);
-
-  const safeAddress = addressQuery || current;
+  const { current: safeAddress } = useContext(AddressContext);
 
   const multisig = useMultisig(safeAddress);
 
@@ -39,6 +37,9 @@ function AccountSetting() {
       </Tab>
       <Tab key='module' title='Modules'>
         <Modules safeAddress={safeAddress} />
+      </Tab>
+      <Tab key='multi-chain' title='Multi-Chain'>
+        <MultiChain name={multisig?.name || ''} safeAddress={safeAddress} />
       </Tab>
     </Tabs>
   );

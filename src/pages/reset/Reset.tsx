@@ -5,15 +5,15 @@ import type { Address } from 'abitype';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Card, CardBody, CardHeader, Divider, Tooltip } from '@nextui-org/react';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useChainId, useReadContracts } from 'wagmi';
+import { useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
 import { useRecoveryTxs } from '@mimir-wallet/features/delay';
-import { useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
+import { useCurrentChain, useGroupAccounts, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildChangeMember } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
@@ -29,10 +29,11 @@ function ResetMember({
   members: Address[];
   threshold: number;
 }) {
-  const { all, addresses, addAddressBook } = useContext(AddressContext);
+  const { addresses, addAddressBook } = useContext(AddressContext);
   const [selected, setSelected] = useState<Address[]>(members);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [[threshold], setThreshold] = useInputNumber(propsThreshold.toString(), true, 1);
+  const { currentChainAll } = useGroupAccounts();
   const navigate = useNavigate();
   const { data } = useReadContracts({
     allowFailure: false,
@@ -49,7 +50,7 @@ function ResetMember({
       }
     ]
   });
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [recoverTxs] = useRecoveryTxs(chainId, safeAddress);
 
   const isValid = selected.length > 0 && Number(threshold) > 0;
@@ -76,8 +77,6 @@ function ResetMember({
     },
     [delayAddress, navigate, safeAddress, selected, threshold]
   );
-
-  const allAddress = useMemo(() => all.filter((item) => !addressEq(item, safeAddress)), [all, safeAddress]);
 
   return (
     <div className='space-y-5'>
@@ -127,7 +126,7 @@ function ResetMember({
               Add
             </Button>
           </div>
-          <AddressTransfer onChange={setSelected} selected={selected} addresses={allAddress} />
+          <AddressTransfer onChange={setSelected} selected={selected} addresses={currentChainAll} />
           <div>
             <Input
               value={threshold}

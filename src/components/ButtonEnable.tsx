@@ -6,12 +6,15 @@ import type { ButtonProps, EnableClickHandler } from './types';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import React, { forwardRef } from 'react';
 import { useAsyncFn } from 'react-use';
-import { useAccount, useChains, usePublicClient, useWalletClient } from 'wagmi';
+import { useAccount, usePublicClient, useWalletClient } from 'wagmi';
+
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 import Button from './Button';
 import { toastError } from './ToastRoot';
 
 export interface ButtonEnableProps extends Omit<ButtonProps, 'onClick'> {
+  chainId?: number;
   Component?: React.ComponentType<ButtonProps>;
   onClick?: EnableClickHandler;
   isToastError?: boolean;
@@ -22,6 +25,7 @@ export interface ButtonEnableProps extends Omit<ButtonProps, 'onClick'> {
 const ButtonEnable = forwardRef(
   (
     {
+      chainId: propsChainId,
       children,
       Component = Button,
       onClick,
@@ -33,18 +37,29 @@ const ButtonEnable = forwardRef(
     }: ButtonEnableProps,
     ref: React.Ref<HTMLButtonElement> | undefined
   ): React.ReactElement => {
-    const { address, chainId, isConnected } = useAccount();
-    const chains = useChains();
+    const { address, isConnected } = useAccount();
+    const [_chainId] = useCurrentChain();
+    const chainId = propsChainId ?? _chainId;
+    const [, , , , chains] = useCurrentChain();
 
-    const client = usePublicClient();
+    const client = usePublicClient({ chainId });
     const { data: wallet } = useWalletClient({
+      chainId,
       account: address
     });
     const { openConnectModal } = useConnectModal();
 
     const [{ loading }, handleClick] = useAsyncFn(async () => {
       try {
-        if (wallet && client) await onClick?.(wallet, client);
+        if (wallet && client) {
+          const walletChainId = await wallet.getChainId();
+
+          if (walletChainId !== chainId) {
+            await wallet.switchChain({ id: chainId });
+          }
+
+          await onClick?.(wallet, client);
+        }
       } catch (error) {
         if (isToastError) {
           toastError(error);
@@ -52,7 +67,7 @@ const ButtonEnable = forwardRef(
 
         throw error;
       }
-    }, [client, onClick, isToastError, wallet]);
+    }, [wallet, client, chainId, onClick, isToastError]);
 
     const supportedChain = !!chains.find((item) => item.id === chainId);
 

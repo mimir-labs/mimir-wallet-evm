@@ -7,9 +7,9 @@ import type { TransactionResponse } from '@mimir-wallet/hooks/types';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
 import { useToggle } from 'react-use';
-import { useAccount, useChainId } from 'wagmi';
 
 import { AddressRow, Bytes, FormatBalance, Hash } from '@mimir-wallet/components';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { hashSafeTransaction } from '@mimir-wallet/safe';
 import { Operation } from '@mimir-wallet/safe/types';
 
@@ -23,8 +23,8 @@ interface Props {
 
 function Details({ address, defaultOpen = false, transaction }: Props) {
   const [isOpen, toggleOpen] = useToggle(defaultOpen);
-  const chainId = useChainId();
-  const { chain } = useAccount();
+  const [chainId] = useCurrentChain();
+  const [, chain] = useCurrentChain();
   const hash = useMemo(() => hashSafeTransaction(chainId, address, transaction), [address, chainId, transaction]);
 
   return (

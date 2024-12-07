@@ -9,6 +9,7 @@ import {
   arbitrum,
   base,
   bsc,
+  crab,
   darwinia,
   fraxtal,
   lukso,
@@ -97,7 +98,7 @@ export const supportedChains = [
     ...sepolia,
     rpcUrls: { default: { http: ['https://ethereum-sepolia-rpc.publicnode.com', ...sepolia.rpcUrls.default.http] } },
     shortName: 'sep',
-    iconUrl: '/chain-icons/11155111.webp',
+    iconUrl: '/chain-icons/11155111.png',
     nativeCurrencyIcon: '/token-icons/ETH.webp',
     interval: 12_000
   },
@@ -111,7 +112,7 @@ export const supportedChains = [
     ...darwinia,
     blockExplorers: {
       default: {
-        name: 'Explorer',
+        name: 'Blockscout',
         url: 'https://explorer.darwinia.network/',
         apiUrl: 'https://explorer.darwinia.network/api'
       }
@@ -122,33 +123,14 @@ export const supportedChains = [
     interval: 12_000
   },
   {
-    ...defineChain({
-      id: 44,
-      name: 'Crab Network',
-      nativeCurrency: {
-        decimals: 18,
-        name: 'CRAB',
-        symbol: 'CRAB'
-      },
-      rpcUrls: {
-        default: {
-          http: ['https://crab-rpc.darwinia.network']
-        }
-      },
-      blockExplorers: {
-        default: {
-          name: 'Explorer',
-          url: 'https://crab-scan.darwinia.network',
-          apiUrl: 'https://crab-scan.darwinia.network/api'
-        }
-      },
-      contracts: {
-        multicall3: {
-          address: '0xca11bde05977b3631167028862be2a173976ca11',
-          blockCreated: 599936
-        }
+    ...crab,
+    blockExplorers: {
+      default: {
+        name: 'Blockscout',
+        url: 'https://crab-scan.darwinia.network',
+        apiUrl: 'https://crab-scan.darwinia.network/api'
       }
-    }),
+    },
     shortName: 'cra',
     iconUrl: '/chain-icons/44.svg',
     nativeCurrencyIcon: '/token-icons/Crab.svg',
@@ -210,57 +192,45 @@ export function initMimirConfig(): MimirConfig {
   const search = new URLSearchParams(window.location.search);
 
   const urlChainId = search.get('chainid');
-  const localChainId = store.get(CURRENT_CHAINID_KEY) as number;
-  const chainId = urlChainId || localChainId;
+  const urlAddress = search.get('address');
 
-  let chain: CustomChain = supportedChains[0];
+  let chainId: number | undefined;
 
-  if (chainId) {
-    const _chain: CustomChain | undefined = supportedChains.find((chain) => chain.id === Number(chainId));
-
-    if (_chain) {
-      chain = _chain;
-    }
+  if (urlChainId && !!supportedChains.find((item) => item.id === Number(urlChainId))) {
+    chainId = Number(urlChainId);
   }
 
-  store.set(CURRENT_CHAINID_KEY, chain.id);
+  store.set(CURRENT_CHAINID_KEY, Number(urlChainId));
+
+  if (chainId && urlAddress && isAddress(urlAddress)) {
+    store.set(`${CURRENT_ACCOUNT_KEY}:${chainId}`, getAddress(urlAddress));
+  }
 
   const storage = createStorage({
     storage: localStorage,
-    key: `wallet.${chain.id}`
+    key: `Mimir.wallet.v2`
   });
 
   const config = getDefaultConfig({
     appName: 'Mimir Wallet',
     projectId: WALLET_CONNECT_PROJECT_ID,
-    chains: [chain],
+    chains: supportedChains,
     storage,
-    syncConnectedChain: false,
+    multiInjectedProviderDiscovery: true,
+    syncConnectedChain: true,
     transports: supportedChains.reduce<Record<string, FallbackTransport<Transport[]>>>((results, item) => {
       const rpc = store.get(`${CHAIN_RPC_URL_PREFIX}${item.id}`) as string;
 
       results[item.id] = rpc
-        ? fallback([http(rpc), ...chain.rpcUrls.default.http.map((url) => http(url))])
-        : fallback([...chain.rpcUrls.default.http.map((url) => http(url))]);
+        ? fallback([http(rpc), ...item.rpcUrls.default.http.map((url) => http(url))])
+        : fallback([...item.rpcUrls.default.http.map((url) => http(url))]);
 
       return results;
     }, {}),
     appIcon: 'https://safe.mimir.global/images/logo-circle.png'
   });
 
-  let address: Address | undefined;
-  const urlAddress = search.get('address');
-  const localAddress = store.get(`${CURRENT_ACCOUNT_KEY}:${chain.id}`) as string;
-
-  if (urlAddress && isAddress(urlAddress)) {
-    address = urlAddress;
-  } else if (localAddress && isAddress(localAddress)) {
-    address = localAddress;
-  }
-
   return {
-    address: address ? getAddress(address) : undefined,
-    walletConfig: config,
-    refetchInterval: chain.interval
+    walletConfig: config
   };
 }

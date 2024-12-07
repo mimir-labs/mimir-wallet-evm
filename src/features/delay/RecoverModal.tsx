@@ -5,12 +5,12 @@ import { Checkbox, Link, Modal, ModalBody, ModalContent, ModalFooter, ModalHeade
 import { useContext, useMemo } from 'react';
 import { useToggle } from 'react-use';
 import { Address } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import RecoveryImg from '@mimir-wallet/assets/images/recover.svg';
 import { Button } from '@mimir-wallet/components';
 import { IGNORE_RECOVERY_ACCOUNT_KEY } from '@mimir-wallet/constants';
-import { useLocalStore } from '@mimir-wallet/hooks';
+import { useCurrentChain, useLocalStore } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -18,7 +18,7 @@ import { useDelayModules } from './useDelayModules';
 import { useRecoveryTxs } from './useRecoveryTxs';
 
 function Content({ account, safeAddress }: { account: Address; safeAddress: Address }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [recoverTxs] = useRecoveryTxs(chainId, safeAddress);
   const [delayModules] = useDelayModules(safeAddress);
   const [ignore, setIgnore] = useLocalStore<boolean>(`${IGNORE_RECOVERY_ACCOUNT_KEY}`);

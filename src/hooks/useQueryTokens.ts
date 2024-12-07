@@ -4,12 +4,12 @@
 import type { TokenInfo } from './types';
 
 import { useQuery } from '@tanstack/react-query';
-import { useChainId } from 'wagmi';
 
 import { assetsSrviceUrl } from '@mimir-wallet/config';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 export function useQueryTokens() {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { data } = useQuery<TokenInfo[]>({
     initialData: [],
     queryKey: [assetsSrviceUrl(`tokens/${chainId}`)],

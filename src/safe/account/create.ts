@@ -84,3 +84,22 @@ export function createSafeRequest(
 
   return request;
 }
+
+export function encodeCreateSafeData(
+  chain: Chain,
+  setup: Setup,
+  factory: Address = deployments[chain.id].SafeProxyFactory[0],
+  singleton: Address = deployments[chain.id].SafeL2[0],
+  salt: bigint = 0n
+): { to: Address; data: Hex } {
+  assert(factory && singleton, `Not supported chain: ${chain.name}`);
+
+  return {
+    to: factory,
+    data: encodeFunctionData({
+      abi: abis.SafeProxyFactory,
+      functionName: 'createProxyWithNonce',
+      args: [singleton, createSetupCall(setup), salt]
+    })
+  };
+}

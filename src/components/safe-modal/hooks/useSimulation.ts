@@ -7,16 +7,18 @@ import type { AssetChange, Simulation } from '../types';
 import { useEffect, useMemo, useState } from 'react';
 import { usePublicClient } from 'wagmi';
 
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { simulate } from '@mimir-wallet/safe';
 import { MetaTransaction } from '@mimir-wallet/safe/types';
 
 export function useSimulation(safeTx: MetaTransaction, address: Address): Simulation {
+  const [chainId] = useCurrentChain();
   const [isPending, setPending] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
   const [isError, setError] = useState(false);
   const [isIdle, setIdle] = useState(true);
   const [assetChange, setAssetChange] = useState<AssetChange[]>([]);
-  const client = usePublicClient();
+  const client = usePublicClient({ chainId });
 
   useEffect(() => {
     if (client) {

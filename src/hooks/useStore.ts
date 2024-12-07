@@ -6,20 +6,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { session, store } from '@mimir-wallet/utils';
 import { BaseStore } from '@mimir-wallet/utils/store/BaseStore';
 
-export function useStore<T>(isSession: boolean, key: string): [T | undefined, (value: T | ((value: T) => T)) => void];
-export function useStore<T>(
-  isSession: boolean,
-  key: string,
-  defaultValue: T
-): [T, (value: T | ((value: T) => T)) => void];
+function useStore<T>(isSession: boolean, key: string): [T | undefined, (value: T | ((value: T) => T)) => void];
+function useStore<T>(isSession: boolean, key: string, defaultValue: T): [T, (value: T | ((value: T) => T)) => void];
 
-export function useStore<T>(
+function useStore<T>(
   isSession: boolean,
   key: string,
   defaultValue?: T
 ): [T | undefined, (value: T | ((value: T) => T)) => void] {
   const ref = useRef<BaseStore>(isSession ? session : store);
   const [value, setValue] = useState<T | undefined>((ref.current.get(key) as T) || defaultValue);
+  const defaultValueRef = useRef<T | undefined>(defaultValue);
+
+  defaultValueRef.current = defaultValue;
 
   useEffect(() => {
     const store = ref.current;
@@ -38,6 +37,7 @@ export function useStore<T>(
       }
     };
 
+    setValue((store.get(key) as T) || defaultValueRef.current);
     store.on('store_changed', onChange);
 
     return () => {
@@ -68,17 +68,17 @@ export function useStore<T>(
   ];
 }
 
-export function useLocalStore<T>(key: string): [T | undefined, (value: T | ((value: T) => T)) => void];
+export function useLocalStore<T>(key: string): [T | undefined, (value: T | ((value: T | undefined) => T)) => void];
 export function useLocalStore<T>(key: string, defaultValue: T): [T, (value: T | ((value: T) => T)) => void];
 
 export function useLocalStore<T>(
   key: string,
   defaultValue?: T
-): [T | undefined, (value: T | ((value: T) => T)) => void] {
+): [T | undefined, (value: T | ((value: T | undefined) => T)) => void] {
   return useStore<T>(false, key, defaultValue as T);
 }
 
-export function useSessionStore<T>(key: string): [T | undefined, (value: T | ((value: T) => T)) => void];
+export function useSessionStore<T>(key: string): [T | undefined, (value: T | ((value: T | undefined) => T)) => void];
 export function useSessionStore<T>(key: string, defaultValue: T): [T, (value: T | ((value: T) => T)) => void];
 
 export function useSessionStore<T>(

@@ -1,7 +1,7 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { EnableClickHandler } from '@mimir-wallet/components/types';
+import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from '@mimir-wallet/utils/types';
 import type { CreateMultisigState } from './useCreateMultisig';
 
@@ -14,7 +14,7 @@ import { Alert, Button, ButtonEnable, CongratsAnimation, TxError } from '@mimir-
 interface Props {
   state: CreateMultisigState;
   isOpen: boolean;
-  onRetry: EnableClickHandler;
+  onRetry: (wallet: IWalletClient, client: IPublicClient) => void;
   onDone: (chainId: number, account: AccountResponse) => void;
   onClose: () => void;
 }

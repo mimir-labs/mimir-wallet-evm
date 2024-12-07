@@ -21,4 +21,5 @@ export interface AccountResponse {
   transaction?: Hash;
   updateBlock?: number;
   updateTransaction?: Hash;
+  readonly?: boolean;
 }

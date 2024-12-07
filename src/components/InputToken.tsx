@@ -9,9 +9,8 @@ import { Listbox, ListboxItem, Skeleton } from '@nextui-org/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
 import { Address as AddressType, getAddress, isAddress, zeroAddress } from 'viem';
-import { useChains } from 'wagmi';
 
-import { useAccountBalance, useInput, useToken } from '@mimir-wallet/hooks';
+import { useAccountBalance, useCurrentChain, useInput, useToken } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
 import Address from './Address';
@@ -20,7 +19,7 @@ import AddressIcon from './AddressIcon';
 import FormatBalance from './FormatBalance';
 
 function InputToken({ disabled, value, account, defaultValue, showBalance, tokens, label, onChange }: InputTokenProps) {
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
   const isControlled = useRef(value !== undefined);
   const [inputValue, setInputValue] = useInput();
   const [selectedKey, setSelectedKey] = useState<string | undefined>(value || defaultValue || '');

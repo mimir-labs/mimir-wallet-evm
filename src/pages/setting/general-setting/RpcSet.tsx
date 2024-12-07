@@ -5,16 +5,15 @@ import { Card, CardBody } from '@nextui-org/react';
 import React from 'react';
 import { useAsyncFn } from 'react-use';
 import { createPublicClient, http } from 'viem';
-import { useChains } from 'wagmi';
 
 import { ButtonEnable, Input } from '@mimir-wallet/components';
 import { toastError } from '@mimir-wallet/components/ToastRoot';
 import { CHAIN_RPC_URL_PREFIX } from '@mimir-wallet/constants';
-import { useInput, useLocalStore } from '@mimir-wallet/hooks';
+import { useCurrentChain, useInput, useLocalStore } from '@mimir-wallet/hooks';
 import { isValidURL } from '@mimir-wallet/utils';
 
 function RpcSet() {
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
   const [rpc, setRpc] = useLocalStore<string>(`${CHAIN_RPC_URL_PREFIX}${chain.id}`);
   const [value, setValue] = useInput(rpc);
 

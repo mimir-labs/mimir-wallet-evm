@@ -4,14 +4,13 @@
 import type { CustomToken } from './types';
 
 import { useCallback } from 'react';
-import { useChainId } from 'wagmi';
 
 import { CUSTOM_TOKENS_KEY, EmptyArray } from '@mimir-wallet/constants';
-import { useLocalStore } from '@mimir-wallet/hooks';
+import { useCurrentChain, useLocalStore } from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
 export function useCustomTokens() {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [customTokens, setCustomTokens] = useLocalStore<CustomToken[]>(`${CUSTOM_TOKENS_KEY}:${chainId}`, []);
 
   const addCustomToken = useCallback(

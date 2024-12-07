@@ -4,7 +4,7 @@
 import { Divider, Link, Skeleton } from '@nextui-org/react';
 import { useContext } from 'react';
 import { useToggle } from 'react-use';
-import { useAccount, useBalance, useChains } from 'wagmi';
+import { useAccount, useBalance } from 'wagmi';
 
 import ArrowRight from '@mimir-wallet/assets/svg/ArrowRight.svg?react';
 import IconLink from '@mimir-wallet/assets/svg/icon-link-colored.svg?react';
@@ -19,6 +19,7 @@ import {
   FormatBalance,
   QrcodeAddress
 } from '@mimir-wallet/components';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { explorerUrl } from '@mimir-wallet/utils';
 
@@ -26,7 +27,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
   const { isConnected } = useAccount();
   const { current, multisigs } = useContext(AddressContext);
   const { data, isFetched, isFetching } = useBalance({ address: current });
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
   const [isQrOpen, toggleQrOpen] = useToggle(false);
 
   return (
@@ -97,7 +98,7 @@ function Account({ handleClick }: { handleClick: () => void }) {
               </Button>
             </div>
           </div>
-        ) : multisigs.length > 0 ? null : (
+        ) : Object.keys(multisigs).length > 0 ? null : (
           <Button color='primary' as={Link} href='/create-multisig' size='lg' fullWidth>
             Create Multisig
           </Button>

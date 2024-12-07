@@ -3,16 +3,17 @@
 
 import type { Address } from 'abitype';
 
-import { useChainId, useReadContract } from 'wagmi';
+import { useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import { moduleDeployments } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 export function useAllowanceDelegates(
   safeAddress: Address
 ): [data: Address[], isFetched: boolean, isFetching: boolean] {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const {
     data: startAccount,
     isFetched,

@@ -5,7 +5,6 @@ import type { Address } from 'abitype';
 
 import { Card, CardBody, Link, Spinner } from '@nextui-org/react';
 import React, { useMemo } from 'react';
-import { useChainId, useChains } from 'wagmi';
 
 import RecoveryImg from '@mimir-wallet/assets/images/recovery.svg';
 import SpendLimitImg from '@mimir-wallet/assets/images/spend-limit.svg';
@@ -13,7 +12,7 @@ import { AddressCell, Empty } from '@mimir-wallet/components';
 import { moduleDeployments } from '@mimir-wallet/config';
 import { useDelayAddress } from '@mimir-wallet/features/delay';
 import { DelayModuleResponse } from '@mimir-wallet/features/delay/types';
-import { useMediaQuery, useSafeModules } from '@mimir-wallet/hooks';
+import { useCurrentChain, useMediaQuery, useSafeModules } from '@mimir-wallet/hooks';
 import { addressEq, explorerUrl } from '@mimir-wallet/utils';
 
 function Cell({
@@ -25,8 +24,7 @@ function Cell({
   delayAddress: DelayModuleResponse[];
   moduleCounts?: Record<Address, number>;
 }) {
-  const chainId = useChainId();
-  const [chain] = useChains();
+  const [chainId, chain] = useCurrentChain();
   const isDelay = useMemo(
     () => !!delayAddress?.find((item) => addressEq(item.address, address)),
     [address, delayAddress]

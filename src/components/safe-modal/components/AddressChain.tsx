@@ -7,6 +7,7 @@ import type { Multisig } from '@mimir-wallet/safe/types';
 import React, { useCallback, useContext, useLayoutEffect, useMemo } from 'react';
 
 import { InputAddress } from '@mimir-wallet/components';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 interface Props {
@@ -18,10 +19,9 @@ interface Props {
 }
 
 function AddressChain({ multisig, filterPaths, deep, addressChain, setAddressChain }: Props) {
+  const [chainId] = useCurrentChain();
   const { signers, multisigs } = useContext(AddressContext);
-  const selected: Address | undefined = addressChain[deep];
-
-  const subMultisig = useMemo(() => multisigs.find((item) => item.address === selected), [multisigs, selected]);
+  const selected: Address | undefined = addressChain.at(deep);
 
   const filtered = useMemo(
     () =>
@@ -36,7 +36,7 @@ function AddressChain({ multisig, filterPaths, deep, addressChain, setAddressCha
 
   useLayoutEffect(() => {
     if (!selected) {
-      const signAddresses = signers.concat(multisigs.map((item) => item.address));
+      const signAddresses = signers.concat(Object.keys(multisigs) as Address[]);
 
       const defaultSelect = filtered.find((member) => signAddresses.includes(member));
 
@@ -63,6 +63,12 @@ function AddressChain({ multisig, filterPaths, deep, addressChain, setAddressCha
       });
     },
     [deep, setAddressChain]
+  );
+
+  const subMultisig = useMemo(
+    () =>
+      selected && multisigs[selected] && multisigs[selected].find((item) => !item.readonly && item.chainId === chainId),
+    [chainId, multisigs, selected]
   );
 
   return (

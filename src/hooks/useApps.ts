@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { useCallback, useMemo } from 'react';
-import { useChainId } from 'wagmi';
 
 import { type AppConfig, apps } from '@mimir-wallet/config';
 import { CUSTOM_APP_KEY, FAVORITE_APP_KEY } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 import { useLocalStore } from './useStore';
 
@@ -46,7 +46,7 @@ export function useApp(website?: string): AppConfig | undefined {
 const visibleApps = apps.filter((item) => !item.url.startsWith('mimir://internal'));
 
 export function useVisibleApps(): UseApps {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [favoriteIds, setFavoriteIds] = useLocalStore<(number | string)[]>(FAVORITE_APP_KEY, []);
   const [customApps, setCustomApps] = useLocalStore<Record<string | number, AppConfig>>(CUSTOM_APP_KEY, {});
 

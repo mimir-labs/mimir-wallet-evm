@@ -6,9 +6,9 @@ import type { SafeAccount } from '@mimir-wallet/safe/types';
 import type { SafeMessageState, UseSafeMessage } from '../types';
 
 import { useMemo, useState } from 'react';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
-import { useMultisig, useQueryAccount, useQueryMessage } from '@mimir-wallet/hooks';
+import { useCurrentChain, useMultisig, useQueryAccount, useQueryMessage } from '@mimir-wallet/hooks';
 import { approveCounts, buildBytesSignatures, memberPaths } from '@mimir-wallet/safe';
 import { generateSafeMessageMessage, hashSafeMessage } from '@mimir-wallet/safe/message';
 
@@ -20,7 +20,7 @@ export function useSafeMessage({
   address,
   addressChain: propsAddressChain
 }: UseSafeMessage): SafeMessageState {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [addressChain, setAddressChain] = useState<Address[]>(propsAddressChain || []);
   const multisig = useMultisig(address);
   const safeAccount = useQueryAccount(address);

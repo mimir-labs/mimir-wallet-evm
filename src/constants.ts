@@ -10,7 +10,9 @@ export const FAVORITE_APP_KEY = 'favorite_app';
 export const CUSTOM_APP_KEY = `${LS_NAMESPACE}custom_app`;
 export const DEVICE_UUIR_KEY = `${LS_NAMESPACE}uuid`;
 
-export const ADDRESS_BOOK_KEY = 'address_book';
+// @deprecated
+export const DEPRECATED_ADDRESS_BOOK_KEY = 'address_book';
+export const ADDRESS_BOOK_KEY = 'address_book_chain';
 export const ADDRESS_NAMES_KEY = 'address_names';
 export const WATCH_ONLY_KEY = `${LS_NAMESPACE}watch_only`;
 export const CUSTOM_TOKENS_KEY = 'custom_tokens';
@@ -20,6 +22,8 @@ export const IGNORE_RECOVERY_ACCOUNT_KEY = 'ignore_recover_account';
 
 export const CHAIN_RPC_URL_PREFIX = 'chain_rpc_url:';
 export const PENDING_SAFE_TX_PREFIX = 'pending_safe_tx:';
+
+export const ADDRESS_BOOK_UPGRADE_VERSION_KEY = 'address_book_upgrade_version';
 
 // times second
 export const ONE_DAY = 86400;

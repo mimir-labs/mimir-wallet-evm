@@ -10,13 +10,15 @@ import { useStorageAt } from 'wagmi';
 
 import { AddressCell, Empty } from '@mimir-wallet/components';
 import { FALLBACK_HANDLER_STORAGE_SLOT } from '@mimir-wallet/constants';
-import { useSafeModules } from '@mimir-wallet/hooks';
+import { useCurrentChain, useSafeModules } from '@mimir-wallet/hooks';
 
 import ModuleItem from './ModuleItem';
 
 function Modules({ safeAddress }: { safeAddress: Address }) {
+  const [chainId] = useCurrentChain();
   const [modules, isFetched, isFetching] = useSafeModules(safeAddress);
   const { data } = useStorageAt({
+    chainId,
     address: safeAddress,
     slot: FALLBACK_HANDLER_STORAGE_SLOT
   });

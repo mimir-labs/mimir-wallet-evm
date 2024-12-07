@@ -5,12 +5,18 @@ import type { Address } from 'abitype';
 
 import { Card, CardBody } from '@nextui-org/react';
 import React, { useMemo } from 'react';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import { AddressOverview } from '@mimir-wallet/components';
 import { useAllowanceTokens } from '@mimir-wallet/features/allowance';
 import { useDelayModules } from '@mimir-wallet/features/delay';
-import { useAccountNFTs, useAccountTokens, useQueryAccount, useVisibleApps } from '@mimir-wallet/hooks';
+import {
+  useAccountNFTs,
+  useAccountTokens,
+  useCurrentChain,
+  useQueryAccount,
+  useVisibleApps
+} from '@mimir-wallet/hooks';
 import { addressEq } from '@mimir-wallet/utils';
 
 import Assets from './Assets';
@@ -21,7 +27,7 @@ import Rules from './Rules';
 import ScrollSessions from './ScrollSessions';
 
 function Dashboard({ address }: { address: Address }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { address: walletAccount } = useAccount();
   const account = useQueryAccount(address);
   const { favorites, isFavorite, removeFavorite, addFavorite } = useVisibleApps();

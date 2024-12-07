@@ -7,9 +7,9 @@ import { Card, CardBody, Chip } from '@nextui-org/react';
 import React, { createElement, useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
-import { useChainId } from 'wagmi';
 
 import IconStar from '@mimir-wallet/assets/svg/icon-star.svg?react';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 import AppDetails from './AppDetails';
 import Button from './Button';
@@ -23,7 +23,7 @@ interface Props {
 }
 
 function AppCell({ addFavorite, app, isFavorite, removeFavorite }: Props) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [detailsOpen, toggleOpen] = useToggle(false);
   const [isDrawerOpen, toggleDrawerOpen] = useToggle(false);
   const [element, setElement] = useState<JSX.Element>();

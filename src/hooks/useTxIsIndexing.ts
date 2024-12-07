@@ -3,9 +3,8 @@
 
 import type { Address } from 'abitype';
 
-import { useChainId } from 'wagmi';
-
 import { PENDING_SAFE_TX_PREFIX } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 import { TransactionStatus } from './types';
 import { useSafeNonce } from './useSafeInfo';
@@ -13,7 +12,7 @@ import { useSessionStore } from './useStore';
 
 export function useTxIsIndexing(address: Address, status: TransactionStatus, txNonce: bigint): boolean {
   const [onChainNonce] = useSafeNonce(address);
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const key = `${PENDING_SAFE_TX_PREFIX}${chainId}:${address}:${txNonce}`;
   const [isIndexing] = useSessionStore<boolean>(key);
 

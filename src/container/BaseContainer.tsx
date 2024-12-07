@@ -37,7 +37,7 @@ function BaseContainer({
   withSideBar: boolean;
   withPadding: boolean;
 }): React.ReactElement {
-  const { isReady, current, watchOnlyList } = useContext(AddressContext);
+  const { isReady, current, watchlist } = useContext(AddressContext);
   const { state } = useContext(SafeTxContext);
   const { isConnected } = useAccount();
   const safeAccount = useQueryAccount(current);
@@ -48,7 +48,7 @@ function BaseContainer({
   useFollowAccounts();
 
   const showWatchOnlyAlert =
-    isReadOnly && safeAccount && safeAccount.type === 'safe' && !watchOnlyList.includes(safeAccount.address);
+    isReadOnly && safeAccount && safeAccount.type === 'safe' && !watchlist[safeAccount.address];
 
   if (!current && auth) {
     return <Navigate to='/welcome' replace />;
@@ -71,7 +71,7 @@ function BaseContainer({
           {isConnected ? (
             <ConnectButton
               showBalance={{ smallScreen: false, largeScreen: true }}
-              chainStatus={{ smallScreen: 'icon', largeScreen: 'icon' }}
+              chainStatus='none'
               accountStatus={{ smallScreen: 'avatar', largeScreen: 'full' }}
             />
           ) : (

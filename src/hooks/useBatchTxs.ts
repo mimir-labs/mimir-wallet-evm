@@ -4,10 +4,10 @@
 import type { BatchTxItem } from './types';
 
 import { useCallback, useMemo } from 'react';
-import { useChainId } from 'wagmi';
 
 import { BATCH_TX_KEY } from '@mimir-wallet/constants';
 import { events } from '@mimir-wallet/events';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 import { useLocalStore } from './useStore';
 
@@ -22,7 +22,7 @@ export function useBatchTxs(
   setTx: (txs: BatchTxItem[]) => void
 ] {
   const [values, setValues] = useLocalStore<BatchTxs>(BATCH_TX_KEY, {});
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
 
   const txs = useMemo(() => (address ? values?.[chainId]?.[address] || [] : []), [address, chainId, values]);
   const addTx = useCallback(

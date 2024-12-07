@@ -6,7 +6,9 @@ import type { TokenMeta } from './types';
 
 import { useEffect, useMemo, useState } from 'react';
 import { Chain, erc20Abi, zeroAddress } from 'viem';
-import { useChainId, useClient, useReadContracts } from 'wagmi';
+import { useClient, useReadContracts } from 'wagmi';
+
+import { useCurrentChain } from './useCurrentChain';
 
 async function extraTokens(
   data: (
@@ -52,7 +54,7 @@ async function extraTokens(
 }
 
 export function useTokens(tokens: Address[]): Record<Address, TokenMeta> {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const client = useClient({ chainId });
   const { data: results } = useReadContracts({
     allowFailure: true,
@@ -62,16 +64,19 @@ export function useTokens(tokens: Address[]): Record<Address, TokenMeta> {
     contracts: tokens
       .map((token) => [
         {
+          chainId,
           address: token,
           abi: erc20Abi,
           functionName: 'name'
         },
         {
+          chainId,
           address: token,
           abi: erc20Abi,
           functionName: 'symbol'
         },
         {
+          chainId,
           address: token,
           abi: erc20Abi,
           functionName: 'decimals'
@@ -91,7 +96,7 @@ export function useTokens(tokens: Address[]): Record<Address, TokenMeta> {
 }
 
 export function useToken(tokenAddr?: Address): [meta: TokenMeta | undefined, isFetched: boolean, isFetching: boolean] {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const client = useClient({ chainId });
   const { data, isFetched, isFetching } = useReadContracts({
     allowFailure: false,

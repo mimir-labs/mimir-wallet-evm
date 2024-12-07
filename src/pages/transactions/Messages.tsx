@@ -4,13 +4,12 @@
 import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import React from 'react';
-import { useChainId } from 'wagmi';
 
 import { Empty, SafeMessageCard } from '@mimir-wallet/components';
-import { useQueryMessages } from '@mimir-wallet/hooks';
+import { useCurrentChain, useQueryMessages } from '@mimir-wallet/hooks';
 
 function Messages({ account }: { account: BaseAccount }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [items, isFetched] = useQueryMessages(chainId, account.address);
 
   if (isFetched && items.length === 0) {

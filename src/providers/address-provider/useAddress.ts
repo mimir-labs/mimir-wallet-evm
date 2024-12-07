@@ -4,12 +4,13 @@
 import type { Multisig } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from '@mimir-wallet/utils/types';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { type Address, getAddress, isAddress } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useSwitchChain } from 'wagmi';
 
-import { CURRENT_ACCOUNT_KEY } from '@mimir-wallet/constants';
+import { CURRENT_ACCOUNT_KEY, CURRENT_CHAINID_KEY } from '@mimir-wallet/constants';
+import { useCurrentChain, useLocalStore } from '@mimir-wallet/hooks';
 import { addressEq, store } from '@mimir-wallet/utils';
 
 import { querySync } from './utils';
@@ -17,71 +18,95 @@ import { querySync } from './utils';
 async function _addMultisig(
   chainId: number,
   account: AccountResponse,
-  setMultisigs: React.Dispatch<React.SetStateAction<Multisig[]>>
+  setMultisigs: React.Dispatch<React.SetStateAction<Record<Address, Multisig[]>>>
 ) {
   if (account.type === 'safe') {
-    setMultisigs((value) =>
-      value.find((item) => chainId === item.chainId && addressEq(item.address, account.address))
-        ? value
-        : [
-            ...value,
-            {
-              address: account.address,
-              chainId,
-              name: account.name,
-              isMimir: account.isMimir,
-              createdAt: account.createdAt,
-              updatedAt: account.updatedAt,
-              members: account.members!,
-              threshold: account.threshold!,
-              singleton: account.singleton!,
-              factory: account.factory!,
-              version: account.version!,
-              block: account.block!,
-              transaction: account.transaction!,
-              updateBlock: account.updateBlock,
-              updateTransaction: account.updateTransaction
-            }
-          ]
-    );
+    setMultisigs((value) => ({
+      ...value,
+      [account.address]: [
+        ...value[account.address],
+        {
+          address: account.address,
+          chainId,
+          name: account.name,
+          isMimir: account.isMimir,
+          createdAt: account.createdAt,
+          updatedAt: account.updatedAt,
+          members: account.members!,
+          threshold: account.threshold!,
+          singleton: account.singleton!,
+          factory: account.factory!,
+          version: account.version!,
+          block: account.block!,
+          transaction: account.transaction!,
+          updateBlock: account.updateBlock,
+          updateTransaction: account.updateTransaction
+        }
+      ]
+    }));
   }
 }
 
 // @internal
-export function useAddress(defaultCurrent?: Address) {
-  const chainId = useChainId();
+export function useAddress() {
+  const [currentChainId, , walletChainId] = useCurrentChain();
+  const { switchChain } = useSwitchChain();
+  const navigate = useNavigate();
 
   const [isReady, setIsReady] = useState(false);
   const { address } = useAccount();
   const signers = useMemo(() => (address ? [address] : []), [address]);
 
-  const [allMultisigs, setAllMultisigs] = useState<Multisig[]>([]);
+  const [multisigs, setMultisigs] = useState<Record<string, Multisig[]>>({});
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentRef = useRef<Address | undefined>(
-    defaultCurrent && isAddress(defaultCurrent) ? getAddress(defaultCurrent) : undefined
-  );
-
   const urlAddress = searchParams.get('address');
 
-  currentRef.current = urlAddress && isAddress(urlAddress) ? getAddress(urlAddress) : currentRef.current;
+  const [localAddress] = useLocalStore<Address>(`${CURRENT_ACCOUNT_KEY}:${currentChainId}`);
 
   const switchAddress = useCallback(
-    (address: Address) => {
-      currentRef.current = address;
+    (chainId: number, address?: Address, to?: string) => {
       const newSearchParams = new URLSearchParams(searchParams);
 
-      newSearchParams.set('address', address);
+      if (chainId !== currentChainId || walletChainId !== currentChainId) {
+        switchChain({ chainId });
+      }
 
-      setSearchParams(newSearchParams);
+      if (!address) {
+        address = store.get(`${CURRENT_ACCOUNT_KEY}:${chainId}`) as Address | undefined;
+      }
 
-      store.set(`${CURRENT_ACCOUNT_KEY}:${chainId}`, address);
+      if (address) {
+        newSearchParams.set('address', address);
+        newSearchParams.set('chainid', chainId.toString());
+      } else {
+        newSearchParams.delete('address');
+        newSearchParams.set('chainid', chainId.toString());
+      }
+
+      if (to) {
+        navigate({
+          pathname: to,
+          search: `?${newSearchParams.toString()}`
+        });
+      } else {
+        setSearchParams(newSearchParams);
+      }
+
+      if (address) {
+        store.set(`${CURRENT_ACCOUNT_KEY}:${chainId}`, address);
+      } else {
+        store.remove(`${CURRENT_ACCOUNT_KEY}:${chainId}`);
+      }
+
+      store.set(CURRENT_CHAINID_KEY, chainId);
     },
-    [chainId, searchParams, setSearchParams]
+    [currentChainId, navigate, searchParams, setSearchParams, switchChain, walletChainId]
   );
+
   const addMultisig = useCallback(
     async (chainId: number, account: AccountResponse) => {
-      _addMultisig(chainId, account, setAllMultisigs);
-      switchAddress(account.address);
+      _addMultisig(chainId, account, setMultisigs);
+      switchAddress(chainId, account.address);
     },
     [switchAddress]
   );
@@ -89,57 +114,56 @@ export function useAddress(defaultCurrent?: Address) {
   // sync multisig from server
   useEffect(() => {
     if (address) {
-      querySync(chainId, address, setAllMultisigs)
+      querySync(address, setMultisigs)
         .then(() => {})
         .finally(() => setIsReady(true));
     } else {
       setIsReady(true);
     }
-  }, [address, chainId]);
-
-  const { current, other } = useMemo(
-    () =>
-      allMultisigs.reduce<Record<'current' | 'other', Multisig[]>>(
-        (result, item) => {
-          if (item.chainId === chainId) {
-            result.current.push(item);
-          } else {
-            result.other.push(item);
-          }
-
-          return result;
-        },
-        { current: [], other: [] }
-      ),
-    [allMultisigs, chainId]
-  );
+  }, [address]);
 
   const isSigner = useCallback(
     (value: string) => (signers || []).findIndex((item) => addressEq(item, value)) > -1,
     [signers]
   );
-  const isMultisig = useCallback(
-    (value: string) => current.findIndex((item) => addressEq(item.address, value)) > -1,
-    [current]
+  const isReadOnly = useCallback(
+    (chainId: number, value: string) => {
+      const items = multisigs[value];
+
+      if (items) {
+        const item = items.find((item) => item.chainId === chainId);
+
+        return item ? item?.readonly : true;
+      }
+
+      return true;
+    },
+    [multisigs]
+  );
+
+  const changeName = useCallback(
+    (chainId: number, address: string, name: string) =>
+      setMultisigs((value) => ({
+        ...value,
+        [address]: value[address]?.map((item) => (item.chainId === chainId ? { ...item, name } : item))
+      })),
+    []
   );
 
   return {
     isReady,
-    current: currentRef.current,
+    current:
+      urlAddress && isAddress(urlAddress)
+        ? getAddress(urlAddress)
+        : localAddress && isAddress(localAddress)
+          ? getAddress(localAddress)
+          : undefined,
     signers: useMemo(() => [...(signers || [])], [signers]),
-    isMultisig,
+    isReadOnly,
     isSigner,
-    multisigs: current,
-    otherChainMultisigs: other,
+    multisigs,
     addMultisig,
-    changeName: useCallback(
-      (chainId: number, address: string, name: string) =>
-        setAllMultisigs((value) =>
-          value.map((item) => (item.chainId === chainId && addressEq(item.address, address) ? { ...item, name } : item))
-        ),
-      []
-    ),
-    isCurrent: useCallback((value: string) => (currentRef.current ? addressEq(value, currentRef.current) : false), []),
+    changeName,
     switchAddress
   };
 }

@@ -2,24 +2,38 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { Address } from 'abitype';
+import type { AccountResponse } from '@mimir-wallet/utils/types';
 
-import { useCallback, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
 import { getAddress, isAddress } from 'viem';
-import { useChainId } from 'wagmi';
 
 import { AddWatchOnly } from '@mimir-wallet/components';
+import { accountServices } from '@mimir-wallet/config';
 import { EmptyArray, WATCH_ONLY_KEY } from '@mimir-wallet/constants';
-import { useLocalStore } from '@mimir-wallet/hooks';
+import { useCurrentChain, useLocalStore } from '@mimir-wallet/hooks';
+
+import { transformMultisig } from './utils';
 
 export function useWatchOnly(
   setAddressNames: (value: Record<string, string> | ((value: Record<string, string>) => Record<string, string>)) => void
 ) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [address, setAddress] = useState<Address>();
   const [values, setValues] = useLocalStore<Record<number, Address[]>>(WATCH_ONLY_KEY, {});
   const [isOpen, toggleOpen] = useToggle(false);
   const promiseRef = useRef<{ resolve: (value: Address) => void; reject: (err: unknown) => void }>();
+  const addressesQuery = Object.entries(values)
+    .flatMap(([, multisigs]) => multisigs)
+    .join(',');
+
+  const { data } = useQuery<Record<Address, AccountResponse[]>>({
+    queryHash: `${accountServices}accounts?addresses=${addressesQuery}`,
+    queryKey: [addressesQuery ? `${accountServices}accounts?addresses=${addressesQuery}` : null]
+  });
+
+  const watchlist = useMemo(() => transformMultisig(data || {}), [data]);
 
   const addWatchOnlyList = useCallback(
     (address?: Address) => {
@@ -58,6 +72,7 @@ export function useWatchOnly(
   );
 
   return {
+    watchlist,
     watchOnlyList: values[chainId] || EmptyArray,
     addWatchOnlyList,
     node

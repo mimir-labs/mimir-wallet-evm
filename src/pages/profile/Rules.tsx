@@ -5,12 +5,12 @@ import type { Address } from 'abitype';
 import type { TokenAllowance } from '@mimir-wallet/features/allowance/types';
 
 import { Link, Tooltip } from '@nextui-org/react';
-import { useChainId } from 'wagmi';
 
 import RecoveryImg from '@mimir-wallet/assets/images/recovery.svg';
 import SpendLimitImg from '@mimir-wallet/assets/images/spend-limit.svg';
 import { Button } from '@mimir-wallet/components';
 import { useRecoveryTxs } from '@mimir-wallet/features/delay';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 function Cell({ icon, title, desc, button }: { icon: string; title: string; desc: string; button: React.ReactNode }) {
   return (
@@ -36,7 +36,7 @@ function Rules({
   recoverer?: Address;
   tokenAllowance?: TokenAllowance;
 }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [recoverTxs] = useRecoveryTxs(chainId, safeAccount);
 
   const recoverButton =

@@ -7,11 +7,10 @@ import type { SignatureResponse } from '@mimir-wallet/hooks/types';
 
 import { Chip, Divider, Link } from '@nextui-org/react';
 import React, { useMemo } from 'react';
-import { useChainId } from 'wagmi';
 
 import { AppName, Empty } from '@mimir-wallet/components';
 import { EmptyArray } from '@mimir-wallet/constants';
-import { useParseCall, usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
+import { useCurrentChain, useParseCall, usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
 import { approveCounts } from '@mimir-wallet/safe';
 import { BaseAccount } from '@mimir-wallet/safe/types';
 
@@ -59,7 +58,7 @@ function Item({
 }
 
 function PendingTx({ address }: { address: Address }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [{ current, queue }] = usePendingTransactions(chainId, address);
   const account = useQueryAccount(address);
 

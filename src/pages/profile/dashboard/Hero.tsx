@@ -6,23 +6,29 @@ import type { Address } from 'abitype';
 import { Card, CardBody, Divider, Link } from '@nextui-org/react';
 import React, { useContext } from 'react';
 import { useToggle } from 'react-use';
-import { useChains } from 'wagmi';
 
 import DebankImg from '@mimir-wallet/assets/images/debank.png';
 import EtherscanImg from '@mimir-wallet/assets/images/etherscan.svg';
 import IconQrcode from '@mimir-wallet/assets/svg/icon-qrcode.svg?react';
-import { Address as AddressComp, AddressIcon, AddressName, Button, QrcodeAddress } from '@mimir-wallet/components';
+import {
+  Address as AddressComp,
+  AddressIcon,
+  AddressName,
+  Button,
+  CopyAddressButton,
+  QrcodeAddress
+} from '@mimir-wallet/components';
 import { formatDisplay } from '@mimir-wallet/components/FormatBalance';
 import { ONE_DAY } from '@mimir-wallet/constants';
-import { useIsReadOnly, useMediaQuery, useQueryAccount } from '@mimir-wallet/hooks';
+import { useCurrentChain, useIsReadOnly, useMediaQuery, useQueryAccount } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { explorerUrl } from '@mimir-wallet/utils';
 
 import FundModal from '../FundModal';
 
 function Hero({ safeAddress, totalUsd }: { safeAddress: Address; totalUsd: string }) {
-  const { watchOnlyList, addWatchOnlyList } = useContext(AddressContext);
-  const [chain] = useChains();
+  const { addWatchOnlyList, watchlist } = useContext(AddressContext);
+  const [, chain] = useCurrentChain();
   const [isOpen, toggleOpen] = useToggle(false);
   const [isQrOpen, toggleQrOpen] = useToggle(false);
   const safeAccount = useQueryAccount(safeAddress);
@@ -30,7 +36,7 @@ function Hero({ safeAddress, totalUsd }: { safeAddress: Address; totalUsd: strin
   const upSm = useMediaQuery('sm');
 
   const showWatchOnlyButton =
-    isReadOnly && safeAccount && safeAccount.type === 'safe' && !watchOnlyList.includes(safeAccount.address);
+    isReadOnly && safeAccount && safeAccount.type === 'safe' && !watchlist[safeAccount.address];
 
   const days = safeAccount ? Math.ceil((Date.now() - safeAccount.createdAt) / (ONE_DAY * 1000)) : '--';
   const formatUsd = formatDisplay(totalUsd);
@@ -80,6 +86,13 @@ function Hero({ safeAddress, totalUsd }: { safeAddress: Address; totalUsd: strin
 
               <div className='flex items-center gap-1 font-bold text-foreground'>
                 <AddressComp address={safeAddress} showFull={upSm} />
+                <CopyAddressButton
+                  size='tiny'
+                  address={safeAddress}
+                  color='primary'
+                  variant='light'
+                  className='opacity-50'
+                />
                 <Button color='primary' isIconOnly size='tiny' variant='light' onClick={toggleQrOpen}>
                   <IconQrcode style={{ opacity: 0.5 }} />
                 </Button>
