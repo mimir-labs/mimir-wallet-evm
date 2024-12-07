@@ -12,6 +12,7 @@ export type SafeInfo = {
 export interface Multisig {
   name: string | undefined | null;
   address: Address;
+  chainId: number;
   isMimir: boolean;
   createdAt: number;
   updatedAt: number;
@@ -24,7 +25,7 @@ export interface Multisig {
   transaction: Hash;
   updateBlock?: number;
   updateTransaction?: Hash;
-  chainId: number;
+  readonly: boolean;
 }
 
 export type IWalletClient = WalletClient<Transport, Chain, Account>;
@@ -62,6 +63,7 @@ export interface BaseAccount {
 
   members?: BaseAccount[];
   threshold?: number;
+  supportedChains: number[];
 }
 
 export interface SafeAccount extends BaseAccount {

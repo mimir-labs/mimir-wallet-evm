@@ -3,9 +3,9 @@
 
 import { Link } from '@nextui-org/react';
 import React from 'react';
-import { useChains } from 'wagmi';
 
 import IconAnchor from '@mimir-wallet/assets/svg/icon-anchor.svg?react';
+import { useChain } from '@mimir-wallet/hooks';
 import { explorerUrl } from '@mimir-wallet/utils';
 
 import Address from './Address';
@@ -15,6 +15,8 @@ import Button from './Button';
 import CopyAddressButton from './CopyAddressButton';
 
 interface Props {
+  className?: string;
+  chainId?: number;
   address?: string | null | undefined;
   showFull?: boolean;
   iconSize?: number;
@@ -27,6 +29,8 @@ interface Props {
 }
 
 function AddressRow({
+  className,
+  chainId,
   iconSize,
   thresholdVisible,
   fallbackName,
@@ -37,15 +41,16 @@ function AddressRow({
   withExplorer,
   isToken
 }: Props) {
-  const [chain] = useChains();
+  const chain = useChain(chainId);
 
   return (
-    <div className='inline-flex items-center gap-x-[5px]'>
+    <div className={`inline-flex items-center gap-x-[5px] ${className || ''}`}>
       <AddressIcon isToken={isToken} size={iconSize} address={address} thresholdVisible={thresholdVisible} />
       <AddressName
+        chainId={chainId}
         address={address}
         disableEns={disableEns}
-        fallback={fallbackName || <Address address={address} showFull={showFull} />}
+        fallback={fallbackName || <Address chainId={chainId} address={address} showFull={showFull} />}
       />
       <span className='inline-flex items-center' style={{ display: withCopy || withExplorer ? undefined : 'none' }}>
         {withCopy && <CopyAddressButton style={{ color: 'inherit' }} size='tiny' address={address} />}
@@ -54,7 +59,7 @@ function AddressRow({
             size='tiny'
             as={Link}
             target='_blank'
-            href={explorerUrl('address', chain, address)}
+            href={chain ? explorerUrl('address', chain, address) : undefined}
             isIconOnly
             variant='light'
             style={{ color: 'inherit' }}

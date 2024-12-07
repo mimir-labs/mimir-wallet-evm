@@ -7,10 +7,9 @@ import type { CallFunctions, ParsedCall } from '@mimir-wallet/hooks/types';
 import { TRANSITION_VARIANTS } from '@nextui-org/framer-utils';
 import { domAnimation, LazyMotion, motion, useWillChange } from 'framer-motion';
 import React, { useState } from 'react';
-import { useAccount } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
-import { useParseCall, useParseMultisend } from '@mimir-wallet/hooks';
+import { useCurrentChain, useParseCall, useParseMultisend } from '@mimir-wallet/hooks';
 import { Operation } from '@mimir-wallet/safe/types';
 
 import Button from '../Button';
@@ -41,7 +40,7 @@ function Item({
 }) {
   const [dataSize, parsed] = useParseCall(data);
   const multisend = useParseMultisend(parsed);
-  const { chain } = useAccount();
+  const [, chain] = useCurrentChain();
   const willChange = useWillChange();
 
   const Top = (

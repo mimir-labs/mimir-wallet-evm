@@ -7,11 +7,16 @@ import type { SafeTransaction } from '@mimir-wallet/safe/types';
 import { CircularProgress, Input, Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
-import { useChainId } from 'wagmi';
 
 import IconRefresh from '@mimir-wallet/assets/svg/icon-refresh.svg?react';
 import { Button } from '@mimir-wallet/components';
-import { useInputNumber, useParseCall, usePendingTransactions, useSafeNonce } from '@mimir-wallet/hooks';
+import {
+  useCurrentChain,
+  useInputNumber,
+  useParseCall,
+  usePendingTransactions,
+  useSafeNonce
+} from '@mimir-wallet/hooks';
 
 function FuncionName({ data }: { data: Hex }) {
   const [, parsed] = useParseCall(data);
@@ -32,7 +37,7 @@ function CustomNonce({
   isCancel: boolean;
   setCustomNonce: (value: bigint) => void;
 }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [onChainNonce] = useSafeNonce(address);
   const [[nonce], setNonce] = useInputNumber(undefined, true, 0);
   const [isOpen, toggleOpen] = useToggle(false);

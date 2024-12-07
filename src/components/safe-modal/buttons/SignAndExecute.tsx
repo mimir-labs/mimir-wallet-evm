@@ -10,12 +10,13 @@ import { Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Tool
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { useToggle } from 'react-use';
 import { padHex } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import IconSuccess from '@mimir-wallet/assets/svg/icon-success.svg?react';
 import Button from '@mimir-wallet/components/Button';
 import ButtonEnable from '@mimir-wallet/components/ButtonEnable';
 import { PENDING_SAFE_TX_PREFIX } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { buildBytesSignatures, execute, signSafeTransaction } from '@mimir-wallet/safe';
 import { addressEq, service, session } from '@mimir-wallet/utils';
@@ -92,7 +93,7 @@ function SignAndExecute({
   onSuccess?: (safeTx: SafeTransaction) => void;
 }) {
   const { isSigner } = useContext(AddressContext);
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [isOpen, toggleOpen] = useToggle(false);
   const [errors, setErrors] = useState<[Error | null, Error | null]>([null, null]);
   const [showRetry, setShowRetry] = useState(false);

@@ -3,16 +3,18 @@
 
 import React from 'react';
 
-import { useAddressName } from '@mimir-wallet/hooks';
+import { useAddressName, useCurrentChain } from '@mimir-wallet/hooks';
 
 interface Props {
+  chainId?: number;
   address?: string | null | undefined;
   disableEns?: boolean;
   fallback?: React.ReactNode;
 }
 
-function AddressName({ fallback, disableEns, address }: Props) {
-  const name = useAddressName(address, disableEns, fallback);
+function AddressName({ chainId: propsChainId, fallback, disableEns, address }: Props) {
+  const [chainId] = useCurrentChain();
+  const name = useAddressName(propsChainId ?? chainId, address, disableEns, fallback);
 
   return name;
 }

@@ -3,12 +3,12 @@
 
 import { Link } from '@nextui-org/react';
 import React from 'react';
-import { useChains } from 'wagmi';
 
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { explorerUrl } from '@mimir-wallet/utils';
 
 function Hash({ hash, withExplorer }: { hash: string; withExplorer: boolean }) {
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
 
   if (withExplorer) {
     return (

@@ -19,7 +19,7 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 
 import App from './App';
-import { initializeFavoriteApps, initMimirConfig } from './config';
+import { initializeFavoriteApps, initMimirConfig, upgradeAddressBook } from './config';
 import { initGa } from './initGa';
 
 dayjs.extend((_, dayjsClass) => {
@@ -44,6 +44,7 @@ ChartJS.register(
 );
 
 initializeFavoriteApps();
+upgradeAddressBook();
 
 const mimirConfig = initMimirConfig();
 
@@ -52,13 +53,7 @@ const container = document.querySelector('#root');
 if (container) {
   const root = createRoot(container);
 
-  root.render(
-    <App
-      address={mimirConfig.address}
-      config={mimirConfig.walletConfig}
-      refetchInterval={mimirConfig.refetchInterval}
-    />
-  );
+  root.render(<App config={mimirConfig.walletConfig} />);
 }
 
 if (process.env.NODE_ENV === 'production') {

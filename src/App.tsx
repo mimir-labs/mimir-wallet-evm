@@ -1,7 +1,6 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'abitype';
 import type { Config } from 'wagmi';
 
 import { useRef } from 'react';
@@ -22,20 +21,12 @@ import PageSetting from './pages/setting';
 import PageTransactions from './pages/transactions';
 import Providers from './providers/providers';
 
-function App({
-  address,
-  config,
-  refetchInterval
-}: {
-  address?: Address;
-  config: Config;
-  refetchInterval?: number;
-}): React.ReactElement {
+function App({ config }: { config: Config }): React.ReactElement {
   const router = useRef(
     createBrowserRouter([
       {
         element: (
-          <Providers address={address} config={config} refetchInterval={refetchInterval}>
+          <Providers config={config}>
             <Outlet />
           </Providers>
         ),

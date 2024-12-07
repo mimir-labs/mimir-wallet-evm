@@ -11,16 +11,15 @@ import { Card, CardBody, CardFooter, Divider, Spinner } from '@nextui-org/react'
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
-import { useChainId } from 'wagmi';
 
 import { AddressRow, Alert, Button, Input } from '@mimir-wallet/components';
-import { useInputAddress } from '@mimir-wallet/hooks';
+import { useCurrentChain, useInputAddress } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { service } from '@mimir-wallet/utils';
 
 function ImportMultisig(): React.ReactElement {
   const { switchAddress } = useContext(AddressContext);
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [isLoading, toggleLoading] = useToggle(false);
   const [alert, setAlert] = useState<React.ReactNode>(null);
@@ -120,8 +119,7 @@ function ImportMultisig(): React.ReactElement {
             onClick={
               safeAccount
                 ? () => {
-                    switchAddress(safeAccount.address);
-                    navigate('/');
+                    switchAddress(chainId, safeAccount.address, '/');
                   }
                 : undefined
             }

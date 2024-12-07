@@ -10,7 +10,7 @@ import { zeroAddress } from 'viem';
 
 import IconAdd from '@mimir-wallet/assets/svg/icon-add.svg?react';
 import IconSend from '@mimir-wallet/assets/svg/icon-send-filled.svg?react';
-import { Address as AddressComp, AddressIcon, Button, Empty } from '@mimir-wallet/components';
+import { Address as AddressComp, AddressIcon, Button, CopyAddressButton, Empty } from '@mimir-wallet/components';
 import { useAccountTokens, useMediaQuery } from '@mimir-wallet/hooks';
 
 import AddToken from './AddToken';
@@ -63,6 +63,12 @@ function Tokens({ address }: { address: Address }) {
                       <AddressComp address={item.tokenAddress} />
                     </span>
                   )}
+                  <CopyAddressButton
+                    size='tiny'
+                    address={item.tokenAddress}
+                    variant='light'
+                    className='text-foreground/50'
+                  />
                 </div>
               </TableCell>
               <TableCell>${item.price}</TableCell>

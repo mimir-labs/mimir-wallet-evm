@@ -20,13 +20,13 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToggle } from 'react-use';
 import { isAddress } from 'viem';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
 import { Button, InputAddress, SafeTxButton } from '@mimir-wallet/components';
 import { useDelayModules, useRecoveryTxs } from '@mimir-wallet/features/delay';
-import { useInputAddress } from '@mimir-wallet/hooks';
+import { useCurrentChain, useInputAddress } from '@mimir-wallet/hooks';
 import { buildAddRecovery } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -53,7 +53,7 @@ const expiryTimes = {
 } as const;
 
 function Recovery({ address }: { address?: Address }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { address: account } = useAccount();
   const [isOpen, toggleOpen] = useToggle(false);
   const [isAlertOpen, toggleAlertOpen] = useToggle(false);

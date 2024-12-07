@@ -5,14 +5,13 @@ import type { BaseAccount } from '@mimir-wallet/safe/types';
 
 import { Card, Skeleton } from '@nextui-org/react';
 import React, { useMemo } from 'react';
-import { useChainId } from 'wagmi';
 
 import { Empty, RecoveryTxCard, SafeTxCard } from '@mimir-wallet/components';
 import { useRecoveryTxs } from '@mimir-wallet/features/delay';
-import { usePendingTransactions } from '@mimir-wallet/hooks';
+import { useCurrentChain, usePendingTransactions } from '@mimir-wallet/hooks';
 
 function Pending({ account }: { account: BaseAccount }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [{ current, queue }, isFetchedTx, isFetchingTx, refetch] = usePendingTransactions(chainId, account.address);
   const [recoveryTxs, isFetchedRecovery, isFetchingRecovery] = useRecoveryTxs(chainId, account.address);
 

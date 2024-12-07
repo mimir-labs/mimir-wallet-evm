@@ -3,23 +3,21 @@
 
 import type { Address } from 'abitype';
 import type { Multisig } from '@mimir-wallet/safe/types';
+import type { AccountResponse } from '@mimir-wallet/utils/types';
+
+import { getAddress } from 'viem';
 
 import { service, sleep } from '@mimir-wallet/utils';
 
-export async function querySync(
-  chainId: number,
-  address: Address,
-  setMultisigs: (values: Multisig[]) => void
-): Promise<Multisig[]> {
-  return service
-    .getOwnedAccountForAllChain(address)
-    .then((data) => {
-      const multisigs: Multisig[] = Object.values(data)
-        .flat()
+export function transformMultisig(data: Record<Address, AccountResponse[]>) {
+  const multisigs: Record<Address, Multisig[]> = Object.entries(data).reduce<Record<Address, Multisig[]>>(
+    (result, [address, items]) => {
+      result[getAddress(address)] = items
         .filter((item) => item.type === 'safe')
         .map((account) => ({
           address: account.address,
           chainId: account.chainId,
+          readonly: !!account.readonly,
           name: account.name,
           isMimir: account.isMimir,
           createdAt: account.createdAt,
@@ -35,6 +33,23 @@ export async function querySync(
           updateTransaction: account.updateTransaction
         }));
 
+      return result;
+    },
+    {}
+  );
+
+  return multisigs;
+}
+
+export async function querySync(
+  address: Address,
+  setMultisigs: (values: Record<Address, Multisig[]>) => void
+): Promise<Record<Address, Multisig[]>> {
+  return service
+    .getOwnedAccountForAllChain(address)
+    .then((data) => {
+      const multisigs = transformMultisig(data);
+
       setMultisigs(multisigs);
 
       return multisigs;
@@ -42,6 +57,6 @@ export async function querySync(
     .catch(async () => {
       await sleep(3000);
 
-      return querySync(chainId, address, setMultisigs);
+      return querySync(address, setMultisigs);
     });
 }

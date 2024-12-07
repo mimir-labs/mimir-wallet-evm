@@ -24,7 +24,6 @@ import dayjs from 'dayjs';
 import React, { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useToggle } from 'react-use';
-import { useChainId } from 'wagmi';
 
 import IconFilter from '@mimir-wallet/assets/svg/icon-filter.svg?react';
 import {
@@ -36,7 +35,7 @@ import {
   ReceivedCard,
   SafeTxCard
 } from '@mimir-wallet/components';
-import { useAccountTokens, useHistory, useMediaQuery, useQueryParam } from '@mimir-wallet/hooks';
+import { useAccountTokens, useCurrentChain, useHistory, useMediaQuery, useQueryParam } from '@mimir-wallet/hooks';
 import {
   HistoryType,
   ModuleTransactionResponse,
@@ -63,7 +62,7 @@ const skeleton = Array.from({ length: 6 }).map((_, index) => (
 ));
 
 function Content({ safeAccount, type, filter }: { safeAccount: BaseAccount; type?: HistoryType; filter?: Filter }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
 
   const [data, isFetched, isFetching, hasNexPage, , fetchNextPage] = useHistory(
     chainId,
@@ -94,7 +93,7 @@ function Content({ safeAccount, type, filter }: { safeAccount: BaseAccount; type
       next={fetchNextPage}
       hasMore={hasNexPage}
       loader={skeleton}
-      endMessage={<h4 className='text-medium text-center text-foreground/50'>no data more.</h4>}
+      endMessage={<h4 className='text-medium text-center text-foreground/50'>No more data.</h4>}
     >
       {data?.map((item) => {
         const element =

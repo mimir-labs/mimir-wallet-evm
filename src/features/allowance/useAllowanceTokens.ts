@@ -5,11 +5,12 @@ import type { Address } from 'abitype';
 import type { Allowance, TokenAllowance } from './types';
 
 import { useQuery } from '@tanstack/react-query';
-import { useChainId, usePublicClient } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import { moduleDeployments } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { IPublicClient } from '@mimir-wallet/safe/types';
 
 import { useAllowanceDelegates } from './useDelegates';
@@ -60,7 +61,7 @@ export function useAllowanceTokens(
   safeAddress: Address
 ): [data: TokenAllowance[], isFetched: boolean, isFetching: boolean] {
   const [delegates, _isFetched, _isFetching] = useAllowanceDelegates(safeAddress);
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const client = usePublicClient({ chainId });
   const { data, isFetched, isFetching } = useQuery({
     initialData: EmptyArray,

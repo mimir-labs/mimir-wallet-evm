@@ -6,19 +6,20 @@ import type { Multisig } from '@mimir-wallet/safe/types';
 
 import { Divider, Link, Select, SelectItem } from '@nextui-org/react';
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import { getAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 import IconAdd from '@mimir-wallet/assets/svg/icon-add.svg?react';
 import IconSend from '@mimir-wallet/assets/svg/icon-send-filled.svg?react';
 import { AddressRow, Button, ButtonEnable } from '@mimir-wallet/components';
+import { supportedChains } from '@mimir-wallet/config';
 import { useMediaQuery } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 function Detected({ multisigs }: { multisigs: Multisig[] }) {
   const { switchAddress } = useContext(AddressContext);
-  const [selected, setSelected] = useState<Address>(multisigs[0].address);
-  const navigate = useNavigate();
+  const [selected, setSelected] = useState<[Address, number]>([multisigs[0].address, multisigs[0].chainId]);
 
   return (
     <div className='space-y-2.5 sm:w-[400px] w-full'>
@@ -26,8 +27,12 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
         color='secondary'
         variant='bordered'
         items={multisigs}
-        selectedKeys={[selected]}
-        onChange={(e) => setSelected(e.target.value as Address)}
+        selectedKeys={[selected.join('-')]}
+        onChange={(e) => {
+          const [address, chainId] = e.target.value.split('-');
+
+          setSelected([getAddress(address), Number(chainId)]);
+        }}
         renderValue={(items) => {
           return items.map((item) => (
             <div key={item.key} className='flex items-center'>
@@ -44,15 +49,17 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
         }}
       >
         {(item) => (
-          <SelectItem key={item.address} textValue={item.name || item.address}>
-            <div className='flex items-center'>
+          <SelectItem key={`${item.address}-${item.chainId}`} textValue={item.name || item.address}>
+            <div className='flex items-center justify-between'>
               <AddressRow
+                className='flex-grow-[1]'
                 thresholdVisible={false}
                 address={item.address}
                 fallbackName={item.name}
                 iconSize={20}
                 showFull
               />
+              {supportedChains.find(({ id }) => item.chainId === id)?.name}
             </div>
           </SelectItem>
         )}
@@ -62,8 +69,7 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
         fullWidth
         radius='full'
         onClick={() => {
-          switchAddress(selected);
-          navigate('/');
+          switchAddress(selected[1], selected[0], '/');
         }}
       >
         Login
@@ -79,7 +85,13 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
           Import Multisig
         </Button>
       </div>
-      <Button onClick={() => switchAddress(selected)} variant='light' color='primary'>
+      <Button
+        onClick={() => {
+          switchAddress(selected[1], selected[0], '/');
+        }}
+        variant='light'
+        color='primary'
+      >
         {'Skip>'}
       </Button>
     </div>
@@ -88,8 +100,12 @@ function Detected({ multisigs }: { multisigs: Multisig[] }) {
 
 function Welcome() {
   const { isConnected } = useAccount();
-  const { multisigs } = useContext(AddressContext);
+  const { multisigs, current } = useContext(AddressContext);
   const upSm = useMediaQuery('sm');
+
+  if (current) {
+    return <Navigate replace to='/' />;
+  }
 
   return (
     <div className='flex justify-center items-center sm:flex-row flex-col lg:gap-[80px] md:gap-[60px] sm:gap-[40px] gap-[20px] h-full'>
@@ -109,7 +125,7 @@ function Welcome() {
           <br />· Enterprise-Level Operation
         </p>
         {isConnected ? (
-          multisigs.length === 0 ? (
+          Object.keys(multisigs).length === 0 ? (
             <>
               <Button
                 as={Link}
@@ -135,7 +151,7 @@ function Welcome() {
           ) : (
             <>
               <h5 className='font-extrabold text-xl'>Detected Multisig</h5>
-              <Detected multisigs={multisigs} />
+              <Detected multisigs={Object.values(multisigs).flat()} />
             </>
           )
         ) : (

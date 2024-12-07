@@ -6,9 +6,9 @@ import type { RecoveryTx } from '@mimir-wallet/features/delay/types';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useToggle } from 'react-use';
-import { useAccount } from 'wagmi';
 
 import { AddressRow, Bytes, FormatBalance } from '@mimir-wallet/components';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { Operation } from '@mimir-wallet/safe/types';
 
 import { Item } from '../tx-cell/Details';
@@ -21,7 +21,7 @@ interface Props {
 
 function Details({ tx, cooldown, expiration }: Props) {
   const [isOpen, toggleOpen] = useToggle(false);
-  const { chain } = useAccount();
+  const [, chain] = useCurrentChain();
 
   return (
     <>

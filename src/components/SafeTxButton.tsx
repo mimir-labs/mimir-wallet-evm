@@ -27,7 +27,7 @@ interface Props extends ButtonEnableProps {
   metadata?: { website?: string; iconUrl?: string; appName?: string };
   addressChain?: Address[];
   onSuccess?: () => void;
-  buildTx?: (wallet: IWalletClient, client: IPublicClient) => Promise<MetaTransaction>;
+  buildTx?: (wallet: IWalletClient, client: IPublicClient) => Promise<MetaTransaction | undefined>;
   onOpenTx?: () => void;
 }
 
@@ -60,6 +60,8 @@ function SafeTxButton({
         }
 
         const tx = await buildTx(wallet, client);
+
+        if (!tx) return;
 
         addTx({
           isApprove,

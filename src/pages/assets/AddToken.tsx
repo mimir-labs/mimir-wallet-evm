@@ -4,11 +4,10 @@
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Skeleton } from '@nextui-org/react';
 import { useContext } from 'react';
 import { isAddress } from 'viem';
-import { useChainId } from 'wagmi';
 
 import IconSearch from '@mimir-wallet/assets/svg/icon-search.svg?react';
 import { Address, AddressIcon, Empty, FormatBalance, Input } from '@mimir-wallet/components';
-import { useAccountBalance, useInputAddress } from '@mimir-wallet/hooks';
+import { useAccountBalance, useCurrentChain, useInputAddress } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 interface Props {
@@ -17,7 +16,7 @@ interface Props {
 }
 
 function AddToken({ isOpen, onClose }: Props) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { current, addCustomToken } = useContext(AddressContext);
   const [[address], setAddress] = useInputAddress();
   const [balance, isFetched, isFetching] = useAccountBalance(current, isAddress(address) ? address : undefined);

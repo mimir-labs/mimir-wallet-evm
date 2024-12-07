@@ -4,11 +4,9 @@
 import type { ButtonProps } from './types';
 
 import React from 'react';
-import { useChains } from 'wagmi';
 
-import { CustomChain } from '@mimir-wallet/config';
 import { ENABLE_EIP_3770_KEY } from '@mimir-wallet/constants';
-import { useLocalStore } from '@mimir-wallet/hooks';
+import { useCurrentChain, useLocalStore } from '@mimir-wallet/hooks';
 
 import CopyButton from './CopyButton';
 
@@ -19,8 +17,8 @@ interface Props extends Omit<ButtonProps, 'value'> {
 
 function CopyAddressButton({ address, ...props }: Props) {
   const [enableEip3770] = useLocalStore(ENABLE_EIP_3770_KEY, false);
-  const [chain] = useChains();
-  const shortName = (chain as CustomChain | undefined)?.shortName || '';
+  const [, chain] = useCurrentChain();
+  const shortName = chain?.shortName || '';
 
   return <CopyButton {...props} value={address ? `${enableEip3770 ? `${shortName}:` : ''}${address}` : '0x'} />;
 }

@@ -5,15 +5,15 @@ import type { Nft } from '@mimir-wallet/hooks/types';
 
 import { Avatar, Card, CardBody, CardFooter } from '@nextui-org/react';
 import React from 'react';
-import { useAccount } from 'wagmi';
 
 import EtherscanIcon from '@mimir-wallet/assets/images/etherscan.svg';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { explorerUrl } from '@mimir-wallet/utils';
 
 interface Props extends Nft {}
 
 function NftCard({ imageUrl, tokenId, contractAddress }: Props) {
-  const { chain } = useAccount();
+  const [, chain] = useCurrentChain();
 
   return (
     <Card>

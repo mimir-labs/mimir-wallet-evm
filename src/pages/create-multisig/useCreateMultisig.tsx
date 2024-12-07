@@ -1,17 +1,17 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'viem';
 import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 import type { AccountResponse } from '@mimir-wallet/utils/types';
 
 import { Link, Spinner } from '@nextui-org/react';
 import React, { useRef } from 'react';
 import { useSetState } from 'react-use';
+import { type Address, decodeAbiParameters, type Hex } from 'viem';
 
 import { AddressCell, FailedAnimation, SuccessAnimation, TxError, WaitingAnimation } from '@mimir-wallet/components';
 import { deployments } from '@mimir-wallet/config';
-import { type CreateSafeRequest, createSafeRequest } from '@mimir-wallet/safe';
+import { encodeCreateSafeData } from '@mimir-wallet/safe';
 import { explorerUrl, service, sleep } from '@mimir-wallet/utils';
 
 import Cell from './Cell';
@@ -25,10 +25,12 @@ export interface CreateMultisigState {
   error?: Error | null;
 }
 
-async function simulate(client: IPublicClient, args: CreateSafeRequest) {
-  const { result } = await client.simulateContract(args);
+async function simulate(client: IPublicClient, to: Address, data: Hex) {
+  const result = await client.call({ to, data });
 
-  return result;
+  const [address] = decodeAbiParameters([{ type: 'address' }], result.data!);
+
+  return address;
 }
 
 const initialState: CreateMultisigState = {
@@ -51,35 +53,46 @@ const initialState: CreateMultisigState = {
 };
 
 export function useCreateMultisig(
-  owners: Address[],
-  threshold: bigint,
-  name: string,
-  salt?: bigint
+  name: string
 ): [
   state: CreateMultisigState,
-  start: (client: IPublicClient, wallet: IWalletClient) => Promise<void>,
+  start: (
+    client: IPublicClient,
+    wallet: IWalletClient,
+    dataOrArgs:
+      | { type: 'data'; to: Address; data: Hex }
+      | { type: 'setup'; owners: Address[]; threshold: bigint; salt?: bigint }
+  ) => Promise<void>,
   reset: () => void
 ] {
   const [state, setState] = useSetState<CreateMultisigState>(initialState);
-  const requestRef = useRef<CreateSafeRequest | null>(null);
+  const dataRef = useRef<{ to: Address; data: Hex } | null>(null);
   const addressRef = useRef<Address | null>(null);
 
   const starter = [
-    async (client: IPublicClient, wallet: IWalletClient) => {
+    async (
+      client: IPublicClient,
+      wallet: IWalletClient,
+      dataOrArgs:
+        | { type: 'data'; to: Address; data: Hex }
+        | { type: 'setup'; owners: Address[]; threshold: bigint; salt?: bigint }
+    ) => {
       const fallbackHandler = deployments[wallet.chain.id].CompatibilityFallbackHandler[0];
 
-      const request = createSafeRequest(
-        wallet.chain,
-        wallet.account.address,
-        {
-          owners,
-          threshold,
-          fallbackHandler
-        },
-        undefined,
-        undefined,
-        salt
-      );
+      const data =
+        dataOrArgs.type === 'data'
+          ? dataOrArgs
+          : encodeCreateSafeData(
+              wallet.chain,
+              {
+                owners: dataOrArgs.owners,
+                threshold: dataOrArgs.threshold,
+                fallbackHandler
+              },
+              undefined,
+              undefined,
+              dataOrArgs.salt
+            );
 
       setState((state) => ({
         ...state,
@@ -100,9 +113,9 @@ export function useCreateMultisig(
         )
       }));
 
-      requestRef.current = request;
+      dataRef.current = data;
 
-      return simulate(client, request)
+      return simulate(client, data.to, data.data)
         .then((address) => {
           addressRef.current = address;
           setState((state) => ({
@@ -142,11 +155,11 @@ export function useCreateMultisig(
     },
 
     async (client: IPublicClient, wallet: IWalletClient) => {
-      if (!requestRef.current) {
+      if (!dataRef.current) {
         throw new Error('Please retry');
       }
 
-      const request = requestRef.current;
+      const { to, data } = dataRef.current;
 
       setState((state) => ({
         ...state,
@@ -167,8 +180,13 @@ export function useCreateMultisig(
         )
       }));
 
+      await wallet.switchChain({ id: wallet.chain.id });
+
       return wallet
-        .writeContract(request)
+        .sendTransaction({
+          to,
+          data
+        })
         .then((hash) => {
           service.createMultisig(wallet.chain.id, hash, name);
 
@@ -306,13 +324,19 @@ export function useCreateMultisig(
     }
   ];
 
-  const start = async (client: IPublicClient, wallet: IWalletClient) => {
+  const start = async (
+    client: IPublicClient,
+    wallet: IWalletClient,
+    dataOrArgs:
+      | { type: 'data'; to: Address; data: Hex }
+      | { type: 'setup'; owners: Address[]; threshold: bigint; salt?: bigint }
+  ) => {
     try {
       setState((state) => ({ ...state, isLoading: true }));
 
       for (let i = state.currentStep; i < state.steps.length; i++) {
         // eslint-disable-next-line no-await-in-loop
-        await starter[i](client, wallet);
+        await starter[i](client, wallet, dataOrArgs);
       }
     } catch (error) {
       console.log(error);

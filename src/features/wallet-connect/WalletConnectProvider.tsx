@@ -8,8 +8,8 @@ import type { SafeMessage, SafeTransaction } from '@mimir-wallet/safe/types';
 import { getSdkError } from '@walletconnect/utils';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Address, getAddress, hexToBigInt, hexToString } from 'viem';
-import { useChainId } from 'wagmi';
 
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 import { buildSafeTransaction, hashSafeTransaction } from '@mimir-wallet/safe';
 import { addressEq } from '@mimir-wallet/utils';
@@ -28,7 +28,7 @@ import {
 export const WalletConnectContext = createContext<WalletConnectState>({} as WalletConnectState);
 
 function WalletConnectProvider({ children }: { children: React.ReactNode }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { current } = useContext(AddressContext);
   const { addTx, addMessage } = useContext(SafeTxContext);
   const [isReady, setReady] = useState(false);

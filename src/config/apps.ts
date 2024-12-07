@@ -80,12 +80,12 @@ export const apps: AppConfig[] = [
     id: 1001,
     name: 'Transfer',
     url: 'mimir://app/transfer',
-    icon: LogoCircle,
+    icon: '/app-icons/transfer.webp',
     desc: 'Swiftly complete asset transfers with other users, developed by Mimir.',
     website: 'https://mimir.global/',
     github: 'https://github.com/mimir-labs/',
     twitter: 'https://x.com/Mimir_global/',
-    tags: ['Assets'],
+    tags: ['Assets', 'Transfer'],
     Component: () => import('@mimir-wallet/apps/transfer').then((res) => res.default)
   },
   {
@@ -100,6 +100,18 @@ export const apps: AppConfig[] = [
     tags: ['Batch', 'Cache'],
     Component: () => import('@mimir-wallet/apps/batch').then((res) => res.default),
     isDrawer: true
+  },
+  {
+    id: 1003,
+    name: 'Multi Transfer',
+    url: 'mimir://app/multi-transfer',
+    icon: '/app-icons/multi-transfer.webp',
+    desc: 'Swiftly complete asset transfers with other users, developed by Mimir.',
+    website: 'https://mimir.global/',
+    github: 'https://github.com/mimir-labs/',
+    twitter: 'https://x.com/Mimir_global/',
+    tags: ['Assets', 'Transfer', 'MultiTransfer'],
+    Component: () => import('@mimir-wallet/apps/multi-transfer').then((res) => res.default)
   },
   {
     id: 10001,

@@ -8,10 +8,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Address } from 'abitype';
 import { useContext, useMemo } from 'react';
 import { erc20Abi, formatUnits, zeroAddress } from 'viem';
-import { useBalance, useChainId, useReadContract, useReadContracts } from 'wagmi';
+import { useBalance, useReadContract, useReadContracts } from 'wagmi';
 
 import { assetsSrviceUrl } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -36,7 +37,7 @@ function _combineResults(data: AccountBalances, customTokens: CustomToken[], bal
 }
 
 export function useAccountTokens(address?: Address) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { data, isFetched, isFetching } = useQuery<AccountBalances>({
     initialData: {
       assets: EmptyArray,
@@ -65,6 +66,7 @@ export function useAccountTokens(address?: Address) {
     allowFailure: false,
     contracts: address
       ? chainTokens.map((item) => ({
+          chainId,
           address: item.address,
           abi: erc20Abi,
           functionName: 'balanceOf',
@@ -80,6 +82,29 @@ export function useAccountTokens(address?: Address) {
   ] as const;
 }
 
+export function useAccountTotalUsd(address?: Address, enabled?: boolean) {
+  const { data, isFetched, isFetching } = useQuery<{ [chainId: number]: string }>({
+    queryHash: assetsSrviceUrl(`addresses/${address}/total_balance_usd`),
+    queryKey: [address ? assetsSrviceUrl(`addresses/${address}/total_balance_usd`) : null],
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
+    enabled: !!enabled
+  });
+
+  return [
+    useMemo(
+      () =>
+        [
+          data || {},
+          Object.values(data || {}).reduce<string>((result, item) => (Number(result) + Number(item)).toString(), '0')
+        ] as const,
+      [data]
+    ),
+    isFetched,
+    isFetching
+  ] as const;
+}
+
 export function useAccountBalance(
   address?: Address,
   token?: Address
@@ -88,6 +113,7 @@ export function useAccountBalance(
   isFetched: boolean,
   isFetching: boolean
 ] {
+  const [chainId] = useCurrentChain();
   const [meta, isFetched, isFetching] = useToken(token);
   const {
     data,
@@ -96,6 +122,7 @@ export function useAccountBalance(
   } = useReadContract(
     address
       ? {
+          chainId,
           address: token,
           abi: erc20Abi,
           functionName: 'balanceOf',
@@ -108,7 +135,7 @@ export function useAccountBalance(
     data: nativeBalance,
     isFetched: isFetched3,
     isFetching: isFetching3
-  } = useBalance({ address: token === zeroAddress ? address : undefined });
+  } = useBalance({ chainId, address: token === zeroAddress ? address : undefined });
 
   return useMemo(
     () => [

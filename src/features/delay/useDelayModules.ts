@@ -5,18 +5,19 @@ import type { Address } from 'abitype';
 import type { DelayModule, DelayModuleResponse } from './types';
 
 import { useQuery } from '@tanstack/react-query';
-import { useChainId, useReadContracts } from 'wagmi';
+import { useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import { serviceUrl } from '@mimir-wallet/config';
 import { EmptyArray } from '@mimir-wallet/constants';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 const SENTINEL_MODULES: Address = '0x0000000000000000000000000000000000000001' as const;
 
 export function useDelayAddress(
   address?: Address
 ): [data: DelayModuleResponse[], isFetched: boolean, isFetching: boolean] {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({
     initialData: EmptyArray,
     refetchInterval: false,
@@ -28,7 +29,7 @@ export function useDelayAddress(
 }
 
 export function useDelayModules(address?: Address): [data: DelayModule[], isFetched: boolean, isFetching: boolean] {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { data, isFetched, isFetching } = useQuery<DelayModuleResponse[]>({
     initialData: EmptyArray,
     refetchInterval: false,

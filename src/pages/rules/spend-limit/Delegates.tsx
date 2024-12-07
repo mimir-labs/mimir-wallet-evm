@@ -8,13 +8,12 @@ import type { TokenMeta } from '@mimir-wallet/hooks/types';
 import { Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import React, { useMemo } from 'react';
-import { useChains } from 'wagmi';
 
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
 import { AddressIcon, AddressRow, Empty, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import { ONE_DAY } from '@mimir-wallet/constants';
 import { useAllowanceTokens } from '@mimir-wallet/features/allowance';
-import { useTokens } from '@mimir-wallet/hooks';
+import { useCurrentChain, useTokens } from '@mimir-wallet/hooks';
 import { buildDeleteAllowance } from '@mimir-wallet/safe';
 
 import TooltipItem from '../TooltipItem';
@@ -23,7 +22,7 @@ function Delegates({ safeAccount }: { safeAccount: Address }) {
   const [data, isDataFetched, isDataFetching] = useAllowanceTokens(safeAccount);
   const tokens = useMemo(() => Array.from(new Set(data.map((item) => item.token))), [data]);
   const ercTokens = useTokens(tokens);
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
 
   const items = useMemo(
     (): Array<TokenAllowance & { tokenMeta?: TokenMeta }> =>

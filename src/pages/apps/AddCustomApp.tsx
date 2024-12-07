@@ -4,16 +4,16 @@
 import type { AppConfig } from '@mimir-wallet/config';
 
 import { Avatar, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner } from '@nextui-org/react';
+import { join } from 'path';
 import React, { useCallback, useRef, useState } from 'react';
-import { useChainId } from 'wagmi';
 
 import IconEdit from '@mimir-wallet/assets/svg/icon-edit.svg?react';
 import { Alert, Button, Input } from '@mimir-wallet/components';
-import { useDebounceFn, useVisibleApps } from '@mimir-wallet/hooks';
+import { useCurrentChain, useDebounceFn, useVisibleApps } from '@mimir-wallet/hooks';
 import { isValidURL } from '@mimir-wallet/utils';
 
 function AddCustomApp({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
   const editRef = useRef<HTMLInputElement>(null);
@@ -47,27 +47,29 @@ function AddCustomApp({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
       try {
         const _url = new URL(val);
 
-        const html = await fetch(_url, { redirect: 'follow' }).then((res) => res.text());
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
+        _url.pathname = join(_url.pathname, 'manifest.json');
 
-        const title = doc.querySelector('title') ? doc.querySelector('title')?.innerText : '';
-        const description = doc.querySelector('meta[name="description"]')
-          ? doc.querySelector('meta[name="description"]')?.getAttribute('content')
-          : '';
-        const icon = doc.querySelector('link[rel~="icon"]')
-          ? doc.querySelector('link[rel~="icon"]')?.getAttribute('href')
-          : '';
+        const json = await fetch(_url).then((res) => res.json());
 
+        const title = json.name || '';
+        const description = json.description || '';
         let iconUrl: string | undefined;
 
-        if (icon) {
-          if (isValidURL(icon)) {
-            iconUrl = icon;
-          } else {
+        if (json.iconPath) {
+          iconUrl = json.iconPath;
+        } else if (json.icons && Array.isArray(json.icons) && json.icons.length > 0) {
+          const url = new URL(val);
+
+          url.pathname = json.icons[0].src;
+
+          iconUrl = url.toString();
+        }
+
+        if (iconUrl) {
+          if (!isValidURL(iconUrl)) {
             const url = new URL(val);
 
-            url.pathname = icon;
+            url.pathname = join(url.pathname, iconUrl);
 
             iconUrl = url.toString();
           }
@@ -78,20 +80,30 @@ function AddCustomApp({ isOpen, onClose }: { isOpen: boolean; onClose: () => voi
         try {
           const _url = new URL(val);
 
-          _url.pathname = 'manifest.json';
+          const html = await fetch(_url, { redirect: 'follow' }).then((res) => res.text());
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
 
-          const json = await fetch(_url).then((res) => res.json());
+          const title = doc.querySelector('title') ? doc.querySelector('title')?.innerText : '';
+          const description = doc.querySelector('meta[name="description"]')
+            ? doc.querySelector('meta[name="description"]')?.getAttribute('content')
+            : '';
+          const icon = doc.querySelector('link[rel~="icon"]')
+            ? doc.querySelector('link[rel~="icon"]')?.getAttribute('href')
+            : '';
 
-          const title = json.name || '';
-          const description = json.description || '';
           let iconUrl: string | undefined;
 
-          if (json.icons && Array.isArray(json.icons) && json.icons.length > 0) {
-            const url = new URL(val);
+          if (icon) {
+            if (isValidURL(icon)) {
+              iconUrl = icon;
+            } else {
+              const url = new URL(val);
 
-            url.pathname = json.icons[0].src;
+              url.pathname = join(url.pathname, icon);
 
-            iconUrl = url.toString();
+              iconUrl = url.toString();
+            }
           }
 
           result = { name: title || '', description: description || '', icon: iconUrl };

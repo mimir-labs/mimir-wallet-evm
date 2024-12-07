@@ -5,12 +5,10 @@ import type { TokenType } from '@safe-global/safe-apps-sdk';
 
 import { Spinner } from '@nextui-org/react';
 import React, { useCallback, useContext } from 'react';
-import { zeroAddress } from 'viem';
-import { useChains } from 'wagmi';
+import { parseUnits, zeroAddress } from 'viem';
 
-import { CustomChain } from '@mimir-wallet/config';
 import useAppCommunicator, { CommunicatorMessages } from '@mimir-wallet/features/safe-apps/useAppCommunicator';
-import { useAccountTokens, useMultisig, useQueryAccount } from '@mimir-wallet/hooks';
+import { useAccountTokens, useCurrentChain, useMultisig, useQueryAccount } from '@mimir-wallet/hooks';
 import { AddressContext, SafeTxContext } from '@mimir-wallet/providers';
 import { buildMultiSendSafeTx, hashSafeTransaction } from '@mimir-wallet/safe';
 import { MetaTransaction, SafeMessage } from '@mimir-wallet/safe/types';
@@ -29,7 +27,7 @@ interface Props {
 
 function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
   const { iframeRef, appIsLoading, setAppIsLoading } = useAppIsLoading();
-  const chains = useChains();
+  const [currentChainId, currentChain] = useCurrentChain();
   const { current } = useContext(AddressContext);
   const { addTx, addMessage } = useContext(SafeTxContext);
   const safeAccount = useQueryAccount(current);
@@ -58,7 +56,7 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
       let tx: MetaTransaction;
 
       if (transactions.length > 1) {
-        tx = buildMultiSendSafeTx(chains[0], transactions);
+        tx = buildMultiSendSafeTx(currentChain, transactions);
       } else {
         // eslint-disable-next-line prefer-destructuring
         tx = transactions[0];
@@ -74,7 +72,7 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
         signatures: undefined,
         metadata: { website: appUrl, iconUrl, appName },
         onSuccess: (tx) => {
-          communicator?.send({ safeTxHash: hashSafeTransaction(chains[0].id, current, tx) }, id);
+          communicator?.send({ safeTxHash: hashSafeTransaction(currentChainId, current, tx) }, id);
         },
         onClose: () => {
           communicator?.send(CommunicatorMessages.REJECT_TRANSACTION_MESSAGE, id, true);
@@ -98,7 +96,7 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
       });
     },
     onGetTxBySafeTxHash: (hash) => {
-      return service.getSafeTx(chains[0].id, hash) as any;
+      return service.getSafeTx(currentChainId, hash) as any;
     },
     onGetEnvironmentInfo: () => ({
       origin: document.location.origin
@@ -115,7 +113,7 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
             name: item.name,
             logoUri: item.icon || ''
           },
-          balance: item.balance,
+          balance: parseUnits(item.balance, item.decimals).toString(),
           fiatBalance: item.balanceUsd,
           fiatConversion: item.price
         }))
@@ -128,14 +126,14 @@ function AppFrame({ appUrl, iconUrl, appName, allowedFeaturesList }: Props) {
 
       return {
         safeAddress: safeAccount?.address || current,
-        chainId: chains[0].id,
+        chainId: currentChainId,
         threshold: safeAccount?.threshold || 1,
         owners: safeAccount?.members?.map((item) => item.address) || [],
         isReadOnly: !multisig
       };
     },
     onGetChainInfo: () => {
-      const chain = chains[0] as CustomChain;
+      const chain = currentChain;
 
       if (chain) {
         return {

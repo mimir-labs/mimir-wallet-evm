@@ -6,9 +6,9 @@ import type { ModuleTransactionResponse } from '@mimir-wallet/hooks/types';
 import dayjs from 'dayjs';
 import React from 'react';
 import { useToggle } from 'react-use';
-import { useAccount } from 'wagmi';
 
 import { AddressRow, Bytes, FormatBalance, Hash } from '@mimir-wallet/components';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { Operation } from '@mimir-wallet/safe/types';
 
 import { Item } from '../tx-cell/Details';
@@ -20,7 +20,7 @@ interface Props {
 
 function Details({ defaultOpen = false, transaction }: Props) {
   const [isOpen, toggleOpen] = useToggle(defaultOpen);
-  const { chain } = useAccount();
+  const [, chain] = useCurrentChain();
 
   return (
     <>

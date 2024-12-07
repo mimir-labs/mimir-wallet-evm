@@ -3,12 +3,13 @@
 
 import type { Address } from 'abitype';
 
-import { useChainId, useReadContract, useReadContracts } from 'wagmi';
+import { useReadContract, useReadContracts } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 export function useSafeInfo(address?: Address) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
 
   const { data, isFetched, isFetching } = useReadContracts({
     contracts: [
@@ -44,7 +45,7 @@ export function useSafeInfo(address?: Address) {
 }
 
 export function useSafeNonce(address?: Address) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
 
   const { data, isFetched, isFetching, refetch } = useReadContract({
     chainId,

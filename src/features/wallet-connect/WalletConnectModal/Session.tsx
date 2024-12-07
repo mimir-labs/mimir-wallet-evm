@@ -6,18 +6,17 @@ import type { Web3WalletTypes } from '@walletconnect/web3wallet';
 import { Avatar, Divider, Link } from '@nextui-org/react';
 import { useContext } from 'react';
 import { useAsyncFn } from 'react-use';
-import { useChainId, useChains } from 'wagmi';
 
 import { AddressCell, Alert, Button } from '@mimir-wallet/components';
 import { toastError } from '@mimir-wallet/components/ToastRoot';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 import { approveSession, rejectSession } from '../wallet-connect';
 import { WalletConnectContext } from '../WalletConnectProvider';
 
 function Session({ proposal, onClose }: { proposal: Web3WalletTypes.SessionProposal; onClose: () => void }) {
-  const chainId = useChainId();
-  const [chain] = useChains();
+  const [chainId, chain] = useCurrentChain();
   const { current } = useContext(AddressContext);
   const { deleteProposal } = useContext(WalletConnectContext);
 

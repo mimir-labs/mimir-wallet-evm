@@ -4,15 +4,14 @@
 import { Card, CardBody, Switch } from '@nextui-org/react';
 import React, { useContext, useEffect } from 'react';
 import { useAsyncFn, useToggle } from 'react-use';
-import { useChainId } from 'wagmi';
 
 import { Button, Input } from '@mimir-wallet/components';
-import { useDeviceUuid, useInput, useNotifications } from '@mimir-wallet/hooks';
+import { useCurrentChain, useDeviceUuid, useInput, useNotifications } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { service } from '@mimir-wallet/utils';
 
 function NotificationEmail() {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const deviceUuid = useDeviceUuid();
   const { current } = useContext(AddressContext);
   const [, emails, isFetched] = useNotifications(deviceUuid);

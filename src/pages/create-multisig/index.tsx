@@ -11,7 +11,7 @@ import { useToggle } from 'react-use';
 
 import IconQuestion from '@mimir-wallet/assets/svg/icon-question.svg?react';
 import { AddressTransfer, Alert, Button, ButtonEnable, ButtonLinearBorder, Input } from '@mimir-wallet/components';
-import { useInput, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
+import { useCurrentChain, useGroupAccounts, useInput, useInputAddress, useInputNumber } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { addressEq } from '@mimir-wallet/utils';
 
@@ -19,28 +19,30 @@ import CreateMultisigModal from './CreateMultisigModal';
 import { useCreateMultisig } from './useCreateMultisig';
 
 function CreateMultisig(): React.ReactElement {
-  const { all, addMultisig, addresses, addAddressBook, isSigner, isMultisig } = useContext(AddressContext);
+  const [chainId] = useCurrentChain();
+  const { addMultisig, addresses, addAddressBook, isSigner, isReadOnly } = useContext(AddressContext);
   const [name, setName] = useInput();
   const [selected, setSelected] = useState<Address[]>([]);
   const [[address, isValidAddress], onAddressChange] = useInputAddress(undefined);
   const [[threshold], setThreshold] = useInputNumber('1', true, 1);
   const navigate = useNavigate();
   const [isOpen, toggleOpen] = useToggle(false);
-  const [state, start, reset] = useCreateMultisig(selected, BigInt(threshold), name);
+  const [state, start, reset] = useCreateMultisig(name);
+  const { currentChainAll } = useGroupAccounts();
 
   const isValid = selected.length > 0 && Number(threshold) > 0;
 
   const memberHasSigner = useMemo(
-    () => selected.findIndex((address) => isSigner(address) || isMultisig(address)) > -1,
-    [isMultisig, isSigner, selected]
+    () => selected.findIndex((address) => isSigner(address) || !isReadOnly(chainId, address)) > -1,
+    [chainId, isReadOnly, isSigner, selected]
   );
 
   const handleCreate = useCallback<EnableClickHandler>(
     (wallet, client) => {
-      start(client, wallet);
+      start(client, wallet, { type: 'setup', owners: selected, threshold: BigInt(threshold) });
       toggleOpen(true);
     },
-    [start, toggleOpen]
+    [selected, start, threshold, toggleOpen]
   );
 
   return (
@@ -96,7 +98,7 @@ function CreateMultisig(): React.ReactElement {
               Add
             </Button>
           </div>
-          <AddressTransfer onChange={setSelected} selected={selected} addresses={all} />
+          <AddressTransfer onChange={setSelected} selected={selected} addresses={currentChainAll} />
           <div>
             <Input
               value={threshold}
@@ -153,7 +155,7 @@ function CreateMultisig(): React.ReactElement {
       </Card>
       <CreateMultisigModal
         onRetry={(wallet, client) => {
-          start(client, wallet);
+          start(client, wallet, { type: 'setup', owners: selected, threshold: BigInt(threshold) });
         }}
         state={state}
         isOpen={isOpen}

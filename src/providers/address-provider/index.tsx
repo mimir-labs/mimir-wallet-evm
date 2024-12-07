@@ -6,12 +6,10 @@ import type { SafeAccount } from '@mimir-wallet/safe/types';
 import type { State } from './types';
 
 import React, { createContext, useEffect, useMemo, useState } from 'react';
-import { useChainId } from 'wagmi';
 
 import { ADDRESS_NAMES_KEY } from '@mimir-wallet/constants';
-import { useLocalStore, useQueryTokens } from '@mimir-wallet/hooks';
+import { useCurrentChain, useLocalStore, useQueryTokens } from '@mimir-wallet/hooks';
 
-import { Query } from './Query';
 import { useAddress } from './useAddress';
 import { useAddressBook } from './useAddressBook';
 import { useCustomTokens } from './useCustomTokens';
@@ -19,27 +17,16 @@ import { useWatchOnly } from './useWatchOnly';
 
 export const AddressContext = createContext<State>({ all: [], addresses: [], signers: [] } as unknown as State);
 
-function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{ defaultCurrent?: Address }>) {
-  const chainId = useChainId();
+function AddressProvider({ children }: { children: React.ReactNode }) {
+  const [chainId] = useCurrentChain();
   const tokens = useQueryTokens();
-  const {
-    isReady,
-    current,
-    isSigner,
-    signers,
-    isMultisig,
-    multisigs,
-    otherChainMultisigs,
-    addMultisig,
-    changeName,
-    isCurrent,
-    switchAddress
-  } = useAddress(defaultCurrent);
+  const { isReady, current, isSigner, signers, isReadOnly, multisigs, addMultisig, changeName, switchAddress } =
+    useAddress();
   const [addressNames, setAddressNames] = useLocalStore<Record<string, string>>(ADDRESS_NAMES_KEY, {});
   const [addressIcons, setAddressIcons] = useState<Record<number, Record<string, string>>>({});
   const [queryCache, setQueryCache] = useState<Record<Address, SafeAccount>>({});
-  const { addresses, node, addAddressBook } = useAddressBook(setAddressNames);
-  const { watchOnlyList, addWatchOnlyList, node: watchOnlyNode } = useWatchOnly(setAddressNames);
+  const { addresses, node, addAddressBook } = useAddressBook();
+  const { watchlist, addWatchOnlyList, node: watchOnlyNode } = useWatchOnly(setAddressNames);
   const { customTokens, addCustomToken } = useCustomTokens();
 
   useEffect(() => {
@@ -61,21 +48,14 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
     }
   }, [tokens]);
 
-  const all = useMemo(
-    () => Array.from(new Set((addresses || []).concat(signers || []).concat(multisigs.map((item) => item.address)))),
-    [addresses, multisigs, signers]
-  );
-
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value: State = {
-    addresses,
+    addresses: useMemo(
+      () => addresses.filter((item) => item.chainId === chainId).map((item) => item.address),
+      [addresses, chainId]
+    ),
     addressNames: useMemo(
       () => ({
-        ...otherChainMultisigs.reduce<Record<string, string>>((value, item) => {
-          value[item.address] = item.name || '';
-
-          return value;
-        }, {}),
         ...tokens.reduce<Record<string, string>>((results, item) => {
           if (item.chainId === chainId) {
             results[item.address] = item.symbol;
@@ -84,29 +64,30 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
           return results;
         }, {}),
         ...addressNames,
-        ...multisigs.reduce<Record<string, string>>((value, item) => {
-          value[item.address] = item.name || '';
+        ...addresses
+          .filter((item) => item.chainId === chainId)
+          .reduce<Record<string, string>>((results, item) => {
+            results[item.address] = item.name;
+            results[item.address.toLowerCase()] = item.name;
 
-          return value;
-        }, {})
+            return results;
+          }, {})
       }),
-      [addressNames, chainId, multisigs, otherChainMultisigs, tokens]
+      [addressNames, chainId, tokens, addresses]
     ),
+    tokens,
     addressIcons,
     queryCache,
     customTokens,
-    watchOnlyList,
-    all,
+    watchlist,
     isReady,
     current,
     isSigner,
     signers,
-    isMultisig,
+    isReadOnly,
     multisigs,
-    otherChainMultisigs,
     addMultisig,
     changeName,
-    isCurrent,
     switchAddress,
     addAddressBook,
     addCustomToken,
@@ -119,9 +100,6 @@ function AddressProvider({ children, defaultCurrent }: React.PropsWithChildren<{
       {children}
       {node}
       {watchOnlyNode}
-      {watchOnlyList.map((address) => (
-        <Query key={address} address={address} />
-      ))}
     </AddressContext.Provider>
   );
 }

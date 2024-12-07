@@ -7,7 +7,7 @@ import type { BaseAccount, MetaTransaction } from '@mimir-wallet/safe/types';
 import { Chip, CircularProgress } from '@nextui-org/react';
 import React from 'react';
 import { zeroAddress } from 'viem';
-import { useAccount, useChains } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconFail from '@mimir-wallet/assets/svg/icon-failed-outlined.svg?react';
@@ -16,7 +16,7 @@ import IconSuccess from '@mimir-wallet/assets/svg/icon-success-outlined.svg?reac
 import { AddressIcon, Button, CallDetails, FormatBalance, SafeTxButton } from '@mimir-wallet/components';
 import AppName from '@mimir-wallet/components/AppName';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
-import { useIsReadOnly, useMediaQuery } from '@mimir-wallet/hooks';
+import { useCurrentChain, useIsReadOnly, useMediaQuery } from '@mimir-wallet/hooks';
 import {
   CallFunctions,
   ParsedCall,
@@ -159,7 +159,7 @@ function TxItems({
   threshold,
   openOverview
 }: Props) {
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
   const upSm = useMediaQuery('sm');
 
   return (

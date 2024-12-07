@@ -5,16 +5,15 @@ import type { Address } from 'abitype';
 
 import React from 'react';
 import { useToggle } from 'react-use';
-import { useChainId } from 'wagmi';
 
 import ExpandArrow from '@mimir-wallet/assets/svg/expand-arrow.svg?react';
-import { usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
+import { useCurrentChain, usePendingTransactions, useQueryAccount } from '@mimir-wallet/hooks';
 
 import Button from '../Button';
 import { SafeTxCard } from '../tx-card';
 
 function PendingTx({ address }: { address: Address }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [{ current, queue }] = usePendingTransactions(chainId, address);
   const counts = (current ? 1 : 0) + Object.keys(queue).length;
   const [expanded, toggleExpand] = useToggle(false);

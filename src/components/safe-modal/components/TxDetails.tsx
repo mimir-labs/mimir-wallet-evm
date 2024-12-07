@@ -6,10 +6,10 @@ import type { Address } from 'abitype';
 import { Accordion, AccordionItem, Divider } from '@nextui-org/react';
 import React, { useMemo } from 'react';
 import { useToggle } from 'react-use';
-import { useAccount, useChainId } from 'wagmi';
 
 import ArrowLeft from '@mimir-wallet/assets/svg/ArrowLeft.svg?react';
 import { AddressRow, Bytes, CallDisplay, FormatBalance, FunctionName } from '@mimir-wallet/components';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { hashSafeTransaction } from '@mimir-wallet/safe';
 import { MetaTransaction, Operation, SafeTransaction } from '@mimir-wallet/safe/types';
 
@@ -36,8 +36,7 @@ function TxDetails({
   isCancel: boolean;
 }) {
   const [isOpen, toggleOpen] = useToggle(false);
-  const chainId = useChainId();
-  const { chain } = useAccount();
+  const [chainId, chain] = useCurrentChain();
   const hash = useMemo(
     () => (safeTx ? hashSafeTransaction(chainId, address, safeTx) : null),
     [safeTx, chainId, address]

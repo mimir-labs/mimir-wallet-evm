@@ -69,6 +69,14 @@ module.exports = {
       {
         selector: 'WithStatement',
         message: '`with` is disallowed in strict mode because it makes code impossible to predict and optimize.'
+      },
+      {
+        selector: 'CallExpression[callee.name="useChains"]',
+        message: 'Using useChains is not allowed in this project, Please use useCurrentChain instead.'
+      },
+      {
+        selector: 'CallExpression[callee.name="useChainId"]',
+        message: 'Using useChainId is not allowed in this project, Please use useCurrentChain instead.'
       }
     ],
     'no-void': 'off',

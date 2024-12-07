@@ -5,17 +5,18 @@ import type { Address } from 'abitype';
 import type { Allowance } from './types';
 
 import { zeroAddress } from 'viem';
-import { useChainId, useReadContract } from 'wagmi';
+import { useReadContract } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
 import { moduleDeployments } from '@mimir-wallet/config';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 export function useDelegateAllowance(
   safeAddress?: Address,
   delegate?: Address,
   token: Address = zeroAddress
 ): Allowance | undefined {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
 
   const { data: tokenAllowance } = useReadContract({
     chainId,

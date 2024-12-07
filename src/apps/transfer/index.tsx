@@ -5,12 +5,13 @@ import type { IPublicClient, IWalletClient } from '@mimir-wallet/safe/types';
 
 import { Divider, Switch } from '@nextui-org/react';
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAsyncFn, useToggle } from 'react-use';
 import { Address, encodeFunctionData, erc20Abi, formatUnits, isAddress, parseUnits, zeroAddress } from 'viem';
 import { useAccount } from 'wagmi';
 
 import { abis } from '@mimir-wallet/abis';
+import IconTransfer from '@mimir-wallet/assets/svg/icon-transfer.svg?react';
 import {
   AddressCell,
   Button,
@@ -87,7 +88,18 @@ function Transfer({
         {'<'} Back
       </Button>
       <div className='sm:p-5 p-4 bg-white rounded-medium sm:space-y-5 space-y-4'>
-        <h3 className='text-xl font-bold'>Transfer</h3>
+        <div className='flex items-center justify-between'>
+          <h3 className='text-xl font-bold'>Transfer</h3>
+          <Button
+            as={Link}
+            to={`/apps/${encodeURIComponent('mimir://app/multi-transfer')}`}
+            color='primary'
+            variant='light'
+            startContent={<IconTransfer />}
+          >
+            Multi-Transfer
+          </Button>
+        </div>
         <Divider />
         <div className='sm:space-y-5 space-y-4'>
           <div>

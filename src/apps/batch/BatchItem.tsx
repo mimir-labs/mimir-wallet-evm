@@ -10,14 +10,13 @@ import { Checkbox } from '@nextui-org/react';
 import { AnimatePresence, domAnimation, LazyMotion, motion, useWillChange } from 'framer-motion';
 import React from 'react';
 import { useToggle } from 'react-use';
-import { useChains } from 'wagmi';
 
 import Drag from '@mimir-wallet/assets/images/drag.svg';
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import IconCopy from '@mimir-wallet/assets/svg/icon-copy.svg?react';
 import IconDelete from '@mimir-wallet/assets/svg/icon-delete.svg?react';
 import { AppName, Button, CallDisplay, FormatBalance } from '@mimir-wallet/components';
-import { useParseCall } from '@mimir-wallet/hooks';
+import { useCurrentChain, useParseCall } from '@mimir-wallet/hooks';
 
 export type BatchItemType = BatchTxItem & {
   from: Address;
@@ -40,7 +39,7 @@ function BatchItem({
 }: Props) {
   const [isOpen, toggleOpen] = useToggle(false);
   const [dataSize, parsed] = useParseCall(data);
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
   const willChange = useWillChange();
 
   return (

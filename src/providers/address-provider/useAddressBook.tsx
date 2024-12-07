@@ -9,12 +9,18 @@ import { getAddress, isAddress } from 'viem';
 
 import { AddAddressModal } from '@mimir-wallet/components';
 import { ADDRESS_BOOK_KEY } from '@mimir-wallet/constants';
-import { useInput, useInputAddress, useLocalStore } from '@mimir-wallet/hooks';
+import { useCurrentChain, useInput, useInputAddress, useLocalStore } from '@mimir-wallet/hooks';
+import { addressEq } from '@mimir-wallet/utils';
 
-export function useAddressBook(
-  setAddressNames: (value: Record<string, string> | ((value: Record<string, string>) => Record<string, string>)) => void
-) {
-  const [addresses, setAddresses] = useLocalStore<Address[]>(ADDRESS_BOOK_KEY, []);
+export function useAddressBook() {
+  const [currentChainId] = useCurrentChain();
+  const [addresses, setAddresses] = useLocalStore<
+    {
+      address: Address;
+      chainId: number;
+      name: string;
+    }[]
+  >(ADDRESS_BOOK_KEY, []);
 
   const [[address], setAddress] = useInputAddress();
   const [name, setName] = useInput('');
@@ -50,14 +56,13 @@ export function useAddressBook(
       onConfirm={() => {
         if (isAddress(address) && name) {
           setAddresses((value) => {
-            const newVal = Array.from(new Set([...value, address]));
+            if (value.some((item) => item.chainId === currentChainId && addressEq(item.address, address))) {
+              return value.map((item) =>
+                item.chainId === currentChainId && addressEq(item.address, address) ? { ...item, name } : item
+              );
+            }
 
-            return newVal;
-          });
-          setAddressNames((value) => {
-            const newVal = { ...value, [address]: name };
-
-            return newVal;
+            return [...value, { address: getAddress(address), chainId: currentChainId, name }];
           });
           promiseRef.current?.resolve([address, name]);
           toggleOpen(false);

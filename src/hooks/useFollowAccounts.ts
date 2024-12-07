@@ -1,23 +1,17 @@
 // Copyright 2023-2024 dev.mimir authors & contributors
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Address } from 'abitype';
-
-import { useContext, useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useChainId } from 'wagmi';
 
-import { AddressContext } from '@mimir-wallet/providers';
+import { CURRENT_ACCOUNT_KEY, CURRENT_CHAINID_KEY } from '@mimir-wallet/constants';
+import { store } from '@mimir-wallet/utils';
+
+import { useCurrentChain } from './useCurrentChain';
 
 export function useFollowAccounts() {
-  const chainid = useChainId();
-  const { current } = useContext(AddressContext);
+  const [, , walletChainId] = useCurrentChain();
   const [searchParams, setSearchParams] = useSearchParams();
-  const currentRef = useRef<Address | undefined>(current);
-  const chainidRef = useRef<number>(chainid);
-
-  currentRef.current = current;
-  chainidRef.current = chainid;
 
   useEffect(() => {
     const urlCurrent = searchParams.get('address');
@@ -26,10 +20,18 @@ export function useFollowAccounts() {
     if (!urlCurrent || !urlChainId) {
       const newSearchParams = new URLSearchParams(searchParams);
 
-      if (currentRef.current) newSearchParams.set('address', currentRef.current);
+      const currentChainId = (store.get(CURRENT_CHAINID_KEY) as number) || walletChainId;
+      const localAddress = store.get(`${CURRENT_ACCOUNT_KEY}:${currentChainId}`) as string;
 
-      newSearchParams.set('chainid', chainidRef.current.toString());
+      newSearchParams.set('chainid', currentChainId.toString());
+
+      if (localAddress) {
+        newSearchParams.set('address', localAddress);
+      } else {
+        newSearchParams.delete('address');
+      }
+
       setSearchParams(newSearchParams, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [walletChainId, searchParams, setSearchParams]);
 }

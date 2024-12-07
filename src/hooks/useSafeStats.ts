@@ -4,12 +4,12 @@
 import type { Address } from 'abitype';
 
 import { useQuery } from '@tanstack/react-query';
-import { useChainId } from 'wagmi';
 
 import { serviceUrl } from '@mimir-wallet/config';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 
 export function useSafeStats(safeAddress?: Address | null) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
 
   const { data, isFetched, isFetching } = useQuery<{
     moduleCounts: Record<Address, number>;

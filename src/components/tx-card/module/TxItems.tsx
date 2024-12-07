@@ -4,13 +4,13 @@
 import type { MetaTransaction } from '@mimir-wallet/safe/types';
 
 import React from 'react';
-import { useChains } from 'wagmi';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import { Button, CallDetails, FormatBalance } from '@mimir-wallet/components';
 import { moduleDeployments } from '@mimir-wallet/config';
 import { ONE_DAY, ONE_HOUR, ONE_MINUTE } from '@mimir-wallet/constants';
 import { useDelayAddress } from '@mimir-wallet/features/delay';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { CallFunctions, ModuleTransactionResponse, ParsedCall } from '@mimir-wallet/hooks/types';
 import { formatAgo } from '@mimir-wallet/utils';
 
@@ -38,7 +38,7 @@ function TimeCell({ time }: { time?: number }) {
 }
 
 function TxItems({ multisend, isOpen, toggleOpen, dataSize, parsed, transaction }: Props) {
-  const [chain] = useChains();
+  const [, chain] = useCurrentChain();
   const modules = moduleDeployments[chain.id].Allowance;
   const [delays] = useDelayAddress(transaction.address);
 

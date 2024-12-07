@@ -2,68 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Avatar, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger } from '@nextui-org/react';
-import { numberToHex, RpcError, UserRejectedRequestError } from 'viem';
-import { ProviderNotFoundError, useChains, useConnections } from 'wagmi';
+import { useContext } from 'react';
 
 import ArrowDown from '@mimir-wallet/assets/svg/ArrowDown.svg?react';
 import { Button } from '@mimir-wallet/components';
-import { CustomChain, supportedChains } from '@mimir-wallet/config';
-import { useMediaQuery } from '@mimir-wallet/hooks';
+import { supportedChains } from '@mimir-wallet/config';
+import { useCurrentChain, useMediaQuery } from '@mimir-wallet/hooks';
+import { AddressContext } from '@mimir-wallet/providers';
 
 const mains = supportedChains.filter((item) => !item.testnet);
 const tests = supportedChains.filter((item) => !!item.testnet);
 
-async function _switchChain(provider: any, chain: CustomChain) {
-  if (!provider) throw new ProviderNotFoundError();
-
-  try {
-    provider?.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: numberToHex(chain.id) }]
-    });
-  } catch (err) {
-    const error = err as RpcError;
-
-    if (/(user rejected)/i.test(error.message)) throw new UserRejectedRequestError(error);
-
-    // Indicates chain is not added to provider
-    try {
-      const blockExplorerUrls: string[] = [chain.blockExplorers.default.url];
-      const rpcUrls: readonly string[] = [...chain.rpcUrls.default.http];
-
-      const addEthereumChain = {
-        blockExplorerUrls,
-        chainId: numberToHex(chain.id),
-        chainName: chain.name,
-        iconUrls: [chain.iconUrl],
-        nativeCurrency: chain.nativeCurrency,
-        rpcUrls
-      };
-
-      await provider.request({
-        method: 'wallet_addEthereumChain',
-        params: [addEthereumChain]
-      });
-
-      return chain;
-    } catch (error) {
-      throw new UserRejectedRequestError(error as Error);
-    }
-  }
-}
-
 function Networks() {
-  const [chain] = useChains() as [chain: CustomChain];
-  const connections = useConnections();
+  const [, chain] = useCurrentChain();
+  const { switchAddress } = useContext(AddressContext);
   const upSm = useMediaQuery('sm');
-
-  const switchChain = async (chain: CustomChain) => {
-    for (const connection of connections) {
-      if ((await connection.connector.getChainId()) !== chain.id) {
-        await _switchChain(await connection.connector.getProvider(), chain);
-      }
-    }
-  };
 
   return (
     <Dropdown>
@@ -84,12 +37,7 @@ function Networks() {
               startContent={<Avatar src={item?.iconUrl} className='w-[24px] h-[24px] bg-transparent' />}
               key={item.id}
               onClick={() => {
-                switchChain(item)
-                  .then(() => {})
-                  .catch(() => {})
-                  .finally(() => {
-                    window.location.href = `${window.location.pathname}?chainid=${item.id}`;
-                  });
+                switchAddress(item.id);
               }}
             >
               {item.name}
@@ -102,12 +50,7 @@ function Networks() {
               startContent={<Avatar src={item?.iconUrl} className='w-[24px] h-[24px] bg-transparent' />}
               key={item.id}
               onClick={() => {
-                switchChain(item)
-                  .then(() => {})
-                  .catch(() => {})
-                  .finally(() => {
-                    window.location.href = `${window.location.pathname}?chainid=${item.id}`;
-                  });
+                switchAddress(item.id);
               }}
             >
               {item.name}

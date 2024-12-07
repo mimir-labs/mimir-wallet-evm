@@ -3,14 +3,16 @@
 
 import { useContext, useMemo } from 'react';
 
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 import { Multisig } from '@mimir-wallet/safe/types';
 
 export function useMultisig(address?: string): Multisig | undefined {
+  const [chainId] = useCurrentChain();
   const { multisigs } = useContext(AddressContext);
 
   return useMemo(
-    () => multisigs.find((item) => item.address.toLowerCase() === address?.toLowerCase()),
-    [address, multisigs]
+    () => (address ? multisigs[address]?.find((item) => item.chainId === chainId) : undefined),
+    [address, chainId, multisigs]
   );
 }

@@ -5,13 +5,12 @@ import type { Address } from 'abitype';
 
 import { Card, CardBody } from '@nextui-org/react';
 import React from 'react';
-import { useChainId } from 'wagmi';
 
 import { deployments } from '@mimir-wallet/config';
-import { useSafeInfo } from '@mimir-wallet/hooks';
+import { useCurrentChain, useSafeInfo } from '@mimir-wallet/hooks';
 
 function Information({ safeAddress }: { safeAddress?: Address }) {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const [data] = useSafeInfo(safeAddress);
 
   const deployment = deployments[chainId];

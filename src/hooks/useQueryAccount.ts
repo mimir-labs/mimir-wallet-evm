@@ -7,9 +7,9 @@ import type { BaseAccount, SafeAccount } from '@mimir-wallet/safe/types';
 import { useQuery } from '@tanstack/react-query';
 import { useContext, useEffect, useMemo } from 'react';
 import { getAddress } from 'viem';
-import { useChainId } from 'wagmi';
 
-import { serviceUrl } from '@mimir-wallet/config';
+import { accountServices } from '@mimir-wallet/config';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { AddressContext } from '@mimir-wallet/providers';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -59,13 +59,13 @@ export function useQueryAccountWithState(
   refetch = true,
   retry: boolean | number = true
 ): [BaseAccount | null, isFetched: boolean, isFetching: boolean] {
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const { setQueryCache } = useContext(AddressContext);
 
   const { data, isFetched, isFetching } = useQuery<BaseAccount | null>({
     initialData: null,
-    queryHash: serviceUrl(chainId, `accounts/${address}/full`),
-    queryKey: [address ? serviceUrl(chainId, `accounts/${address}/full`) : null],
+    queryHash: `${accountServices}accounts/details/${address}/${chainId}`,
+    queryKey: [address ? `${accountServices}accounts/details/${address}/${chainId}` : null],
     ...(refetch ? {} : { refetchInterval: false }),
     ...(retry ? { retry } : { retry: false })
   });
@@ -82,7 +82,8 @@ export function useQueryAccountWithState(
 }
 
 export function useIsReadOnly(account?: BaseAccount | null) {
-  const { isMultisig } = useContext(AddressContext);
+  const [chainId] = useCurrentChain();
+  const { isReadOnly } = useContext(AddressContext);
 
-  return useMemo(() => (account ? !isMultisig(account.address) : true), [account, isMultisig]);
+  return useMemo(() => (account ? isReadOnly(chainId, account.address) : true), [account, chainId, isReadOnly]);
 }

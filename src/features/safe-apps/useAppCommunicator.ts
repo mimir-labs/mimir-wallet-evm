@@ -27,9 +27,10 @@ import {
 } from '@safe-global/safe-apps-sdk';
 import { useEffect, useState } from 'react';
 import { getAddress, Hex } from 'viem';
-import { useChainId, usePublicClient } from 'wagmi';
+import { usePublicClient } from 'wagmi';
 
 import AppCommunicator from '@mimir-wallet/features/safe-apps/AppCommunicator';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { MetaTransaction, Operation } from '@mimir-wallet/safe/types';
 
 export enum CommunicatorMessages {
@@ -68,7 +69,7 @@ const useAppCommunicator = (
   handlers: UseAppCommunicatorHandlers
 ): AppCommunicator | undefined => {
   const [communicator, setCommunicator] = useState<AppCommunicator | undefined>(undefined);
-  const chainId = useChainId();
+  const [chainId] = useCurrentChain();
   const safeAppWeb3Provider = usePublicClient({ chainId });
 
   useEffect(() => {

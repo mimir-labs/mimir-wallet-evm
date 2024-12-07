@@ -6,9 +6,10 @@ import type React from 'react';
 import { lightTheme, RainbowKitProvider, Theme } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRef } from 'react';
-import { Config, WagmiProvider } from 'wagmi';
 
 import { AddressIconJazz } from '@mimir-wallet/components';
+import { supportedChains } from '@mimir-wallet/config';
+import { useCurrentChain } from '@mimir-wallet/hooks';
 import { fetcher } from '@mimir-wallet/utils/fetcher';
 
 const defaultTheme = lightTheme({
@@ -53,20 +54,13 @@ const theme = {
   }
 } as Theme;
 
-function WalletProvider({
-  children,
-  config,
-  refetchInterval = 3_000
-}: {
-  config: Config;
-  refetchInterval?: number;
-  children: React.ReactNode;
-}): JSX.Element {
+function WalletProvider({ children }: { children: React.ReactNode }): JSX.Element {
+  const [chainId] = useCurrentChain();
   const queryClient = useRef(
     new QueryClient({
       defaultOptions: {
         queries: {
-          refetchInterval,
+          refetchInterval: supportedChains.find((item) => item.id === chainId)?.interval,
           queryFn: ({ queryKey }) => (queryKey[0] ? fetcher(queryKey[0] as string) : undefined)
         }
       }
@@ -74,13 +68,11 @@ function WalletProvider({
   );
 
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient.current}>
-        <RainbowKitProvider locale='en-US' avatar={AddressIconJazz} theme={theme}>
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <QueryClientProvider client={queryClient.current}>
+      <RainbowKitProvider locale='en-US' avatar={AddressIconJazz} theme={theme} initialChain={chainId}>
+        {children}
+      </RainbowKitProvider>
+    </QueryClientProvider>
   );
 }
 

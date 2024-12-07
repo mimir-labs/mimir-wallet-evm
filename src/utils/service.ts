@@ -13,7 +13,7 @@ export const jsonHeader = { 'Content-Type': 'application/json' };
 
 export const getAuthorizationHeader = (accessToken: string) => ({ Authorization: `Bearer ${accessToken}` });
 
-export function getOwnedAccountForAllChain(address: Address): Promise<AccountResponse[]> {
+export function getOwnedAccountForAllChain(address: Address): Promise<Record<Address, AccountResponse[]>> {
   return fetcher(`${accountServices}accounts/owned/${address}`, {
     method: 'GET',
     headers: jsonHeader
@@ -21,7 +21,7 @@ export function getOwnedAccountForAllChain(address: Address): Promise<AccountRes
 }
 
 export function getAccountFull(chainId: number, address: Address): Promise<BaseAccount> {
-  return fetcher(serviceUrl(chainId, `accounts/${address}/full`), {
+  return fetcher(`${accountServices}accounts/details/${address}/${chainId}`, {
     method: 'GET',
     headers: jsonHeader
   });
@@ -29,13 +29,6 @@ export function getAccountFull(chainId: number, address: Address): Promise<BaseA
 
 export function getAccount(chainId: number, address: Address): Promise<AccountResponse> {
   return fetcher(serviceUrl(chainId, `accounts/${address}`), {
-    method: 'GET',
-    headers: jsonHeader
-  });
-}
-
-export function getOwnedAccount(chainId: number, address: Address): Promise<AccountResponse[]> {
-  return fetcher(serviceUrl(chainId, `accounts/owned/${address}`), {
     method: 'GET',
     headers: jsonHeader
   });
